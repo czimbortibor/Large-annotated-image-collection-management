@@ -31,6 +31,7 @@
 
 #include "LayoutItem.hpp"
 #include "FlowLayout.hpp"
+#include "RingLayout.hpp"
 
 typedef QFutureWatcher<QImage> FutureWatcher;
 namespace Ui {
@@ -47,30 +48,32 @@ public:
 private:
 	Ui::MainWindow* ui;
 
-	const int iconSize = 10;
-	static QDir dir;
-    static QDir smallImagesDir;
-    int nrOfImages = 0;
-	QList<QString> imageNames;
-    QVector<QImage> images;
-	QSharedPointer<FlowLayout> layout;
-    QFrame frame;
-	static int imageWidth;
-	static int imageHeight;
-	QElapsedTimer timer;
-
-    QFuture<QImage> futureResult;
-	QSharedPointer<FutureWatcher> watcher;
-    QGraphicsView* view;
-    QWidget* viewPort;
-    QGraphicsScene* scene;
-    QGraphicsWidget* form;
-
     static QImage loadImage(const QString &fileName);
     static QImage Mat2QImage(const cv::Mat &cvImage);
 
+	void loadImages();
 	void clearLayout(QGraphicsLayout* layout);
 	void logTime(QString message);
+
+	static QDir DIR;
+	static QDir SMALLIMGDIR;
+	static int IMGWIDTH;
+	static int IMGHEIGHT;
+
+	int _iconSize;
+	int _nrOfImages = 0;
+	QList<QString> _imageNames;
+	QVector<QImage> _images;
+	//QScopedPointer<RingLayout> layout;
+	QSharedPointer<RingLayout> _layout;
+	QFrame _frame;
+	QElapsedTimer _timer;
+	QFuture<QImage> _futureResult;
+	QSharedPointer<FutureWatcher> _watcher;
+	QGraphicsView* _view;
+	QWidget* _viewPort;
+	QGraphicsScene* _scene;
+	QGraphicsWidget* _form;
 
 private slots:
 	void onLoadImagesClick();

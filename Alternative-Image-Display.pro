@@ -15,14 +15,14 @@ TEMPLATE = app
 SOURCES +=\
         MainWindow.cpp \
     Main.cpp \
-    FlowerLayout.cpp \
     FlowLayout.cpp \
-    LayoutItem.cpp
+    LayoutItem.cpp \
+    RingLayout.cpp
 
 HEADERS  += MainWindow.hpp \
-    FlowerLayout.hpp \
     FlowLayout.hpp \
-    LayoutItem.hpp
+    LayoutItem.hpp \
+    RingLayout.hpp
 
 FORMS    += MainWindow.ui
 

@@ -1,17 +1,17 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-QDir MainWindow::dir;
-int MainWindow::imageHeight;
-int MainWindow::imageWidth;
-QDir MainWindow::smallImagesDir;
+QDir MainWindow::DIR;
+int MainWindow::IMGHEIGHT;
+int MainWindow::IMGWIDTH;
+QDir MainWindow::SMALLIMGDIR;
 
 typedef QFutureWatcher<QImage> FutureWatcher;
 
 MainWindow::MainWindow(QWidget* parent) :
-	QMainWindow(parent), ui(new Ui::MainWindow) {
-    ui->setupUi(this);
-    this->frame.setParent(this);
+	QMainWindow(parent), ui(new Ui::MainWindow), _layout(new RingLayout) {
+	ui->setupUi(this);
+    this->_frame.setParent(this);
 	//QThread::currentThread()->setPriority(QThread::HighPriority);
     //qDebug() << QImageReader::supportedImageFormats();
 
@@ -24,8 +24,8 @@ MainWindow::MainWindow(QWidget* parent) :
 }
 
 MainWindow::~MainWindow() {
-	if (futureResult.isRunning()) {
-		futureResult.cancel();
+	if (_futureResult.isRunning()) {
+		_futureResult.cancel();
 	}
     delete ui;
 }
@@ -41,27 +41,34 @@ void MainWindow::onLoadImagesClick() {
 		fileName = dialog.selectedFiles();
 	}
 
-	MainWindow::dir = QDir(fileName[0]);
-	MainWindow::dir.setFilter(QDir::Files);
-	imageNames = MainWindow::dir.entryList();
-	nrOfImages = imageNames.length();
+	MainWindow::DIR = QDir(fileName[0]);
+	MainWindow::DIR.setFilter(QDir::Files);
+	_imageNames = MainWindow::DIR.entryList();
+	_nrOfImages = _imageNames.length();
 
 	QDesktopWidget desktop;
 	int screenWidth = desktop.geometry().width();
 	int screenHeight = desktop.geometry().height();
 	int nrOfPixels = screenHeight * screenWidth - (ui->frame_2->size().height() + ui->frame_2->size().width());
 
-	MainWindow::imageWidth = iconSize;//(int) sqrt(nrOfPixels/nrOfImages) / 2;
-	MainWindow::imageHeight = iconSize; //(int) sqrt(nrOfPixels/nrOfImages) / 2;
+	// every image is visible on the screen
+	/*MainWindow::imageWidth = (int) sqrt(nrOfPixels/nrOfImages) / 2;
+	MainWindow::imageHeight = (int) sqrt(nrOfPixels/nrOfImages) / 2;*/
 
-	int len = imageNames.length();
-	qDebug() << "image size =" << MainWindow::imageWidth << "x" << MainWindow::imageHeight;
+	// fixed image size
+	_iconSize = 50;
+	MainWindow::IMGWIDTH = _iconSize;
+	MainWindow::IMGHEIGHT = _iconSize;
+
+	int len = _imageNames.length();
+	qDebug() << "image size =" << MainWindow::IMGWIDTH << "x" << MainWindow::IMGHEIGHT;
 	qDebug() << "image count =" << len;
 
-	layout = QSharedPointer<FlowLayout>::create();
+	_layout = QSharedPointer<RingLayout>::create();
+	clearLayout(_layout.data());
 
-	scene = new QGraphicsScene;
-	form = new QGraphicsWidget;
+	_scene = new QGraphicsScene;
+	_form = new QGraphicsWidget;
 
 	//scene->addItem(form);
 	//view = new QGraphicsView;
@@ -70,67 +77,90 @@ void MainWindow::onLoadImagesClick() {
 	/*view->setScene(scene);
 	view->showMaximized();*/
 
-	ui->graphicsView->setScene(scene);
+	ui->graphicsView->setScene(_scene);
 	ui->graphicsView->show();
 
-	timer.start();
-	watcher = QSharedPointer<FutureWatcher>::create(this);
-	futureResult = QtConcurrent::mapped(imageNames, loadImage);
+	_timer.start();
+	/*
+	_watcher = QSharedPointer<FutureWatcher>::create(this);
+	_futureResult = QtConcurrent::mapped(_imageNames, loadImage);
 	//connect(watcher, &FutureWatcher::resultReadyAt, this, &MainWindow::onImageReceive);
-	connect(watcher.data(), &FutureWatcher::resultsReadyAt, this, &MainWindow::onImagesReceive);
-	connect(watcher.data(), &FutureWatcher::finished, this, &MainWindow::onFinished);
+	connect(_watcher.data(), &FutureWatcher::resultsReadyAt, this, &MainWindow::onImagesReceive);
+	connect(_watcher.data(), &FutureWatcher::finished, this, &MainWindow::onFinished);
+	_watcher->setFuture(_futureResult);
+	*/
 
-	watcher->setFuture(futureResult);
+	loadImages();
+}
+
+void MainWindow::loadImages() {
+	for (const QString& fileName : _imageNames) {
+		QString fullFileName = DIR.absoluteFilePath(fileName);
+		cv::Mat cvImage = cv::imread(fullFileName.toStdString());
+		QImage image = QImage((uchar*)cvImage.data, cvImage.cols, cvImage.rows, cvImage.step, QImage::Format_RGB888);
+		_images.append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));
+	}
+	logTime("load time: ");
+
+	_timer.start();
+	for (const QImage image : _images) {
+		LayoutItem* item = new LayoutItem(NULL, image);
+		_layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
+	}
+	_form->setLayout(_layout.data());
+	_scene->addItem(_form);
+
+	logTime("display time: ");
 }
 
 void MainWindow::onSaveImagesClick() {
-	dir.cdUp();
-	QString currentDir = dir.absolutePath();
+	DIR.cdUp();
+	QString currentDir = DIR.absolutePath();
 	if (!QDir(currentDir + "/smallImages").exists()) {
 		QDir().mkdir(currentDir + "/smallImages");
 	}
 	else {
-		smallImagesDir.removeRecursively();
+		SMALLIMGDIR.removeRecursively();
 	}
-	smallImagesDir = QDir(currentDir + "/smallImages");
+	SMALLIMGDIR = QDir(currentDir + "/smallImages");
 
-	qDebug() << "saving the " << iconSize << "x" << iconSize << "icons to: " + smallImagesDir.absolutePath();
-	timer.start();
-	for (int i = 0; i < images.length(); ++i) {
-		QString newFileName = (smallImagesDir.absolutePath() + "/" + imageNames[i]);
-		images[i].save(newFileName);
+	qDebug() << "saving the " << _iconSize << "x" << _iconSize << "icons to: " + SMALLIMGDIR.absolutePath();
+	_timer.start();
+	for (int i = 0; i < _images.length(); ++i) {
+		QString newFileName = (SMALLIMGDIR.absolutePath() + "/" + _imageNames[i]);
+		_images[i].save(newFileName);
 	}
 	logTime("time needed to save the images: ");
 }
 
 QImage MainWindow::loadImage(const QString &imageName) {
-	QString fileName = dir.absoluteFilePath(imageName);
+	QString fileName = DIR.absoluteFilePath(imageName);
 
-	//cv::Mat cvImage = cv::imread(fileName.toStdString());
+	cv::Mat cvImage = cv::imread(fileName.toStdString());
 	/*if (cvImage.empty()) {
         return QImage();
 	}*/
 	//cv::Mat cvResizedImg;
 	//cv::resize(cvImage, cvResizedImg, cv::Size(MainWindow::imageWidth, MainWindow::imageHeight));
     //QImage image = QImage((uchar*)cvResizedImg.data, cvResizedImg.cols, cvResizedImg.rows, cvResizedImg.step, QImage::Format_RGB888);
-	//QImage image = Mat2QImage(cvImage);
-	//return image.scaled(MainWindow::imageWidth, MainWindow::imageHeight);
+	QImage image = QImage((uchar*)cvImage.data, cvImage.cols, cvImage.rows, cvImage.step, QImage::Format_RGB888);
+	return image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT);
 	//return image;
 
-	QImage image(fileName);
-    QImage resizedImg = image.scaled(MainWindow::imageWidth, MainWindow::imageHeight);
-	return resizedImg;
+	/*QImage image(fileName);
+	QImage resizedImg = image.scaled(MainWindow::imageWidth, MainWindow::imageHeight);
+	return resizedImg;*/
 }
 
 void MainWindow::onImageReceive(int resultInd) {
     //LayoutItem* item = dynamic_cast<LayoutItem*>(futureResult.resultAt(resultInd));
-    images.append(futureResult.resultAt(resultInd));
+    _images.append(_futureResult.resultAt(resultInd));
 }
 
 void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
-        QImage image = futureResult.resultAt(i);
-        images.append(image);
+        QImage image = _futureResult.resultAt(i);
+        _images.append(image);
         //LayoutItem* item = new LayoutItem(NULL, image);
         //layout->addItem(item);
     }
@@ -139,14 +169,13 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 }
 
 void MainWindow::onReverseButtonClick() {
-	/** clearing the layout */
 	//clearLayout(layout.data());
-	layout.clear();
-	layout = QSharedPointer<FlowLayout>::create();
+	//layout.clear();
+	//layout = QSharedPointer<FlowLayout>::create();
 
-	std::reverse(images.begin(), images.end());
+	std::reverse(_images.begin(), _images.end());
 
-	/** display the images in reverse order */
+	// display the images in reverse order
     /*for (const QImage image : images) {
         LayoutItem* item = new LayoutItem(NULL, image);
         layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
@@ -157,13 +186,13 @@ void MainWindow::onReverseButtonClick() {
 void MainWindow::onFinished() {
 	logTime("load time: ");
 
-	timer.start();
-    for (const QImage image : images) {
+	_timer.start();
+    for (const QImage image : _images) {
         LayoutItem* item = new LayoutItem(NULL, image);
-        layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
+        _layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
     }
-	form->setLayout(layout.data());
-    scene->addItem(form);
+	_form->setLayout(_layout.data());
+    _scene->addItem(_form);
 
 	logTime("display time: ");
 }
@@ -173,16 +202,19 @@ void MainWindow::clearLayout(QGraphicsLayout* layout) {
 	while ((item = layout->itemAt(0)) != NULL) {
 		layout->removeAt(0);
 	}*/
+	for (int i = 0; i < layout->count(); ++i) {
+		layout->removeAt(i);
+	}
 }
 
 void MainWindow::logTime(QString message) {
 	std::ofstream logFile;
 	logFile.open("log.txt", std::ios::out | std::ios::app);
 	double time;
-	time = timer.nsecsElapsed() / 1000000000.0;
+	time = _timer.nsecsElapsed() / 1000000000.0;
 	qDebug() << message << time << " seconds";
-	logFile << "number of images: " << nrOfImages << "\n";
-	logFile << message.toStdString() << nrOfImages << "\n";
+	logFile << "number of images: " << _nrOfImages << "\n";
+	logFile << message.toStdString() << _nrOfImages << "\n";
 	logFile.close();
 }
 

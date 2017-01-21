@@ -47,23 +47,23 @@
 
 class LayoutItem : public QGraphicsLayoutItem, public QGraphicsItem {
 public:
-    LayoutItem(QGraphicsItem* parent = 0, const QImage &image = QImage());
-    ~LayoutItem();
+	LayoutItem(QGraphicsItem* parent = 0, const QImage& image = QImage());
+	~LayoutItem() = default;
     // Inherited from QGraphicsLayoutItem
-    void setGeometry(const QRectF &geom);
-    QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;
+	void setGeometry(const QRectF& geom);
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const;
 
     // Inherited from QGraphicsItem
     QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-        QWidget *widget = 0);
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+		QWidget* widget = 0);
     qreal getWidth();
     qreal getHeight();
 
 private:
-    QPixmap m_pix;
-    qreal width;
-    qreal height;
+	QPixmap _pix;
+	qreal _width;
+	qreal _height;
 };
 
 #endif

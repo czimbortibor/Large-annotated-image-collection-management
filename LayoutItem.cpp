@@ -40,7 +40,7 @@
 
 #include "LayoutItem.hpp"
 
-LayoutItem::LayoutItem(QGraphicsItem *parent/* = 0*/, const QImage &image)
+LayoutItem::LayoutItem(QGraphicsItem* parent/* = 0*/, const QImage& image)
     : QGraphicsLayoutItem(), QGraphicsItem(parent) {
 
         // invalid color : 4286611584  (default gray jpg)
@@ -51,21 +51,18 @@ LayoutItem::LayoutItem(QGraphicsItem *parent/* = 0*/, const QImage &image)
     }*/
 
     QPixmap pix = QPixmap::fromImage(image);
-    m_pix = QPixmap::fromImage(image);
-    this->width = image.width();
-    this->height = image.height();
+	_pix = QPixmap::fromImage(image);
+	this->_width = image.width();
+	this->_height = image.height();
     setGraphicsItem(this);
 }
 
-LayoutItem::~LayoutItem() {
-}
-
-void LayoutItem::paint(QPainter *painter,
-    const QStyleOptionGraphicsItem *option, QWidget *widget /*= 0*/) {
+void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+					   QWidget* widget /*= 0*/) {
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
-    painter->drawPixmap(QPointF(), m_pix);;
+	painter->drawPixmap(QPointF(), _pix);;
 }
 
 QRectF LayoutItem::boundingRect() const {
@@ -78,12 +75,12 @@ void LayoutItem::setGeometry(const QRectF &geom) {
     setPos(geom.topLeft());
 }
 
-QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
+QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const {
     switch (which) {
         case Qt::MinimumSize:
         case Qt::PreferredSize:
             // Do not allow a size smaller than the pixmap with two frames around it
-            return m_pix.size() + QSize(1, 1);
+			return _pix.size() + QSize(1, 1);
         case Qt::MaximumSize:
             return QSizeF(1000,1000);
         default:
@@ -93,9 +90,9 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const 
 }
 
 qreal LayoutItem::getWidth() {
-    return width;
+	return _width;
 }
 
 qreal LayoutItem::getHeight() {
-    return height;
+	return _height;
 }
