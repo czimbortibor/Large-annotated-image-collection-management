@@ -15,12 +15,17 @@ public:
 	void setSpacing(Qt::Orientations orientation, qreal spacing);
 	qreal spacing(Qt::Orientation orientation) const { _spacing[int(orientation) - 1]; }
 
+	void setNrOfPetals(int value) { _nrOfPetals = value; }
+
 	/* inherited functions */
 	void setGeometry(const QRectF& geometry) Q_DECL_OVERRIDE;
 	int count() const Q_DECL_OVERRIDE { return _items.count(); }
 	QGraphicsLayoutItem* itemAt(int index) const Q_DECL_OVERRIDE { return _items.value(index); }
 	void removeAt(int index) Q_DECL_OVERRIDE { _items.removeAt(index); invalidate(); }
 	/* ---- */
+
+	/** deletes and removes every element from the layout */
+	void clearAll();
 
 protected:
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const Q_DECL_OVERRIDE;
@@ -33,6 +38,8 @@ private:
 
 	QList<QGraphicsLayoutItem*> _items;
 	qreal _spacing[2];
+	/** how many images should be on the ring */
+	int _nrOfPetals;
 
 };
 

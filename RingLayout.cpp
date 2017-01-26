@@ -19,6 +19,14 @@ void RingLayout::insertItem(int index, QGraphicsLayoutItem* item) {
 	invalidate();
 }
 
+void RingLayout::clearAll() {
+	// calls delete on every element
+	qDeleteAll(_items.begin(), _items.end());
+	// removes the elements from the container
+	_items.clear();
+	invalidate();
+}
+
 void RingLayout::setSpacing(Qt::Orientations orientation, qreal spacing) {
 	if (orientation & Qt::Horizontal) {
 		_spacing[0] = spacing;
@@ -44,91 +52,64 @@ qreal RingLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) const 
 	QSizeF prefSize;
 	qreal next_x = 0;
 
-	qreal degree = 2.0 * M_PI / _items.size();
+	qreal degree = 360.0 / _nrOfPetals;
 	qreal radian = qDegreesToRadians(degree);
 	qreal r = 0;
 
-	qreal radius;
-	qreal dx = x + radius * qCos(r);
-	qreal dy = y + radius * qSin(r);
-
-	/*int n = _items.size();
-	QGraphicsLayoutItem* item;
-	if (n == 1 || n % 7 == 0) {
-		if (n == 1) {
-			item = _items.at(0);
-		} else {
-			item = _items.at(n-1);
-		}
-
-		prefSize = item->effectiveSizeHint(Qt::PreferredSize);
-		radius = prefSize.width() - left - right / 2;
-		maxRowHeight = (maxRowHeight > prefSize.height()) ? maxRowHeight : prefSize.height();
-		next_x = x + prefSize.width();
-		if (next_x > maxWidth) {
-			if (x == 0) {
-				prefSize.setWidth(maxWidth);
-			} else {
-				x = 0;
-				next_x = prefSize.width();
-			}
-			y += maxRowHeight + spacing(Qt::Vertical);
-			maxRowHeight = 0;
-		}
-		if (applyNewGeometry) {
-			item->setGeometry(QRectF(QPointF(next_x + dx, dy), prefSize));
-		}
-		return top + y + prefSize.height() + bottom;
-	}*/
+	qreal radius = 100;
+	/** minimal horizontal distance between two flowers */
+	qreal minXDist = spacing(Qt::Horizontal) + radius;
+	/** minimal vertical distance between two flowers */
+	qreal minYDist = spacing(Qt::Vertical) + radius;
+	qreal dx;
+	qreal dy;
 
 	for (int i = 0; i < _items.size(); ++i) {
 		QGraphicsLayoutItem* item = _items.at(i);
 		prefSize = item->effectiveSizeHint(Qt::PreferredSize);
-		if (i == 0 || i % 6 == 0) {
-			maxRowHeight = (maxRowHeight > prefSize.height()) ? maxRowHeight : prefSize.height();
-			next_x = x + prefSize.width();
+		if (i == 0 || i % (_nrOfPetals + 1) == 0) {
+			maxRowHeight = (maxRowHeight > prefSize.height() + minYDist) ? maxRowHeight : prefSize.height() + minYDist;
+			next_x = x + prefSize.width() + spacing(Qt::Vertical);
+			if (next_x > maxWidth) {
+				if (x == 0) {
+					prefSize.setWidth(maxWidth);
+					next_x = 0;
+				}
+				else {
+					x = 0;
+					next_x = prefSize.width();
+				}
+				y += maxRowHeight;
+				maxRowHeight = minYDist;
+			}
+			x = next_x;
+			if (applyNewGeometry) {
+				item->setGeometry(QRectF(QPointF(x, y), prefSize));
+			}
+		}
+		else {
+			maxRowHeight = (maxRowHeight > prefSize.height() + minYDist) ? maxRowHeight : prefSize.height() + minYDist;
 			if (next_x > maxWidth) {
 				if (x == 0) {
 					prefSize.setWidth(maxWidth);
 				}
 				else {
 					x = 0;
-					next_x = prefSize.width();
+					next_x = prefSize.width() + spacing(Qt::Horizontal);
 				}
-				y += maxRowHeight + spacing(Qt::Vertical);
-				maxRowHeight = 0;
+				y += maxRowHeight + minYDist;
+				maxRowHeight = minYDist;
 			}
-			if (applyNewGeometry) {
-				item->setGeometry(QRectF(QPointF(next_x + dx, dy), prefSize));
-			}
-		}
-		else {
-			radius = 100;
-			/*maxRowHeight = (maxRowHeight > prefSize.height()) ? maxRowHeight : prefSize.height();
-			next_x = x + prefSize.width();
-			if (next_x > maxWidth) {
-				if (x == 0) {
-					prefSize.setWidth(maxWidth);
-				} else {
-					x = 0;
-					next_x = prefSize.width();
-				}
-				y += maxRowHeight + spacing(Qt::Vertical);
-				maxRowHeight = 0;
-			}
-			*/
-
-			x = next_x + spacing(Qt::Horizontal);
+			//x = next_x;
 			dx = x + radius * qCos(r);
 			dy = y + radius * qSin(r);
 			if (applyNewGeometry) {
 				item->setGeometry(QRectF(QPointF(dx, dy), prefSize));
 			}
-			r += radius * radian;
+			r += radian;
 		}
 	}
-
-	maxRowHeight = (maxRowHeight > prefSize.height()) ? maxRowHeight : prefSize.height();
+	//maxRowHeight = (maxRowHeight > prefSize.height() + radius) ? maxRowHeight : prefSize.height() + radius;
 	return top + y + maxRowHeight + bottom;
 }
 

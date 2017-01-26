@@ -1,6 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <string>
+#include <fstream>
+#include <memory>
+
 #include <QMainWindow>
 #include <QSharedPointer>
 #include <QScopedPointer>
@@ -17,8 +21,6 @@
 #include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QDebug>
-#include <string>
-#include <fstream>
 #include <QGraphicsWidget>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
@@ -42,38 +44,41 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+	explicit MainWindow(QWidget* parent = 0);
+	MainWindow(MainWindow const& otherWindow) = delete;
+	MainWindow& operator=(MainWindow const& otherWindow) = delete;
     ~MainWindow();
 
 private:
-	Ui::MainWindow* ui;
-
-    static QImage loadImage(const QString &fileName);
-    static QImage Mat2QImage(const cv::Mat &cvImage);
-
+	void initScene();
 	void loadImages();
-	void clearLayout(QGraphicsLayout* layout);
+	void clearLayout();
 	void logTime(QString message);
+
+	static QImage loadImage(const QString &fileName);
+	static QImage Mat2QImage(const cv::Mat &cvImage);
+
+
+	Ui::MainWindow* ui;
+	int _iconSize;
+	int _nrOfImages = 0;
+	QList<QString> _imageNames;
+	QVector<QImage> _images;
+	std::unique_ptr<RingLayout> _layout;
+	QFrame _frame;
+	QElapsedTimer _timer;
+	QFuture<QImage> _futureResult;
+	//QSharedPointer<FutureWatcher> _watcher;
+	std::unique_ptr<FutureWatcher> _watcher;
+	//QGraphicsView* _view;
+	//QWidget* _viewPort;
+	std::unique_ptr<QGraphicsScene> _scene;
+	std::unique_ptr<QGraphicsWidget> _form;
 
 	static QDir DIR;
 	static QDir SMALLIMGDIR;
 	static int IMGWIDTH;
 	static int IMGHEIGHT;
-
-	int _iconSize;
-	int _nrOfImages = 0;
-	QList<QString> _imageNames;
-	QVector<QImage> _images;
-	//QScopedPointer<RingLayout> layout;
-	QSharedPointer<RingLayout> _layout;
-	QFrame _frame;
-	QElapsedTimer _timer;
-	QFuture<QImage> _futureResult;
-	QSharedPointer<FutureWatcher> _watcher;
-	QGraphicsView* _view;
-	QWidget* _viewPort;
-	QGraphicsScene* _scene;
-	QGraphicsWidget* _form;
 
 private slots:
 	void onLoadImagesClick();

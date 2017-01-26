@@ -9,9 +9,9 @@ QDir MainWindow::SMALLIMGDIR;
 typedef QFutureWatcher<QImage> FutureWatcher;
 
 MainWindow::MainWindow(QWidget* parent) :
-	QMainWindow(parent), ui(new Ui::MainWindow), _layout(new RingLayout) {
+	QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
-    this->_frame.setParent(this);
+	_frame.setParent(this);
 	//QThread::currentThread()->setPriority(QThread::HighPriority);
     //qDebug() << QImageReader::supportedImageFormats();
 
@@ -21,24 +21,40 @@ MainWindow::MainWindow(QWidget* parent) :
 
     // http://doc.qt.io/qt-5/graphicsview.html#opengl-rendering
     //QGraphicsView::setViewport(new QGLWidget);
+
+	initScene();
 }
 
 MainWindow::~MainWindow() {
-	if (_futureResult.isRunning()) {
+	/*if (_futureResult.isRunning()) {
 		_futureResult.cancel();
-	}
+	}*/
     delete ui;
+}
+
+void MainWindow::initScene() {
+	_layout = std::unique_ptr<RingLayout>(new RingLayout);
+	_layout->setNrOfPetals(ui->spinBox_nrOfPetals->value());
+
+	_scene = std::unique_ptr<QGraphicsScene>(new QGraphicsScene);
+	_form = std::unique_ptr<QGraphicsWidget>(new QGraphicsWidget);
+
+	ui->graphicsView->setScene(_scene.get());
+	ui->graphicsView->show();
 }
 
 void MainWindow::onLoadImagesClick() {
 	QFileDialog dialog;
 	dialog.setFileMode(QFileDialog::DirectoryOnly);
 	dialog.setOption(QFileDialog::ShowDirsOnly);
-	dialog.setNameFilter(tr("Images (*.png *.jpg *.tiff *.bmp)"));
+	//dialog.setNameFilter(tr("Images (*.png *.jpg *.tiff *.bmp)"));
 	dialog.setDirectory("/home/czimbortibor/images");
 	QStringList fileName;
 	if (dialog.exec()) {
 		fileName = dialog.selectedFiles();
+	}
+	if (!fileName.count()) {
+		return;
 	}
 
 	MainWindow::DIR = QDir(fileName[0]);
@@ -52,8 +68,10 @@ void MainWindow::onLoadImagesClick() {
 	int nrOfPixels = screenHeight * screenWidth - (ui->frame_2->size().height() + ui->frame_2->size().width());
 
 	// every image is visible on the screen
-	/*MainWindow::imageWidth = (int) sqrt(nrOfPixels/nrOfImages) / 2;
-	MainWindow::imageHeight = (int) sqrt(nrOfPixels/nrOfImages) / 2;*/
+	/*
+	MainWindow::IMGWIDTH = (int) sqrt(nrOfPixels/_nrOfImages) / 2;
+	MainWindow::IMGHEIGHT = (int) sqrt(nrOfPixels/_nrOfImages) / 2;
+	*/
 
 	// fixed image size
 	_iconSize = 50;
@@ -64,53 +82,53 @@ void MainWindow::onLoadImagesClick() {
 	qDebug() << "image size =" << MainWindow::IMGWIDTH << "x" << MainWindow::IMGHEIGHT;
 	qDebug() << "image count =" << len;
 
-	_layout = QSharedPointer<RingLayout>::create();
-	clearLayout(_layout.data());
-
-	_scene = new QGraphicsScene;
-	_form = new QGraphicsWidget;
-
-	//scene->addItem(form);
-	//view = new QGraphicsView;
-	//viewPort = view->viewport();
-
-	/*view->setScene(scene);
-	view->showMaximized();*/
-
-	ui->graphicsView->setScene(_scene);
-	ui->graphicsView->show();
+	clearLayout();
 
 	_timer.start();
 	/*
-	_watcher = QSharedPointer<FutureWatcher>::create(this);
+	//_watcher = QSharedPointer<FutureWatcher>::create(this);
+	_watcher = std::unique_ptr<FutureWatcher>(new FutureWatcher);
 	_futureResult = QtConcurrent::mapped(_imageNames, loadImage);
-	//connect(watcher, &FutureWatcher::resultReadyAt, this, &MainWindow::onImageReceive);
-	connect(_watcher.data(), &FutureWatcher::resultsReadyAt, this, &MainWindow::onImagesReceive);
-	connect(_watcher.data(), &FutureWatcher::finished, this, &MainWindow::onFinished);
+	//connect(_watcher, &FutureWatcher::resultReadyAt, this, &MainWindow::onImageReceive);
+	connect(_watcher.get(), &FutureWatcher::resultsReadyAt, this, &MainWindow::onImagesReceive);
+	connect(_watcher.get(), &FutureWatcher::finished, this, &MainWindow::onFinished);
 	_watcher->setFuture(_futureResult);
 	*/
 
+	_layout->setNrOfPetals(ui->spinBox_nrOfPetals->value());
 	loadImages();
 }
 
 void MainWindow::loadImages() {
 	for (const QString& fileName : _imageNames) {
 		QString fullFileName = DIR.absoluteFilePath(fileName);
+		// OpenCV read and OpenCV resize
 		cv::Mat cvImage = cv::imread(fullFileName.toStdString());
-		QImage image = QImage((uchar*)cvImage.data, cvImage.cols, cvImage.rows, cvImage.step, QImage::Format_RGB888);
-		_images.append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));
+		cv::Mat cvResizedImg;
+		cv::resize(cvImage, cvResizedImg, cv::Size(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));
+		QImage image = Mat2QImage(cvResizedImg);
+		_images.append(image);
+
+		// OpenCV read and QImage resize
+		/*cv::Mat cvImage = cv::imread(fullFileName.toStdString());
+		QImage image = Mat2QImage(cvImage);
+		_images.append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));*/
+
+		// QImage read and QImage resize
+		/*QImage image(fullFileName);
+		_images.append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));*/
 	}
-	logTime("load time: ");
+	logTime("load time:");
 
 	_timer.start();
 	for (const QImage image : _images) {
 		LayoutItem* item = new LayoutItem(NULL, image);
 		_layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
 	}
-	_form->setLayout(_layout.data());
-	_scene->addItem(_form);
+	_form->setLayout(_layout.get());
+	_scene->addItem(_form.get());
 
-	logTime("display time: ");
+	logTime("display time:");
 }
 
 void MainWindow::onSaveImagesClick() {
@@ -130,30 +148,30 @@ void MainWindow::onSaveImagesClick() {
 		QString newFileName = (SMALLIMGDIR.absolutePath() + "/" + _imageNames[i]);
 		_images[i].save(newFileName);
 	}
-	logTime("time needed to save the images: ");
+	logTime("time needed to save the images:");
 }
 
 QImage MainWindow::loadImage(const QString &imageName) {
 	QString fileName = DIR.absoluteFilePath(imageName);
 
+	// OpenCV read and OpenCV resize
 	cv::Mat cvImage = cv::imread(fileName.toStdString());
-	/*if (cvImage.empty()) {
-        return QImage();
-	}*/
-	//cv::Mat cvResizedImg;
-	//cv::resize(cvImage, cvResizedImg, cv::Size(MainWindow::imageWidth, MainWindow::imageHeight));
-    //QImage image = QImage((uchar*)cvResizedImg.data, cvResizedImg.cols, cvResizedImg.rows, cvResizedImg.step, QImage::Format_RGB888);
-	QImage image = QImage((uchar*)cvImage.data, cvImage.cols, cvImage.rows, cvImage.step, QImage::Format_RGB888);
-	return image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT);
-	//return image;
+	cv::Mat cvResizedImg;
+	cv::resize(cvImage, cvResizedImg, cv::Size(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));
+	QImage image = Mat2QImage(cvResizedImg);
+	return image;
 
-	/*QImage image(fileName);
-	QImage resizedImg = image.scaled(MainWindow::imageWidth, MainWindow::imageHeight);
-	return resizedImg;*/
+	// OpenCV read and QImage resize
+	/*cv::Mat cvImage = cv::imread(fullFileName.toStdString());
+	QImage image = Mat2QImage(cvImage);
+	return image;*/
+
+	// QImage read and QImage resize
+	/*QImage image(fullFileName);
+	return image; */
 }
 
 void MainWindow::onImageReceive(int resultInd) {
-    //LayoutItem* item = dynamic_cast<LayoutItem*>(futureResult.resultAt(resultInd));
     _images.append(_futureResult.resultAt(resultInd));
 }
 
@@ -164,47 +182,38 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
         //LayoutItem* item = new LayoutItem(NULL, image);
         //layout->addItem(item);
     }
-    //ui->graphicsView->update();
-    //viewPort->update();
 }
 
 void MainWindow::onReverseButtonClick() {
-	//clearLayout(layout.data());
-	//layout.clear();
-	//layout = QSharedPointer<FlowLayout>::create();
-
+	clearLayout();
 	std::reverse(_images.begin(), _images.end());
 
 	// display the images in reverse order
-    /*for (const QImage image : images) {
-        LayoutItem* item = new LayoutItem(NULL, image);
-        layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
-    }
-	*/
+	_timer.start();
+	for (const QImage image : _images) {
+		LayoutItem* item = new LayoutItem(NULL, image);
+		_layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
+	}
+
+	logTime("display time:");
 }
 
 void MainWindow::onFinished() {
-	logTime("load time: ");
+	logTime("load time:");
 
 	_timer.start();
     for (const QImage image : _images) {
         LayoutItem* item = new LayoutItem(NULL, image);
         _layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
     }
-	_form->setLayout(_layout.data());
-    _scene->addItem(_form);
+	_form->setLayout(_layout.get());
+	_scene->addItem(_form.get());
 
-	logTime("display time: ");
+	logTime("display time:");
 }
 
-void MainWindow::clearLayout(QGraphicsLayout* layout) {
-	/*QGraphicsLayoutItem* item;
-	while ((item = layout->itemAt(0)) != NULL) {
-		layout->removeAt(0);
-	}*/
-	for (int i = 0; i < layout->count(); ++i) {
-		layout->removeAt(i);
-	}
+void MainWindow::clearLayout() {
+	_layout->clearAll();
 }
 
 void MainWindow::logTime(QString message) {
@@ -218,7 +227,14 @@ void MainWindow::logTime(QString message) {
 	logFile.close();
 }
 
-QImage MainWindow::Mat2QImage(const cv::Mat &image) {
-	return QImage((uchar*)image.data, image.cols, image.rows, image.step, QImage::Format_RGB888);
-}
+QImage MainWindow::Mat2QImage(const cv::Mat& image) {
+	//return QImage((uchar*)image.data, image.cols, image.rows, image.step, QImage::Format_RGB888).rgbSwapped();
 
+	cv::Mat temp;
+	// makes a copy in RGB format
+	cvtColor(image, temp, CV_BGR2RGB);
+	QImage dest((const uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
+	// enforce deep copy
+	dest.bits();
+	return dest;
+}
