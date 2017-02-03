@@ -13,11 +13,18 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->setupUi(this);
 	_frame.setParent(this);
 	//QThread::currentThread()->setPriority(QThread::HighPriority);
+
     //qDebug() << QImageReader::supportedImageFormats();
 
+	// buttons
 	connect(ui->btnLoad, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
 	connect(ui->btnSave, &QPushButton::clicked, this, &MainWindow::onSaveImagesClick);
 	connect(ui->btnReverse, &QPushButton::clicked, this, &MainWindow::onReverseButtonClick);
+
+	// spinboxes
+	connect(ui->spinBox_radius, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onRadiusChanged);
+	connect(ui->spinBox_nrOfPetals, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onPetalNrChanged);
+		// overloaded signal -> have to specify the specific function syntax
 
     // http://doc.qt.io/qt-5/graphicsview.html#opengl-rendering
     //QGraphicsView::setViewport(new QGLWidget);
@@ -26,21 +33,38 @@ MainWindow::MainWindow(QWidget* parent) :
 }
 
 MainWindow::~MainWindow() {
-	/*if (_futureResult.isRunning()) {
-		_futureResult.cancel();
-	}*/
+	if (_futureWatcher.isRunning()) {
+		_futureWatcher.cancel();
+	}
     delete ui;
 }
 
 void MainWindow::initScene() {
-	_layout = std::unique_ptr<RingLayout>(new RingLayout);
-	_layout->setNrOfPetals(ui->spinBox_nrOfPetals->value());
+	_scene = new QGraphicsScene;
+	connect(_scene, &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
+	_view = new QGraphicsView(_scene);
+	ui->centralWidget->layout()->addWidget(_view);
+	// align from the top-left corner rather then from the center
+	_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	_scene = std::unique_ptr<QGraphicsScene>(new QGraphicsScene);
-	_form = std::unique_ptr<QGraphicsWidget>(new QGraphicsWidget);
+	_layoutWidget = new QGraphicsWidget;
+	_layoutWidget->setMinimumSize(_view->size());
+	_layout = new RingLayout;
+	_layoutWidget->setLayout(_layout);
 
-	ui->graphicsView->setScene(_scene.get());
-	ui->graphicsView->show();
+	_scene->addItem(_layoutWidget);
+	_view->show();
+}
+
+void MainWindow::onSceneChanged() {
+	QSizeF viewSize = _view->size();
+	qreal radius = ui->spinBox_radius->value();
+	QSizeF newSize(viewSize.width() - radius, viewSize.height());
+	_layoutWidget->setMinimumSize(newSize);
+	/*if (_imageNames.length()) {
+		clearLayout();
+		displayImages();
+	}*/
 }
 
 void MainWindow::onLoadImagesClick() {
@@ -60,6 +84,7 @@ void MainWindow::onLoadImagesClick() {
 	MainWindow::DIR = QDir(fileName[0]);
 	MainWindow::DIR.setFilter(QDir::Files);
 	_imageNames = MainWindow::DIR.entryList();
+	_images = std::unique_ptr<QVector<QImage>>(new QVector<QImage>);
 	_nrOfImages = _imageNames.length();
 
 	QDesktopWidget desktop;
@@ -82,8 +107,6 @@ void MainWindow::onLoadImagesClick() {
 	qDebug() << "image size =" << MainWindow::IMGWIDTH << "x" << MainWindow::IMGHEIGHT;
 	qDebug() << "image count =" << len;
 
-	clearLayout();
-
 	_timer.start();
 	/*
 	//_watcher = QSharedPointer<FutureWatcher>::create(this);
@@ -95,8 +118,13 @@ void MainWindow::onLoadImagesClick() {
 	_watcher->setFuture(_futureResult);
 	*/
 
+	clearLayout();
 	_layout->setNrOfPetals(ui->spinBox_nrOfPetals->value());
-	loadImages();
+	_layout->setRadius(ui->spinBox_radius->value());
+
+	_future = QtConcurrent::run(this, &MainWindow::loadImages);
+	_futureWatcher.setFuture(_future);
+	connect(&_futureWatcher, &QFutureWatcher<void>::finished, this, &MainWindow::onFinished);
 }
 
 void MainWindow::loadImages() {
@@ -107,28 +135,18 @@ void MainWindow::loadImages() {
 		cv::Mat cvResizedImg;
 		cv::resize(cvImage, cvResizedImg, cv::Size(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));
 		QImage image = Mat2QImage(cvResizedImg);
-		_images.append(image);
+		_images->append(image);
 
 		// OpenCV read and QImage resize
 		/*cv::Mat cvImage = cv::imread(fullFileName.toStdString());
 		QImage image = Mat2QImage(cvImage);
-		_images.append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));*/
+		_images->append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));*/
 
 		// QImage read and QImage resize
 		/*QImage image(fullFileName);
-		_images.append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));*/
+		_images->append(image.scaled(MainWindow::IMGWIDTH, MainWindow::IMGHEIGHT));*/
 	}
 	logTime("load time:");
-
-	_timer.start();
-	for (const QImage image : _images) {
-		LayoutItem* item = new LayoutItem(NULL, image);
-		_layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
-	}
-	_form->setLayout(_layout.get());
-	_scene->addItem(_form.get());
-
-	logTime("display time:");
 }
 
 void MainWindow::onSaveImagesClick() {
@@ -144,9 +162,10 @@ void MainWindow::onSaveImagesClick() {
 
 	qDebug() << "saving the " << _iconSize << "x" << _iconSize << "icons to: " + SMALLIMGDIR.absolutePath();
 	_timer.start();
-	for (int i = 0; i < _images.length(); ++i) {
+	for (int i = 0; i < _images->length(); ++i) {
 		QString newFileName = (SMALLIMGDIR.absolutePath() + "/" + _imageNames[i]);
-		_images[i].save(newFileName);
+		//_images[i]->save(newFileName);
+		_images->at(i).save(newFileName);
 	}
 	logTime("time needed to save the images:");
 }
@@ -172,13 +191,13 @@ QImage MainWindow::loadImage(const QString &imageName) {
 }
 
 void MainWindow::onImageReceive(int resultInd) {
-    _images.append(_futureResult.resultAt(resultInd));
+	_images->append(_futureResult.resultAt(resultInd));
 }
 
 void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
         QImage image = _futureResult.resultAt(i);
-        _images.append(image);
+		_images->append(image);
         //LayoutItem* item = new LayoutItem(NULL, image);
         //layout->addItem(item);
     }
@@ -186,34 +205,30 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 
 void MainWindow::onReverseButtonClick() {
 	clearLayout();
-	std::reverse(_images.begin(), _images.end());
+	std::reverse(_images->begin(), _images->end());
 
 	// display the images in reverse order
 	_timer.start();
-	for (const QImage image : _images) {
-		LayoutItem* item = new LayoutItem(NULL, image);
-		_layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
-	}
-
+	displayImages();
 	logTime("display time:");
 }
 
 void MainWindow::onFinished() {
-	logTime("load time:");
-
 	_timer.start();
-    for (const QImage image : _images) {
-        LayoutItem* item = new LayoutItem(NULL, image);
-        _layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
-    }
-	_form->setLayout(_layout.get());
-	_scene->addItem(_form.get());
-
+	displayImages();
 	logTime("display time:");
 }
 
 void MainWindow::clearLayout() {
 	_layout->clearAll();
+}
+
+void MainWindow::displayImages() {
+	QVector<QImage>::ConstIterator it;
+	for (it = _images->begin(); it != _images->end(); ++it) {
+		LayoutItem* item = new LayoutItem(NULL, *it);
+		_layout->addItem(dynamic_cast<QGraphicsLayoutItem*>(item));
+	}
 }
 
 void MainWindow::logTime(QString message) {
@@ -237,4 +252,20 @@ QImage MainWindow::Mat2QImage(const cv::Mat& image) {
 	// enforce deep copy
 	dest.bits();
 	return dest;
+}
+
+void MainWindow::onRadiusChanged(double value) {
+	_layout->setRadius(value);
+	if (_imageNames.length()) {
+		clearLayout();
+		displayImages();
+	}
+}
+
+void MainWindow::onPetalNrChanged(int value) {
+	_layout->setNrOfPetals(value);
+	if (_imageNames.length()) {
+		clearLayout();
+		displayImages();
+	}
 }

@@ -1,5 +1,5 @@
-#ifndef FLOWERLAYOUT_HPP
-#define FLOWERLAYOUT_HPP
+#ifndef RINGLAYOUT_HPP
+#define RINGLAYOUT_HPP
 
 #include <QGraphicsLayout>
 #include <QWidget>
@@ -11,11 +11,11 @@ public:
 	RingLayout();
 	/** inserts the item to the front of the list */
 	void addItem(QGraphicsLayoutItem* item) { insertItem(-1, item); }
-	void insertItem(int index, QGraphicsLayoutItem* item);
 	void setSpacing(Qt::Orientations orientation, qreal spacing);
 	qreal spacing(Qt::Orientation orientation) const { _spacing[int(orientation) - 1]; }
 
 	void setNrOfPetals(int value) { _nrOfPetals = value; }
+	void setRadius(qreal value) { _radius = value; }
 
 	/* inherited functions */
 	void setGeometry(const QRectF& geometry) Q_DECL_OVERRIDE;
@@ -31,6 +31,7 @@ protected:
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const Q_DECL_OVERRIDE;
 
 private:
+	void insertItem(int index, QGraphicsLayoutItem* item);
 	qreal doLayout(const QRectF& geometry, bool applyNewGeometry) const;
 	QSizeF minSize(const QSizeF& constraint) const;
 	QSizeF prefSize() const;
@@ -40,7 +41,9 @@ private:
 	qreal _spacing[2];
 	/** how many images should be on the ring */
 	int _nrOfPetals;
+	/** radius of the circle on which the images will be positioned */
+	qreal _radius;
 
 };
 
-#endif // FLOWERLAYOUT_HPP
+#endif // RINGLAYOUT_HPP

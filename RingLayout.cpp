@@ -11,7 +11,8 @@ RingLayout::RingLayout() {
 }
 
 void RingLayout::insertItem(int index, QGraphicsLayoutItem* item) {
-	item->setParentLayoutItem(this);
+	QGraphicsLayout::addChildLayoutItem(item);
+	//item->setParentLayoutItem(this);
 	if (index > _items.count()) {
 		index = _items.count();
 	}
@@ -46,6 +47,7 @@ qreal RingLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) const 
 	getContentsMargins(&left, &top, &right, &bottom);
 	const qreal maxWidth = geometry.width() - left - right;
 
+	// scene's center
 	qreal x = 0;
 	qreal y = 0;
 	qreal maxRowHeight = 0;
@@ -56,60 +58,49 @@ qreal RingLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) const 
 	qreal radian = qDegreesToRadians(degree);
 	qreal r = 0;
 
-	qreal radius = 100;
 	/** minimal horizontal distance between two flowers */
-	qreal minXDist = spacing(Qt::Horizontal) + radius;
+	qreal minXDist;
 	/** minimal vertical distance between two flowers */
-	qreal minYDist = spacing(Qt::Vertical) + radius;
+	qreal minYDist = 2.5 * _radius;
 	qreal dx;
 	qreal dy;
 
 	for (int i = 0; i < _items.size(); ++i) {
 		QGraphicsLayoutItem* item = _items.at(i);
 		prefSize = item->effectiveSizeHint(Qt::PreferredSize);
+
+		// center image
 		if (i == 0 || i % (_nrOfPetals + 1) == 0) {
+			if (i == 0) {
+				minXDist = _radius;
+			}
+			else {
+				minXDist = 3 * _radius + spacing(Qt::Horizontal);
+			}
 			maxRowHeight = (maxRowHeight > prefSize.height() + minYDist) ? maxRowHeight : prefSize.height() + minYDist;
-			next_x = x + prefSize.width() + spacing(Qt::Vertical);
+			next_x = x + minXDist; /*prefSize.width() +;*/
 			if (next_x > maxWidth) {
-				if (x == 0) {
-					prefSize.setWidth(maxWidth);
-					next_x = 0;
-				}
-				else {
-					x = 0;
-					next_x = prefSize.width();
-				}
+				prefSize.setWidth(maxWidth);
+				next_x = _radius;
 				y += maxRowHeight;
-				maxRowHeight = minYDist;
+				//maxRowHeight = 0;
 			}
 			x = next_x;
 			if (applyNewGeometry) {
 				item->setGeometry(QRectF(QPointF(x, y), prefSize));
 			}
 		}
+		// images on the ring/petals
 		else {
-			maxRowHeight = (maxRowHeight > prefSize.height() + minYDist) ? maxRowHeight : prefSize.height() + minYDist;
-			if (next_x > maxWidth) {
-				if (x == 0) {
-					prefSize.setWidth(maxWidth);
-				}
-				else {
-					x = 0;
-					next_x = prefSize.width() + spacing(Qt::Horizontal);
-				}
-				y += maxRowHeight + minYDist;
-				maxRowHeight = minYDist;
-			}
-			//x = next_x;
-			dx = x + radius * qCos(r);
-			dy = y + radius * qSin(r);
+			dx = x + _radius * qCos(r);
+			dy = y + _radius * qSin(r);
 			if (applyNewGeometry) {
 				item->setGeometry(QRectF(QPointF(dx, dy), prefSize));
 			}
 			r += radian;
 		}
 	}
-	//maxRowHeight = (maxRowHeight > prefSize.height() + radius) ? maxRowHeight : prefSize.height() + radius;
+
 	return top + y + maxRowHeight + bottom;
 }
 

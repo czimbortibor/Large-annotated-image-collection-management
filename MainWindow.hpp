@@ -6,23 +6,21 @@
 #include <memory>
 
 #include <QMainWindow>
-#include <QSharedPointer>
 #include <QScopedPointer>
 #include <QLayout>
 #include <QFileDialog>
+#include <QDesktopWidget>
 #include <QVector>
 #include <QFrame>
 #include <QThread>
 #include <QLabel>
 #include <QPushButton>
-#include <QDesktopWidget>
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QDebug>
 #include <QGraphicsWidget>
-#include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsLinearLayout>
@@ -34,8 +32,10 @@
 #include "LayoutItem.hpp"
 #include "FlowLayout.hpp"
 #include "RingLayout.hpp"
+#include "LayoutCanvas.hpp"
 
 typedef QFutureWatcher<QImage> FutureWatcher;
+
 namespace Ui {
 class MainWindow;
 }
@@ -53,6 +53,7 @@ private:
 	void initScene();
 	void loadImages();
 	void clearLayout();
+	void displayImages();
 	void logTime(QString message);
 
 	static QImage loadImage(const QString &fileName);
@@ -63,17 +64,17 @@ private:
 	int _iconSize;
 	int _nrOfImages = 0;
 	QList<QString> _imageNames;
-	QVector<QImage> _images;
-	std::unique_ptr<RingLayout> _layout;
+	std::unique_ptr<QVector<QImage>> _images;
 	QFrame _frame;
 	QElapsedTimer _timer;
 	QFuture<QImage> _futureResult;
-	//QSharedPointer<FutureWatcher> _watcher;
 	std::unique_ptr<FutureWatcher> _watcher;
-	//QGraphicsView* _view;
-	//QWidget* _viewPort;
-	std::unique_ptr<QGraphicsScene> _scene;
-	std::unique_ptr<QGraphicsWidget> _form;
+	QFuture<void> _future;
+	QFutureWatcher<void> _futureWatcher;
+	RingLayout* _layout;
+	QGraphicsView* _view;
+	QGraphicsScene* _scene;
+	QGraphicsWidget* _layoutWidget;
 
 	static QDir DIR;
 	static QDir SMALLIMGDIR;
@@ -81,12 +82,17 @@ private:
 	static int IMGHEIGHT;
 
 private slots:
-	void onLoadImagesClick();
-	void onSaveImagesClick();
     void onImageReceive(int resultInd);
     void onImagesReceive(int resultsBeginInd, int resultsEndInd);
-	void onReverseButtonClick();
     void onFinished();
+
+	void onSceneChanged();
+
+	void onLoadImagesClick();
+	void onSaveImagesClick();
+	void onReverseButtonClick();
+	void onRadiusChanged(double value);
+	void onPetalNrChanged(int value);
 
 signals:
     void start();

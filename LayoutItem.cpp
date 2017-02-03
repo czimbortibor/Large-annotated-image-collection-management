@@ -50,7 +50,6 @@ LayoutItem::LayoutItem(QGraphicsItem* parent/* = 0*/, const QImage& image)
         m_img = QImage("/home/czimbortibor/Allamvizsga/Benchmark_test/C++_graphics/ImageDisplay/placeHolderImg.png");
     }*/
 
-    QPixmap pix = QPixmap::fromImage(image);
 	_pix = QPixmap::fromImage(image);
 	this->_width = image.width();
 	this->_height = image.height();
