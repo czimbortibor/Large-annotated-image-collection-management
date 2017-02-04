@@ -43,17 +43,10 @@
 LayoutItem::LayoutItem(QGraphicsItem* parent/* = 0*/, const QImage& image)
     : QGraphicsLayoutItem(), QGraphicsItem(parent) {
 
-        // invalid color : 4286611584  (default gray jpg)
-   /* if (m_img.pixel(m_img.width() - 1, m_img.height() - 1) == 4286611584 &&
-            m_img.pixel(m_img.width() / 2, m_img.height() - 1) == 4286611584 &&
-            m_img.pixel(0, m_img.height() - 1) == 4286611584) {
-        m_img = QImage("/home/czimbortibor/Allamvizsga/Benchmark_test/C++_graphics/ImageDisplay/placeHolderImg.png");
-    }*/
-
 	_pix = QPixmap::fromImage(image);
 	this->_width = image.width();
 	this->_height = image.height();
-    setGraphicsItem(this);
+	QGraphicsLayoutItem::setGraphicsItem(this);
 }
 
 void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
@@ -68,10 +61,10 @@ QRectF LayoutItem::boundingRect() const {
     return QRectF(QPointF(0,0), geometry().size());
 }
 
-void LayoutItem::setGeometry(const QRectF &geom) {
-    prepareGeometryChange();
+void LayoutItem::setGeometry(const QRectF& geom) {
+	QGraphicsItem::prepareGeometryChange();
     QGraphicsLayoutItem::setGeometry(geom);
-    setPos(geom.topLeft());
+	QGraphicsItem::setPos(geom.topLeft());
 }
 
 QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const {

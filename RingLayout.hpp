@@ -12,17 +12,17 @@ public:
 	/** inserts the item to the front of the list */
 	void addItem(QGraphicsLayoutItem* item) { insertItem(-1, item); }
 	void setSpacing(Qt::Orientations orientation, qreal spacing);
-	qreal spacing(Qt::Orientation orientation) const { _spacing[int(orientation) - 1]; }
+	qreal spacing(Qt::Orientation orientation) const { return _spacing[int(orientation) - 1]; }
 
 	void setNrOfPetals(int value) { _nrOfPetals = value; }
 	void setRadius(qreal value) { _radius = value; }
 
-	/* inherited functions */
+	// inherited functions
 	void setGeometry(const QRectF& geometry) Q_DECL_OVERRIDE;
 	int count() const Q_DECL_OVERRIDE { return _items.count(); }
 	QGraphicsLayoutItem* itemAt(int index) const Q_DECL_OVERRIDE { return _items.value(index); }
 	void removeAt(int index) Q_DECL_OVERRIDE { _items.removeAt(index); invalidate(); }
-	/* ---- */
+	// --------------------
 
 	/** deletes and removes every element from the layout */
 	void clearAll();

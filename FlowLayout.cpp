@@ -70,6 +70,14 @@ void FlowLayout::insertItem(int index, QGraphicsLayoutItem* item) {
     invalidate();
 }
 
+void FlowLayout::clearAll() {
+	// calls delete on every element
+	qDeleteAll(m_items.begin(), m_items.end());
+	// removes the elements from the container
+	m_items.clear();
+	invalidate();
+}
+
 int FlowLayout::count() const {
     return m_items.count();
 }

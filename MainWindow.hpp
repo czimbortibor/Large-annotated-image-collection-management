@@ -4,10 +4,9 @@
 #include <string>
 #include <fstream>
 #include <memory>
+#include <functional>
 
 #include <QMainWindow>
-#include <QScopedPointer>
-#include <QLayout>
 #include <QFileDialog>
 #include <QDesktopWidget>
 #include <QVector>
@@ -23,7 +22,6 @@
 #include <QGraphicsWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QGraphicsLinearLayout>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -32,9 +30,6 @@
 #include "LayoutItem.hpp"
 #include "FlowLayout.hpp"
 #include "RingLayout.hpp"
-#include "LayoutCanvas.hpp"
-
-typedef QFutureWatcher<QImage> FutureWatcher;
 
 namespace Ui {
 class MainWindow;
@@ -51,51 +46,61 @@ public:
 
 private:
 	void initScene();
-	void loadImages();
 	void clearLayout();
-	void displayImages();
-	void logTime(QString message);
 
-	static QImage loadImage(const QString &fileName);
-	static QImage Mat2QImage(const cv::Mat &cvImage);
+	void loadImages();
+	cv::Mat loadImage(const QString &fileName) const;
+	void resizeImages(int size);
+	QImage resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
+	void displayImages();
+
+	void logTime(QString message);
+	QImage Mat2QImage(const cv::Mat &cvImage) const;
 
 
 	Ui::MainWindow* ui;
-	int _iconSize;
-	int _nrOfImages = 0;
-	QList<QString> _imageNames;
-	std::unique_ptr<QVector<QImage>> _images;
 	QFrame _frame;
+	int _iconSize;
+	int _nrOfImages;
+	QDir _dir;
+	QDir _dirSmallImg;
+	QList<QString> _imageNames;
+	int _imgWidth;
+	int _imgHeight;
+	std::unique_ptr<QVector<cv::Mat>> _imagesOriginal;
+	std::unique_ptr<QVector<QImage>> _imagesResized;
 	QElapsedTimer _timer;
-	QFuture<QImage> _futureResult;
-	std::unique_ptr<FutureWatcher> _watcher;
-	QFuture<void> _future;
-	QFutureWatcher<void> _futureWatcher;
-	RingLayout* _layout;
+
+	// ------ single-thread image load -------
+	QFuture<void> _futureLoader;
+	QFutureWatcher<void> _futureLoaderWatcher;
+	// ------ multi-threaded image load -------
+	QFuture<cv::Mat> _futureLoaderMT;
+	QFutureWatcher<cv::Mat> _futureLoaderWatcherMT;
+
+	// ------ multi-threaded image resize ------
+	QFuture<QImage> _futureResizerMT;
+	QFutureWatcher<QImage> _futureResizerWatcherMT;
+
+	FlowLayout* _layout;
+	QGraphicsWidget* _layoutWidget;
 	QGraphicsView* _view;
 	QGraphicsScene* _scene;
-	QGraphicsWidget* _layoutWidget;
-
-	static QDir DIR;
-	static QDir SMALLIMGDIR;
-	static int IMGWIDTH;
-	static int IMGHEIGHT;
 
 private slots:
+	void onSceneChanged();
+
     void onImageReceive(int resultInd);
     void onImagesReceive(int resultsBeginInd, int resultsEndInd);
-    void onFinished();
-
-	void onSceneChanged();
+	void onFinishedLoading();
+	void onImagesResized(int resultsBeginInd, int resultsEndInd);
+	void onFinishedResizing();
 
 	void onLoadImagesClick();
 	void onSaveImagesClick();
 	void onReverseButtonClick();
 	void onRadiusChanged(double value);
 	void onPetalNrChanged(int value);
-
-signals:
-    void start();
 };
 
 #endif // MAINWINDOW_H

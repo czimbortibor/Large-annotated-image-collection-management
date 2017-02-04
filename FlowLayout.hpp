@@ -59,6 +59,8 @@ public:
     void setSpacing(Qt::Orientations o, qreal spacing);
     qreal spacing(Qt::Orientation o) const;
 
+	void clearAll();
+
     // inherited functions
     void setGeometry(const QRectF &geom) Q_DECL_OVERRIDE;
 
