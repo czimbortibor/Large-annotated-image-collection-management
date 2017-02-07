@@ -17,12 +17,14 @@ SOURCES +=\
     Main.cpp \
     FlowLayout.cpp \
     LayoutItem.cpp \
-    RingLayout.cpp
+    RingLayout.cpp \
+    CBIR.cpp
 
 HEADERS  += MainWindow.hpp \
     FlowLayout.hpp \
     LayoutItem.hpp \
-    RingLayout.hpp
+    RingLayout.hpp \
+    CBIR.hpp
 
 FORMS    += MainWindow.ui
 

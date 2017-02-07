@@ -23,13 +23,14 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
 #include "LayoutItem.hpp"
 #include "FlowLayout.hpp"
 #include "RingLayout.hpp"
+#include "CBIR.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -46,7 +47,6 @@ public:
 
 private:
 	void initScene();
-	void clearLayout();
 
 	void loadImages();
 	cv::Mat loadImage(const QString &fileName) const;
@@ -64,7 +64,8 @@ private:
 	int _nrOfImages;
 	QDir _dir;
 	QDir _dirSmallImg;
-	QList<QString> _imageNames;
+	//QList<QString> _imageNames;
+	std::unique_ptr<QList<QString>> _imageNames;
 	int _imgWidth;
 	int _imgHeight;
 	std::unique_ptr<QVector<cv::Mat>> _imagesOriginal;
@@ -87,8 +88,12 @@ private:
 	QGraphicsView* _view;
 	QGraphicsScene* _scene;
 
+	CBIR imageRetrieval;
+	std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
+
 private slots:
 	void onSceneChanged();
+	void onClearLayout();
 
     void onImageReceive(int resultInd);
     void onImagesReceive(int resultsBeginInd, int resultsEndInd);
@@ -101,6 +106,9 @@ private slots:
 	void onReverseButtonClick();
 	void onRadiusChanged(double value);
 	void onPetalNrChanged(int value);
+
+signals:
+	void clearLayout();
 };
 
 #endif // MAINWINDOW_H

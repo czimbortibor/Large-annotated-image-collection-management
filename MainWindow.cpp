@@ -9,9 +9,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
     //qDebug() << QImageReader::supportedImageFormats();
 
+	connect(this, &MainWindow::clearLayout, this, &MainWindow::onClearLayout);
+
 	// buttons
 	connect(ui->btnLoad, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
 	connect(ui->btnSave, &QPushButton::clicked, this, &MainWindow::onSaveImagesClick);
+	connect(ui->btnClear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
 	connect(ui->btnReverse, &QPushButton::clicked, this, &MainWindow::onReverseButtonClick);
 
 	// spinboxes
@@ -28,6 +31,12 @@ MainWindow::MainWindow(QWidget* parent) :
 MainWindow::~MainWindow() {
 	if (_futureLoaderWatcher.isRunning()) {
 		_futureLoaderWatcher.cancel();
+	}
+	if (_futureLoaderWatcherMT.isRunning()) {
+		_futureLoaderWatcherMT.cancel();
+	}
+	if (_futureResizerWatcherMT.isRunning()) {
+		_futureResizerWatcherMT.cancel();
 	}
     delete ui;
 }
@@ -76,35 +85,34 @@ void MainWindow::onLoadImagesClick() {
 
 	_dir = QDir(fileName[0]);
 	_dir.setFilter(QDir::Files);
-	_imageNames = _dir.entryList();
+	_imageNames = std::unique_ptr<QList<QString>>(new QList<QString>);
+	*_imageNames.get() = _dir.entryList();
 	_imagesOriginal = std::unique_ptr<QVector<cv::Mat>>(new QVector<cv::Mat>);
 	_imagesResized = std::unique_ptr<QVector<QImage>>(new QVector<QImage>);
-	_nrOfImages = _imageNames.length();
+	_nrOfImages = _imageNames->length();
 
+	// every image is visible on the screen
+	/*
 	QDesktopWidget desktop;
 	int screenWidth = desktop.geometry().width();
 	int screenHeight = desktop.geometry().height();
 	int nrOfPixels = screenHeight * screenWidth - (ui->frame_2->size().height() + ui->frame_2->size().width());
-
-	// every image is visible on the screen
-	/*
 	_imgWidth = (int) sqrt(nrOfPixels/_nrOfImages) / 2;
 	_imgHeight = (int) sqrt(nrOfPixels/_nrOfImages) / 2;
 	*/
 
 	// fixed image size
-	_iconSize = 10;
+	_iconSize = 150;
 	MainWindow::_imgWidth = _iconSize;
 	MainWindow::_imgHeight = _iconSize;
 
-	int len = _imageNames.length();
+	int len = _imageNames->length();
 	qDebug() << "image size =" << _imgWidth << "x" << _imgHeight;
 	qDebug() << "image count =" << len;
 
-	clearLayout();
 	_timer.start();
-//	_layout2->setNrOfPetals(ui->spinBox_nrOfPetals->value());
-//	_layout2->setRadius(ui->spinBox_radius->value());
+	//_layout->setNrOfPetals(ui->spinBox_nrOfPetals->value());
+	//_layout->setRadius(ui->spinBox_radius->value());
 
 	// ------------- single-threaded image load --------------------
 	/*_futureLoader = QtConcurrent::run(this, &MainWindow::loadImages);
@@ -115,14 +123,14 @@ void MainWindow::onLoadImagesClick() {
 	// ------------- multi-threaded image load ---------------------
 	auto fun = std::bind(&MainWindow::loadImage, this, std::placeholders::_1);
 		// this: the hidden this parameter for member functions, placeholders::_1 = <const QString& fileName>
-	_futureLoaderMT = QtConcurrent::mapped(_imageNames, fun);
+	_futureLoaderMT = QtConcurrent::mapped(*_imageNames.get(), fun);
 	_futureLoaderWatcherMT.setFuture(_futureLoaderMT);
 	connect(&_futureLoaderWatcherMT, &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedLoading);
 	connect(&_futureLoaderWatcherMT, &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
 }
 
 void MainWindow::loadImages() {
-	for (const QString& fileName : _imageNames) {
+	for (const QString& fileName : *_imageNames.get()) {
 		QString fullFileName = _dir.absoluteFilePath(fileName);
 		// OpenCV read
 		cv::Mat cvImage = cv::imread(fullFileName.toStdString());
@@ -148,6 +156,13 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
 		cv::Mat image = _futureLoaderWatcherMT.resultAt(i);
 		_imagesOriginal->append(image);
+
+		cv::Mat cvResizedImg;
+		cv::resize(image, cvResizedImg, cv::Size(_imgWidth, _imgHeight));
+		_imagesResized->append(Mat2QImage(cvResizedImg));
+
+		// ----------- hash ------------
+
 		//LayoutItem* item = new LayoutItem(NULL, image);
 		//layout->addItem(item);
 	}
@@ -161,16 +176,19 @@ void MainWindow::onFinishedLoading() {
 	int newHeight = _imgHeight;
 	auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
 		// this: the hidden this parameter for member functions, placeholders::_1 = <const cv::Mat& image>
-	_futureResizerMT = QtConcurrent::mapped(*_imagesOriginal.get(), fun);
+	/*_futureResizerMT = QtConcurrent::mapped(*_imagesOriginal.get(), fun);
 	_futureResizerWatcherMT.setFuture(_futureResizerMT);
-	//connect(&_futureResizerWatcher, &QFutureWatcher<QImage>::resultsReadyAt, this, &MainWindow::onImagesResized);
+	//connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::resultsReadyAt, this, &MainWindow::onImagesResized);
 	connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::finished, this, &MainWindow::onFinishedResizing);
+	*/
+	//displayImages();
+	//logTime("display time:");
+
+	_imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(&imageRetrieval.computeHashes(*_imagesOriginal.get()));
+	displayImages();
 }
 
 void MainWindow::resizeImages(int size) {
-	//qDeleteAll(_imagesResized->begin(), _imagesResized->end());
-	_imagesResized->clear();
-
 	for (const cv::Mat& image : *_imagesOriginal.get()) {
 		cv::Mat cvResizedImg;
 		cv::resize(image, cvResizedImg, cv::Size(_imgWidth, _imgHeight));
@@ -195,12 +213,14 @@ void MainWindow::onImagesResized(int resultsBeginInd, int resultsEndInd) {
 
 void MainWindow::onFinishedResizing() {
 	logTime("resize time:");
+
 	_timer.start();
 	for (const QImage& image : _futureResizerMT) {
 		LayoutItem* item = new LayoutItem(NULL, image);
 		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 	logTime("display time:");
+
 }
 
 void MainWindow::onSaveImagesClick() {
@@ -217,15 +237,14 @@ void MainWindow::onSaveImagesClick() {
 	qDebug() << "saving the " << _iconSize << "x" << _iconSize << "icons to: " + _dirSmallImg.absolutePath();
 	_timer.start();
 	for (int i = 0; i < _imagesResized->length(); ++i) {
-		QString newFileName = (_dirSmallImg.absolutePath() + "/" + _imageNames[i]);
-		//_images[i]->save(newFileName);
+		QString newFileName = (_dirSmallImg.absolutePath() + "/" + _imageNames->at(i));
 		_imagesResized->at(i).save(newFileName);
 	}
 	logTime("time needed to save the images:");
 }
 
 void MainWindow::onReverseButtonClick() {
-	clearLayout();
+	emit clearLayout();
 	std::reverse(_imagesResized->begin(), _imagesResized->end());
 
 	// display the images in reverse order
@@ -234,15 +253,25 @@ void MainWindow::onReverseButtonClick() {
 	logTime("display time:");
 }
 
-void MainWindow::clearLayout() {
+void MainWindow::onClearLayout() {
 	_layout->clearAll();
+	_imagesOriginal->clear();
+	_imagesResized->clear();
 }
 
 void MainWindow::displayImages() {
-	for (const QImage& image : *_imagesResized.get()) {
+	/*for (const QImage& image : *_imagesResized.get()) {
+		LayoutItem* item = new LayoutItem(NULL, image);
+		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
+	}*/
+
+	for (const auto& entry : *_imagesHashed.get()) {
+		QImage image = Mat2QImage(entry.second);
+		qDebug() << entry.first;
 		LayoutItem* item = new LayoutItem(NULL, image);
 		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
+
 }
 
 void MainWindow::logTime(QString message) {
@@ -268,17 +297,17 @@ QImage MainWindow::Mat2QImage(const cv::Mat& image) const {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-//	_layout2->setRadius(value);
-	if (_imageNames.length()) {
-		clearLayout();
+	//_layout->setRadius(value);
+	if (_imageNames->length()) {
+		emit clearLayout();
 		displayImages();
 	}
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-	//_layout2->setNrOfPetals(value);
-	if (_imageNames.length()) {
-		clearLayout();
+	//_layout->setNrOfPetals(value);
+	if (_imageNames->length()) {
+		emit clearLayout();
 		displayImages();
 	}
 }

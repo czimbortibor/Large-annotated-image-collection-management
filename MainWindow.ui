@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>617</width>
-    <height>357</height>
+    <width>669</width>
+    <height>398</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0,0,0,0">
        <property name="spacing">
         <number>10</number>
        </property>
@@ -109,6 +109,9 @@
          <property name="singleStep">
           <double>20.000000000000000</double>
          </property>
+         <property name="value">
+          <double>100.000000000000000</double>
+         </property>
         </widget>
        </item>
        <item>
@@ -118,6 +121,16 @@
          </property>
          <property name="text">
           <string>Load images</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnClear">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(148, 255, 157);</string>
+         </property>
+         <property name="text">
+          <string>Clear</string>
          </property>
         </widget>
        </item>

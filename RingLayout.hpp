@@ -40,9 +40,9 @@ private:
 	QList<QGraphicsLayoutItem*> _items;
 	qreal _spacing[2];
 	/** how many images should be on the ring */
-	int _nrOfPetals;
+	int _nrOfPetals = 7;
 	/** radius of the circle on which the images will be positioned */
-	qreal _radius;
+	qreal _radius = 100;
 
 };
 
