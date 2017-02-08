@@ -1,64 +1,56 @@
 #include "CBIR.hpp"
-#include <QDebug>
 
 CBIR::CBIR() {
 
 }
 
-bool CBIR::MatCompare::operator()(const cv::Mat& mat1, const cv::Mat& mat2) const {
-	cv::Mat res;
-	cv::compare(mat1, mat2, res, cv::CMP_GE); // mat1 is greater than or equal to mat2
-	return cv::countNonZero(res) > 0;
+double CBIR::MatCompare::operator()(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const {
+	double res = cv::norm(hashmatA, hashmatB, cv::NORM_HAMMING);
+	qDebug() << res;
+	return res;
 }
 
-bool CBIR::HashCompare::operator()(const cv::Mat& mat1, const cv::Mat& mat2) const {
-	double res1 = cv::norm(mat1, cv::NORM_HAMMING2);
-	double res2 = cv::norm(mat2, cv::NORM_HAMMING2);
-	//qDebug() << "res1:" << res1;
-	return res1;
+bool CBIR::HashCompare::operator()(const ulong64& hashA, const ulong64& hashB) const {
+	return ph_hamming_distance(hashA, hashB);
 }
 
-std::multimap<double, const cv::Mat>& CBIR::computeHashes(QVector<cv::Mat>& images) {
+//std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>& CBIR::computeHashes(QVector<cv::Mat>& images) const {
+std::multimap<double, const cv::Mat>& CBIR::computeHashes(QVector<cv::Mat>& images) const {
+	//std::multimap<const cv::Mat, const cv::Mat, MatCompare>* resMap = new std::multimap<const cv::Mat, const cv::Mat, MatCompare>;
 	std::multimap<double, const cv::Mat>* resMap = new std::multimap<double, const cv::Mat>;
-	cv::Mat hashMat;
-	std::vector<cv::Mat>* hashes = new std::vector<cv::Mat>;
+
 	//cv::Ptr<cv::img_hash::ImgHashBase> hasher = cv::img_hash::AverageHash::create();
 
 	// compute the hash from each image
-	double hashNorm;
-	for (auto& image : images) {
-		cv::Mat resizedImg;
-		cv::resize(image, resizedImg, cv::Size(150, 150));
+	for (const auto& image : images) {
+		double hashNorm;
+		cv::Mat hashMat;
 		//averageHash(resizedImg, hashMat);
-		pHash(resizedImg, hashMat);
-		hashes->push_back(hashMat);
+		pHash(image, hashMat);
 		// get the norm for every hash
 		hashNorm = cv::norm(hashMat, cv::NORM_HAMMING);
-
-		resMap->insert(std::pair<double, const cv::Mat>(hashNorm, resizedImg));
+		//resMap->insert(std::pair<const cv::Mat, const cv::Mat>(hashMat, image));
+		resMap->insert(std::pair<double, const cv::Mat>(hashNorm, image));
 	}
 
-	// compute every hash's average difference from the others
-	/*for (uint i = 0; i < hashes->size(); ++i) {
-		double sum = 0;
-		for (uint j = i+1; j < hashes->size(); ++j) {
-			double diff = difference(hashes->at(i), hashes->at(j));
-			sum += diff;
-		}
-		double avgDiff = sum / hashes->size();
-		resMap->insert(std::pair<double, const cv::Mat>(avgDiff, images[i]));
-			// --- optimize? : http://www.cplusplus.com/reference/map/multimap/insert/
-	}*/
-
-	hashes->clear();
 	return *resMap;
 }
 
-double CBIR::difference(const cv::Mat& mat1, const cv::Mat& mat2) {
-	return cv::norm(mat1, mat2, cv::NORM_HAMMING);
+std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>& CBIR::computeHashes_pHash(QVector<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const {
+	std::multimap<ulong64, const cv::Mat, HashCompare>* resMap = new std::multimap<ulong64, const cv::Mat, HashCompare>;
+
+	for (int i = 0; i < images.size(); ++i) {
+		std::string filename(QString(dirname + '/' + imageNames[i]).toStdString());
+		// compute hash
+		ulong64 hash;
+		ph_dct_imagehash(filename.c_str(), hash);
+		resMap->insert(std::pair<ulong64, const cv::Mat>(hash, images[i]));
+	}
+
+	return *resMap;
 }
 
-void CBIR::averageHash(cv::InputArray inputArr, cv::OutputArray outputArr) {
+void CBIR::averageHash(cv::InputArray inputArr, cv::OutputArray outputArr) const {
 	cv::Mat bitsImg;
 	cv::Mat grayImg;
 	cv::Mat resizeImg;
@@ -100,7 +92,7 @@ void CBIR::averageHash(cv::InputArray inputArr, cv::OutputArray outputArr) {
 	}
 }
 
-void CBIR::pHash(cv::InputArray inputArr, cv::OutputArray outputArr) {
+void CBIR::pHash(cv::InputArray inputArr, cv::OutputArray outputArr) const {
 	cv::Mat bitsImg;
 	cv::Mat dctImg;
 	cv::Mat grayFImg;

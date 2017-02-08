@@ -51,8 +51,10 @@ private:
 	void loadImages();
 	cv::Mat loadImage(const QString &fileName) const;
 	void resizeImages(int size);
-	QImage resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-	void displayImages();
+	cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
+	void displayImages(const QVector<cv::Mat>& images) const;
+	/** opencv_img_hash & pHash display */
+	template<typename T> void displayImages(const T& images) const;
 
 	void logTime(QString message);
 	QImage Mat2QImage(const cv::Mat &cvImage) const;
@@ -69,7 +71,7 @@ private:
 	int _imgWidth;
 	int _imgHeight;
 	std::unique_ptr<QVector<cv::Mat>> _imagesOriginal;
-	std::unique_ptr<QVector<QImage>> _imagesResized;
+	std::unique_ptr<QVector<cv::Mat>> _imagesResized;
 	QElapsedTimer _timer;
 
 	// ------ single-thread image load -------
@@ -80,8 +82,8 @@ private:
 	QFutureWatcher<cv::Mat> _futureLoaderWatcherMT;
 
 	// ------ multi-threaded image resize ------
-	QFuture<QImage> _futureResizerMT;
-	QFutureWatcher<QImage> _futureResizerWatcherMT;
+	QFuture<cv::Mat> _futureResizerMT;
+	QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
 
 	FlowLayout* _layout;
 	QGraphicsWidget* _layoutWidget;
@@ -89,7 +91,9 @@ private:
 	QGraphicsScene* _scene;
 
 	CBIR imageRetrieval;
+	//std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
 	std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
+	std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
 
 private slots:
 	void onSceneChanged();

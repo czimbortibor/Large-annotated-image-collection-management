@@ -28,10 +28,12 @@ HEADERS  += MainWindow.hpp \
 
 FORMS    += MainWindow.ui
 
-INCLUDEPATH += /usr/local/include/opencv
+INCLUDEPATH += /usr/local/include/opencv \
+    /usr/local/include
 
 LIBS += -L/usr/local/lib \
     -lopencv_core \
     -lopencv_imgproc \
     -lopencv_highgui \
     -lopencv_imgcodecs \
+    -lpHash

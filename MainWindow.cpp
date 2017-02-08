@@ -88,7 +88,7 @@ void MainWindow::onLoadImagesClick() {
 	_imageNames = std::unique_ptr<QList<QString>>(new QList<QString>);
 	*_imageNames.get() = _dir.entryList();
 	_imagesOriginal = std::unique_ptr<QVector<cv::Mat>>(new QVector<cv::Mat>);
-	_imagesResized = std::unique_ptr<QVector<QImage>>(new QVector<QImage>);
+	_imagesResized = std::unique_ptr<QVector<cv::Mat>>(new QVector<cv::Mat>);
 	_nrOfImages = _imageNames->length();
 
 	// every image is visible on the screen
@@ -159,7 +159,7 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 
 		cv::Mat cvResizedImg;
 		cv::resize(image, cvResizedImg, cv::Size(_imgWidth, _imgHeight));
-		_imagesResized->append(Mat2QImage(cvResizedImg));
+		_imagesResized->append(cvResizedImg);
 
 		// ----------- hash ------------
 
@@ -184,28 +184,39 @@ void MainWindow::onFinishedLoading() {
 	//displayImages();
 	//logTime("display time:");
 
-	_imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(&imageRetrieval.computeHashes(*_imagesOriginal.get()));
-	displayImages();
+	// ------ opencv img_hash -------
+	auto mapPtr = &imageRetrieval.computeHashes(*_imagesResized.get());
+	//_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
+	//displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
+	_imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(mapPtr);
+	displayImages<std::multimap<double, const cv::Mat>>(*_imagesHashed.get());
+
+
+	// ------ pHash -------
+	/*auto mapPtr = &imageRetrieval.computeHashes_pHash(*_imagesResized.get(), _dir.absolutePath(), *_imageNames.get());
+	_imagesHashed_pHash = std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>>(mapPtr);
+	displayImages<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>>(*_imagesHashed_pHash.get());
+*/
 }
 
 void MainWindow::resizeImages(int size) {
+	Q_UNUSED(size)
 	for (const cv::Mat& image : *_imagesOriginal.get()) {
 		cv::Mat cvResizedImg;
 		cv::resize(image, cvResizedImg, cv::Size(_imgWidth, _imgHeight));
-		QImage resImage = Mat2QImage(cvResizedImg);
-		_imagesResized->append(resImage);
+		_imagesResized->append(cvResizedImg);
 	}
 }
 
-QImage MainWindow::resizeImage(const cv::Mat& image, int newWidth, int newHeight) const {
+cv::Mat MainWindow::resizeImage(const cv::Mat& image, int newWidth, int newHeight) const {
 	cv::Mat resizedImg;
 	cv::resize(image, resizedImg, cv::Size(newWidth, newHeight));
-	return Mat2QImage(resizedImg);
+	return resizedImg;
 }
 
 void MainWindow::onImagesResized(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
-		QImage res = _futureResizerWatcherMT.resultAt(i);
+		QImage res = Mat2QImage(_futureResizerWatcherMT.resultAt(i));
 		LayoutItem* item = new LayoutItem(NULL, res);
 		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
@@ -215,8 +226,9 @@ void MainWindow::onFinishedResizing() {
 	logTime("resize time:");
 
 	_timer.start();
-	for (const QImage& image : _futureResizerMT) {
-		LayoutItem* item = new LayoutItem(NULL, image);
+	for (const cv::Mat& image : _futureResizerMT) {
+		QImage res = Mat2QImage(image);
+		LayoutItem* item = new LayoutItem(NULL, res);
 		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 	logTime("display time:");
@@ -238,7 +250,8 @@ void MainWindow::onSaveImagesClick() {
 	_timer.start();
 	for (int i = 0; i < _imagesResized->length(); ++i) {
 		QString newFileName = (_dirSmallImg.absolutePath() + "/" + _imageNames->at(i));
-		_imagesResized->at(i).save(newFileName);
+		//_imagesResized->at(i).save(newFileName);
+		cv::imwrite(newFileName.toStdString(), _imagesResized->at(i));
 	}
 	logTime("time needed to save the images:");
 }
@@ -249,7 +262,7 @@ void MainWindow::onReverseButtonClick() {
 
 	// display the images in reverse order
 	_timer.start();
-	displayImages();
+	//displayImages();
 	logTime("display time:");
 }
 
@@ -259,19 +272,22 @@ void MainWindow::onClearLayout() {
 	_imagesResized->clear();
 }
 
-void MainWindow::displayImages() {
-	/*for (const QImage& image : *_imagesResized.get()) {
-		LayoutItem* item = new LayoutItem(NULL, image);
+void MainWindow::displayImages(const QVector<cv::Mat>& images) const {
+	for (const auto& image : images) {
+		QImage res = Mat2QImage(image);
+		LayoutItem* item = new LayoutItem(NULL, res);
 		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
-	}*/
+	}
+}
 
-	for (const auto& entry : *_imagesHashed.get()) {
+template<typename T>
+void MainWindow::displayImages(const T& images) const {
+	for (const auto& entry : images) {
 		QImage image = Mat2QImage(entry.second);
-		qDebug() << entry.first;
+		//qDebug() << entry.first;
 		LayoutItem* item = new LayoutItem(NULL, image);
 		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
-
 }
 
 void MainWindow::logTime(QString message) {
@@ -300,7 +316,7 @@ void MainWindow::onRadiusChanged(double value) {
 	//_layout->setRadius(value);
 	if (_imageNames->length()) {
 		emit clearLayout();
-		displayImages();
+		//displayImages();
 	}
 }
 
@@ -308,6 +324,6 @@ void MainWindow::onPetalNrChanged(int value) {
 	//_layout->setNrOfPetals(value);
 	if (_imageNames->length()) {
 		emit clearLayout();
-		displayImages();
+		//displayImages();
 	}
 }
