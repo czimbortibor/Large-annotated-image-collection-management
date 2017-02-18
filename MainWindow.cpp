@@ -184,12 +184,16 @@ void MainWindow::onFinishedLoading() {
 	//displayImages();
 	//logTime("display time:");
 
-	// ------ opencv img_hash -------
-	auto mapPtr = &imageRetrieval.computeHashes(*_imagesResized.get());
-	//_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
-	//displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
+	// ------ opencv img_hash ------- : https://github.com/stereomatchingkiss/opencv_contrib/tree/img_hash/modules/img_hash
+	 cv::Ptr<cv::img_hash::PHash> hasher = cv::img_hash::PHash::create();
+	// cv::Ptr<cv::img_hash::AverageHash> hasher = cv::img_hash::AverageHash::create();
+	// cv::Ptr<cv::img_hash::MarrHildrethHash> hasher = cv::img_hash::MarrHildrethHash::create();
+	// cv::Ptr<cv::img_hash::RadialVarianceHash> hasher = cv::img_hash::RadialVarianceHash::create();
+	auto mapPtr = &imageRetrieval.computeHashes(*_imagesResized.get(), hasher);
 	_imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(mapPtr);
 	displayImages<std::multimap<double, const cv::Mat>>(*_imagesHashed.get());
+	//_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
+	//displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
 
 
 	// ------ pHash -------

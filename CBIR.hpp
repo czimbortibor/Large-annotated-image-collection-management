@@ -31,16 +31,15 @@ public:
 		bool operator()(const ulong64& hashA, const ulong64& hashB) const;
 	};
 
-	/** opencv img_hash */
+	/** using OpenCV's img_hash library */
 	//std::multimap<const cv::Mat, const cv::Mat, MatCompare>& computeHashes(QVector<cv::Mat>& images) const;
-	std::multimap<double, const cv::Mat>& computeHashes(QVector<cv::Mat>& images) const;
+	std::multimap<double, const cv::Mat>& computeHashes(QVector<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
 
-	/** pHash */
+	/** using the pHash library */
 	std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QVector<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const;
 
 private:
-	void averageHash(cv::InputArray inputArr, cv::OutputArray outputArr) const;
-	void pHash(cv::InputArray inputArr, cv::OutputArray outputArr) const;
+
 };
 
 #endif // CBIR_HPP

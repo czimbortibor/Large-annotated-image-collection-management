@@ -18,22 +18,31 @@ SOURCES +=\
     FlowLayout.cpp \
     LayoutItem.cpp \
     RingLayout.cpp \
-    CBIR.cpp
+    CBIR.cpp \
+    View.cpp \
+    DB.cpp
 
 HEADERS  += MainWindow.hpp \
     FlowLayout.hpp \
     LayoutItem.hpp \
     RingLayout.hpp \
-    CBIR.hpp
+    CBIR.hpp \
+    View.hpp \
+    DB.hpp
 
 FORMS    += MainWindow.ui
 
-INCLUDEPATH += /usr/local/include/opencv \
-    /usr/local/include
+INCLUDEPATH += /usr/local/include \
+    /usr/local/include/opencv \
+    /usr/local/include/mongocxx/v_noabi \
+    /usr/local/include/bsoncxx/v_noabi
 
 LIBS += -L/usr/local/lib \
     -lopencv_core \
     -lopencv_imgproc \
     -lopencv_highgui \
     -lopencv_imgcodecs \
-    -lpHash
+    -lopencv_img_hash \
+    -lpHash \
+    -lmongocxx \
+    -lbsoncxx

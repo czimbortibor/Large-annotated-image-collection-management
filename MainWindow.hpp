@@ -31,6 +31,7 @@
 #include "FlowLayout.hpp"
 #include "RingLayout.hpp"
 #include "CBIR.hpp"
+#include "DB.hpp"
 
 namespace Ui {
 class MainWindow;
