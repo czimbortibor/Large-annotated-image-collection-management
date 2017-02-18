@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent) :
     // http://doc.qt.io/qt-5/graphicsview.html#opengl-rendering
     //QGraphicsView::setViewport(new QGLWidget);
 
-	initScene();
+	init();
 }
 
 MainWindow::~MainWindow() {
@@ -41,8 +41,8 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::initScene() {
-	_scene = new QGraphicsScene;
+void MainWindow::init() {
+	/*_scene = new QGraphicsScene;
 	connect(_scene, &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
 	_view = new QGraphicsView(_scene);
 	ui->centralWidget->layout()->addWidget(_view);
@@ -55,6 +55,12 @@ void MainWindow::initScene() {
 	_layoutWidget->setLayout(_layout);
 
 	_scene->addItem(_layoutWidget);
+	_view->show();*/
+
+	_view = new GraphicsView;
+	connect(_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
+	ui->centralWidget->layout()->addWidget(_view);
+	//_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 	_view->show();
 }
 
@@ -62,7 +68,7 @@ void MainWindow::onSceneChanged() {
 	QSizeF viewSize = _view->size();
 	qreal radius = ui->spinBox_radius->value();
 	QSizeF newSize(viewSize.width() - radius, viewSize.height());
-	_layoutWidget->setMinimumSize(newSize);
+	_view->setMinSceneSize(newSize);
 	/*if (_imageNames.length()) {
 		clearLayout();
 		displayImages();
@@ -222,7 +228,7 @@ void MainWindow::onImagesResized(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
 		QImage res = Mat2QImage(_futureResizerWatcherMT.resultAt(i));
 		LayoutItem* item = new LayoutItem(NULL, res);
-		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
+		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 }
 
@@ -233,7 +239,7 @@ void MainWindow::onFinishedResizing() {
 	for (const cv::Mat& image : _futureResizerMT) {
 		QImage res = Mat2QImage(image);
 		LayoutItem* item = new LayoutItem(NULL, res);
-		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
+		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 	logTime("display time:");
 
@@ -271,7 +277,7 @@ void MainWindow::onReverseButtonClick() {
 }
 
 void MainWindow::onClearLayout() {
-	_layout->clearAll();
+	_view->clear();
 	_imagesOriginal->clear();
 	_imagesResized->clear();
 }
@@ -280,7 +286,7 @@ void MainWindow::displayImages(const QVector<cv::Mat>& images) const {
 	for (const auto& image : images) {
 		QImage res = Mat2QImage(image);
 		LayoutItem* item = new LayoutItem(NULL, res);
-		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
+		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 }
 
@@ -290,7 +296,7 @@ void MainWindow::displayImages(const T& images) const {
 		QImage image = Mat2QImage(entry.second);
 		//qDebug() << entry.first;
 		LayoutItem* item = new LayoutItem(NULL, image);
-		_layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
+		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 }
 

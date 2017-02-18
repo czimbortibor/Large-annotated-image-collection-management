@@ -48,40 +48,41 @@
 **
 ****************************************************************************/
 
-#include <QGraphicsLayout>
+#ifndef FLOWLAYOUT_HPP
+#define FLOWLAYOUT_HPP
 
-class FlowLayout : public QGraphicsLayout
-{
+#include <qmath.h>
+#include <QWidget>
+
+#include "AbstractGraphicsLayout.hpp"
+
+
+class FlowLayout : public AbstractGraphicsLayout {
 public:
     FlowLayout();
-    inline void addItem(QGraphicsLayoutItem *item);
-    void insertItem(int index, QGraphicsLayoutItem *item);
-    void setSpacing(Qt::Orientations o, qreal spacing);
-    qreal spacing(Qt::Orientation o) const;
 
-	void clearAll();
-
-    // inherited functions
-    void setGeometry(const QRectF &geom) Q_DECL_OVERRIDE;
-
-    int count() const Q_DECL_OVERRIDE;
-    QGraphicsLayoutItem *itemAt(int index) const Q_DECL_OVERRIDE;
+	void setSpacing(Qt::Orientations o, qreal spacing) Q_DECL_OVERRIDE;
+	qreal spacing(Qt::Orientation o) const Q_DECL_OVERRIDE;
+	void setGeometry(const QRectF& geom) Q_DECL_OVERRIDE;
+	int count() const Q_DECL_OVERRIDE;
+	QGraphicsLayoutItem* itemAt(int index) const Q_DECL_OVERRIDE;
     void removeAt(int index) Q_DECL_OVERRIDE;
 
+	void addItem(QGraphicsLayoutItem* item) Q_DECL_OVERRIDE { insertItem(-1, item); }
+	void clearAll() Q_DECL_OVERRIDE;
+
 protected:
+	void insertItem(int index, QGraphicsLayoutItem* item) Q_DECL_OVERRIDE;
     QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const Q_DECL_OVERRIDE;
 
 private:
-    qreal doLayout(const QRectF &geom, bool applyNewGeometry) const;
-    QSizeF minSize(const QSizeF &constraint) const;
-    QSizeF prefSize() const;
-    QSizeF maxSize() const;
+	qreal doLayout(const QRectF& geom, bool applyNewGeometry) const Q_DECL_OVERRIDE;
+	QSizeF minSize(const QSizeF& constraint) const Q_DECL_OVERRIDE;
+	QSizeF prefSize() const Q_DECL_OVERRIDE;
+	QSizeF maxSize() const Q_DECL_OVERRIDE;
 
-    QList<QGraphicsLayoutItem*> m_items;
+	QList<QGraphicsLayoutItem*> m_items;
     qreal m_spacing[2];
 };
 
-inline void FlowLayout::addItem(QGraphicsLayoutItem *item)
-{
-    insertItem(-1, item);
-}
+#endif // FLOWLAYOUT_HPP

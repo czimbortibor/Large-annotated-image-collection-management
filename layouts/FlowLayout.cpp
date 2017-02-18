@@ -48,9 +48,6 @@
 **
 ****************************************************************************/
 
-#include <qmath.h>
-#include <QWidget>
-
 #include "FlowLayout.hpp"
 
 FlowLayout::FlowLayout() {
@@ -117,7 +114,7 @@ qreal FlowLayout::doLayout(const QRectF &geom, bool applyNewGeometry) const {
     qreal maxRowHeight = 0;
     QSizeF pref;
     for (int i = 0; i < m_items.count(); ++i) {
-        QGraphicsLayoutItem *item = m_items.at(i);
+		QGraphicsLayoutItem *item = m_items.at(i);
         pref = item->effectiveSizeHint(Qt::PreferredSize);
         maxRowHeight = qMax(maxRowHeight, pref.height());
 
@@ -152,7 +149,7 @@ QSizeF FlowLayout::minSize(const QSizeF &constraint) const {
     } else if (constraint.height() >= 0) {  // width for height?
         // not supported
     } else {
-        QGraphicsLayoutItem *item;
+		QGraphicsLayoutItem *item;
         foreach (item, m_items)
             size = size.expandedTo(item->effectiveSizeHint(Qt::MinimumSize));
         size += QSize(left + right, top + bottom);

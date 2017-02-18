@@ -13,24 +13,27 @@ TEMPLATE = app
 
 
 SOURCES +=\
-        MainWindow.cpp \
     Main.cpp \
-    FlowLayout.cpp \
-    LayoutItem.cpp \
-    RingLayout.cpp \
-    CBIR.cpp \
-    View.cpp \
-    DB.cpp
+    layouts/FlowLayout.cpp \
+    layouts/RingLayout.cpp \
+    db/DB.cpp \
+    util/CBIR.cpp \
+    util/LayoutItem.cpp \
+    forms/MainWindow.cpp \
+    views/GraphicsView.cpp
 
-HEADERS  += MainWindow.hpp \
-    FlowLayout.hpp \
-    LayoutItem.hpp \
-    RingLayout.hpp \
-    CBIR.hpp \
-    View.hpp \
-    DB.hpp
+HEADERS  +=\
+    layouts/AbstractGraphicsLayout.hpp \
+    layouts/FlowLayout.hpp \
+    layouts/RingLayout.hpp \
+    db/DB.hpp \
+    util/CBIR.hpp \
+    util/LayoutItem.hpp \
+    forms/MainWindow.hpp \
+    views/GraphicsView.hpp
 
-FORMS    += MainWindow.ui
+FORMS    +=\
+    forms/MainWindow.ui
 
 INCLUDEPATH += /usr/local/include \
     /usr/local/include/opencv \

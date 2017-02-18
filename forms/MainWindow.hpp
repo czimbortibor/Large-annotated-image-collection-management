@@ -27,11 +27,12 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "LayoutItem.hpp"
-#include "FlowLayout.hpp"
-#include "RingLayout.hpp"
-#include "CBIR.hpp"
-#include "DB.hpp"
+#include "util/LayoutItem.hpp"
+#include "util/CBIR.hpp"
+#include "views/GraphicsView.hpp"
+#include "layouts/FlowLayout.hpp"
+#include "layouts/RingLayout.hpp"
+#include "db/DB.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -47,7 +48,7 @@ public:
     ~MainWindow();
 
 private:
-	void initScene();
+	void init();
 
 	void loadImages();
 	cv::Mat loadImage(const QString &fileName) const;
@@ -86,10 +87,11 @@ private:
 	QFuture<cv::Mat> _futureResizerMT;
 	QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
 
-	FlowLayout* _layout;
+	/*FlowLayout* _layout;
 	QGraphicsWidget* _layoutWidget;
 	QGraphicsView* _view;
-	QGraphicsScene* _scene;
+	QGraphicsScene* _scene;*/
+	GraphicsView* _view;
 
 	CBIR imageRetrieval;
 	//std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;

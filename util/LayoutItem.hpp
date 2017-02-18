@@ -40,6 +40,7 @@
 
 #ifndef LAYOUTITEM_H
 #define LAYOUTITEM_H
+
 #include <QtGui>
 #include <QGraphicsLayout>
 #include <QGraphicsLayoutItem>
