@@ -26,6 +26,14 @@ MainWindow::MainWindow(QWidget* parent) :
     //QGraphicsView::setViewport(new QGLWidget);
 
 	init();
+
+	std::string host = "mongodb://localhost:27017";
+	std::string database = "local";
+	std::string collection = "TwitterFDL2015";
+	_mongoAccess = std::unique_ptr<MongoAccess>(new MongoAccess(host, database, collection));
+	if (_mongoAccess->init()) {
+		_mongoAccess->test();
+	}
 }
 
 MainWindow::~MainWindow() {
@@ -42,21 +50,6 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::init() {
-	/*_scene = new QGraphicsScene;
-	connect(_scene, &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
-	_view = new QGraphicsView(_scene);
-	ui->centralWidget->layout()->addWidget(_view);
-	// align from the top-left corner rather then from the center
-	_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-	_layoutWidget = new QGraphicsWidget;
-	_layoutWidget->setMinimumSize(_view->size());
-	_layout = new FlowLayout;
-	_layoutWidget->setLayout(_layout);
-
-	_scene->addItem(_layoutWidget);
-	_view->show();*/
-
 	_view = new GraphicsView;
 	connect(_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
 	ui->centralWidget->layout()->addWidget(_view);

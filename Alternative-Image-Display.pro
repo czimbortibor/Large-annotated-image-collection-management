@@ -16,21 +16,21 @@ SOURCES +=\
     Main.cpp \
     layouts/FlowLayout.cpp \
     layouts/RingLayout.cpp \
-    db/DB.cpp \
     util/CBIR.cpp \
     util/LayoutItem.cpp \
     forms/MainWindow.cpp \
-    views/GraphicsView.cpp
+    views/GraphicsView.cpp \
+    db/MongoAccess.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
     layouts/FlowLayout.hpp \
     layouts/RingLayout.hpp \
-    db/DB.hpp \
     util/CBIR.hpp \
     util/LayoutItem.hpp \
     forms/MainWindow.hpp \
-    views/GraphicsView.hpp
+    views/GraphicsView.hpp \
+    db/MongoAccess.hpp
 
 FORMS    +=\
     forms/MainWindow.ui

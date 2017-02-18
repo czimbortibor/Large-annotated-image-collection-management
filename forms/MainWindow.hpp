@@ -32,7 +32,7 @@
 #include "views/GraphicsView.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/RingLayout.hpp"
-#include "db/DB.hpp"
+#include "db/MongoAccess.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -87,16 +87,14 @@ private:
 	QFuture<cv::Mat> _futureResizerMT;
 	QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
 
-	/*FlowLayout* _layout;
-	QGraphicsWidget* _layoutWidget;
-	QGraphicsView* _view;
-	QGraphicsScene* _scene;*/
 	GraphicsView* _view;
 
 	CBIR imageRetrieval;
 	//std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
 	std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
 	std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
+
+	std::unique_ptr<MongoAccess> _mongoAccess;
 
 private slots:
 	void onSceneChanged();
