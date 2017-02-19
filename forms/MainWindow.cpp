@@ -4,7 +4,6 @@
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
-	_frame.setParent(this);
 
 	//QThread::currentThread()->setPriority(QThread::HighPriority);
 
@@ -20,10 +19,10 @@ void MainWindow::init() {
 	connect(this, &MainWindow::clearLayout, this, &MainWindow::onClearLayout);
 
 	// buttons
-	connect(ui->btnLoad, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
-	connect(ui->btnSave, &QPushButton::clicked, this, &MainWindow::onSaveImagesClick);
-	connect(ui->btnClear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
-	connect(ui->btnReverse, &QPushButton::clicked, this, &MainWindow::onReverseButtonClick);
+	connect(ui->btn_load, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
+	connect(ui->btn_save, &QPushButton::clicked, this, &MainWindow::onSaveImagesClick);
+	connect(ui->btn_clear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
+	connect(ui->btn_reverse, &QPushButton::clicked, this, &MainWindow::onReverseButtonClick);
 
 	// spinboxes
 	connect(ui->spinBox_radius, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onRadiusChanged);
@@ -199,11 +198,11 @@ void MainWindow::onFinishedLoading() {
 	logTime("load time:");
 
 	_timer.start();
-	int newWidth = _imgWidth;
+	/*int newWidth = _imgWidth;
 	int newHeight = _imgHeight;
 	auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
 		// this: the hidden this parameter for member functions, placeholders::_1 = <const cv::Mat& image>
-	/*_futureResizerMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imagesOriginal.get(), fun)));
+	_futureResizerMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imagesOriginal.get(), fun)));
 	_futureResizerWatcherMT.setFuture(*_futureResizerMT.get());
 	//connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::resultsReadyAt, this, &MainWindow::onImagesResized);
 	connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::finished, this, &MainWindow::onFinishedResizing);

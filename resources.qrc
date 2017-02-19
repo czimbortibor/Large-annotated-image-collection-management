@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>resources/icons/grid_layout.png</file>
+        <file>resources/icons/plus_icon.png</file>
+        <file>resources/icons/flower_layout.png</file>
+    </qresource>
+</RCC>

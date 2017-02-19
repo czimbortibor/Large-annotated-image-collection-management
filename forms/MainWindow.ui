@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>683</width>
-    <height>439</height>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,9 +17,9 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
-     <widget class="QFrame" name="frame_2">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QFrame" name="frame_controls">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
         <number>10</number>
        </property>
        <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacer_left">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -53,7 +53,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="btnSave">
+        <widget class="QPushButton" name="btn_save">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(148, 255, 157);</string>
          </property>
@@ -63,7 +63,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblPetalNumber">
+        <widget class="QLabel" name="lbl_petalNumber">
          <property name="text">
           <string>petal number:</string>
          </property>
@@ -89,7 +89,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblRadius">
+        <widget class="QLabel" name="lbl_radius">
          <property name="text">
           <string>radius</string>
          </property>
@@ -115,7 +115,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnLoad">
+        <widget class="QPushButton" name="btn_load">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(148, 255, 157);</string>
          </property>
@@ -125,7 +125,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnClear">
+        <widget class="QPushButton" name="btn_clear">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(148, 255, 157);</string>
          </property>
@@ -135,7 +135,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnReverse">
+        <widget class="QPushButton" name="btn_reverse">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(148, 255, 157);</string>
          </property>
@@ -145,7 +145,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
+        <spacer name="horizontalSpacer_right">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -160,10 +160,72 @@
       </layout>
      </widget>
     </item>
+    <item>
+     <widget class="QFrame" name="frame_filters">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>layout:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox_layout">
+         <item>
+          <property name="text">
+           <string>grid</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/resources/icons/grid_layout.png</normaloff>:/icons/resources/icons/grid_layout.png</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>flower</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources.qrc">
+            <normaloff>:/icons/resources/icons/flower_layout.png</normaloff>:/icons/resources/icons/flower_layout.png</iconset>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

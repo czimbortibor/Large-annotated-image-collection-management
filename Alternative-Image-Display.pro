@@ -49,3 +49,6 @@ LIBS += -L/usr/local/lib \
     -lpHash \
     -lmongocxx \
     -lbsoncxx
+
+RESOURCES += \
+    resources.qrc

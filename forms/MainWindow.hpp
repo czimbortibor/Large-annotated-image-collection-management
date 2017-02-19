@@ -69,7 +69,6 @@ private:
 
 
 	Ui::MainWindow* ui;
-	QFrame _frame;
 	int _iconSize;
 	int _nrOfImages;
 	QDir _dir;
