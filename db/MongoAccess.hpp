@@ -7,11 +7,12 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/stdx/make_unique.hpp>
+#include <mongocxx/uri.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/logger.hpp>
 #include <mongocxx/options/client.hpp>
-#include <mongocxx/uri.hpp>
+#include <mongocxx/exception/operation_exception.hpp>
 
 class MongoAccess {
 public:

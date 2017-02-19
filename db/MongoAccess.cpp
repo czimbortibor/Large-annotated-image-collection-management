@@ -7,22 +7,35 @@ MongoAccess::MongoAccess(const std::string& hostName, const std::string& databas
 }
 
 bool MongoAccess::init() {
+	// specify the host
+	mongocxx::uri uri(_hostName);
 	try {
-		// specify the host
-		mongocxx::uri uri(_hostName);
 		// connect to the server
 		_client = mongocxx::client(uri);
+
+		// check if the connection was succesful, else fails with a mongocxx::exception
+		mongocxx::cursor databases = _client.list_databases();
+		databases.begin();
+
 		// access the database
 		_db = mongocxx::database(_client[_databaseName]);
+
 		// get the collection
 		_collection = mongocxx::collection(_db[_collectionName]);
-		std::cout << "database connection is succesful" << "\n";
-		return true;
+		// check if the collection exists
+		try {
+			_collection.name();
+		}
+		catch (const mongocxx::operation_exception& ex) {
+			std::cerr << "database collection error:" << ex.what() << "\n";
+			return false;
+		}
 	}
-	catch(const std::exception& ex) {
+	catch (const mongocxx::exception& ex) {
 		std::cerr << "database connection failed: " << ex.what() << "\n";
 		return false;
 	}
+	return true;
 }
 
 void MongoAccess::test() {

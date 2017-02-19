@@ -5,9 +5,17 @@ MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 	_frame.setParent(this);
+
 	//QThread::currentThread()->setPriority(QThread::HighPriority);
 
-    //qDebug() << QImageReader::supportedImageFormats();
+	init();
+}
+
+void MainWindow::init() {
+	// set the supported image formats
+	for (const QByteArray& item : QImageReader::supportedImageFormats()) {
+		_supportedImgFormats.append("*." + item);
+	}
 
 	connect(this, &MainWindow::clearLayout, this, &MainWindow::onClearLayout);
 
@@ -22,10 +30,10 @@ MainWindow::MainWindow(QWidget* parent) :
 	connect(ui->spinBox_nrOfPetals, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onPetalNrChanged);
 		// overloaded signal -> have to specify the specific function syntax
 
-    // http://doc.qt.io/qt-5/graphicsview.html#opengl-rendering
-    //QGraphicsView::setViewport(new QGLWidget);
+	// http://doc.qt.io/qt-5/graphicsview.html#opengl-rendering
+	//QGraphicsView::setViewport(new QGLWidget);
 
-	init();
+	initView();
 
 	std::string host = "mongodb://localhost:27017";
 	std::string database = "local";
@@ -40,8 +48,8 @@ MainWindow::~MainWindow() {
 	if (_futureLoaderWatcher.isRunning()) {
 		_futureLoaderWatcher.cancel();
 	}
-	if (_futureLoaderWatcherMT.isRunning()) {
-		_futureLoaderWatcherMT.cancel();
+	if (_futureLoaderWatcherMT->isRunning()) {
+		_futureLoaderWatcherMT->cancel();
 	}
 	if (_futureResizerWatcherMT.isRunning()) {
 		_futureResizerWatcherMT.cancel();
@@ -49,7 +57,7 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::init() {
+void MainWindow::initView() {
 	_view = new GraphicsView;
 	connect(_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
 	ui->centralWidget->layout()->addWidget(_view);
@@ -68,22 +76,41 @@ void MainWindow::onSceneChanged() {
 	}*/
 }
 
+void MainWindow::showAlertDialog() {
+	QMessageBox msgBox;
+	msgBox.setIcon(QMessageBox::Warning);
+	msgBox.setText("The selected directory does not contain any supported image files!");
+
+	auto concat = [](QString str1, QString str2) -> QString { return str1 + ", " + str2; };
+	QString imageFormats = std::accumulate(_supportedImgFormats.begin(), _supportedImgFormats.end(), _supportedImgFormats[0], concat);
+	msgBox.setDetailedText("Supported image formats are:\n" + imageFormats);
+
+	msgBox.exec();
+}
+
 void MainWindow::onLoadImagesClick() {
+	if (_imageNames) {
+		clearLayout();
+	}
 	QFileDialog dialog;
 	dialog.setFileMode(QFileDialog::DirectoryOnly);
 	dialog.setOption(QFileDialog::ShowDirsOnly);
-	//dialog.setNameFilter(tr("Images (*.png *.jpg *.tiff *.bmp)"));
 	dialog.setDirectory("/home/czimbortibor/images");
-	QStringList fileName;
+	QStringList fileNames;
 	if (dialog.exec()) {
-		fileName = dialog.selectedFiles();
+		fileNames = dialog.selectedFiles();
 	}
-	if (!fileName.count()) {
+	// nothing was selected
+	if (fileNames.count() == 0) {
 		return;
 	}
 
-	_dir = QDir(fileName[0]);
+	_dir = QDir(fileNames[0]);
 	_dir.setFilter(QDir::Files);
+	if (_dir.entryList().count() == 0) {
+		showAlertDialog();
+		return;
+	}
 	_imageNames = std::unique_ptr<QList<QString>>(new QList<QString>);
 	*_imageNames.get() = _dir.entryList();
 	_imagesOriginal = std::unique_ptr<QVector<cv::Mat>>(new QVector<cv::Mat>);
@@ -122,10 +149,11 @@ void MainWindow::onLoadImagesClick() {
 	// ------------- multi-threaded image load ---------------------
 	auto fun = std::bind(&MainWindow::loadImage, this, std::placeholders::_1);
 		// this: the hidden this parameter for member functions, placeholders::_1 = <const QString& fileName>
-	_futureLoaderMT = QtConcurrent::mapped(*_imageNames.get(), fun);
-	_futureLoaderWatcherMT.setFuture(_futureLoaderMT);
-	connect(&_futureLoaderWatcherMT, &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedLoading);
-	connect(&_futureLoaderWatcherMT, &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
+	_futureLoaderMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imageNames.get(), fun)));
+	_futureLoaderWatcherMT = std::unique_ptr<QFutureWatcher<cv::Mat>>(new QFutureWatcher<cv::Mat>);
+	_futureLoaderWatcherMT->setFuture(*_futureLoaderMT.get());
+	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedLoading);
+	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
 }
 
 void MainWindow::loadImages() {
@@ -153,7 +181,7 @@ void MainWindow::onImageReceive(int resultInd) {
 
 void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
-		cv::Mat image = _futureLoaderWatcherMT.resultAt(i);
+		cv::Mat image = _futureLoaderWatcherMT->resultAt(i);
 		_imagesOriginal->append(image);
 
 		cv::Mat cvResizedImg;
@@ -175,8 +203,8 @@ void MainWindow::onFinishedLoading() {
 	int newHeight = _imgHeight;
 	auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
 		// this: the hidden this parameter for member functions, placeholders::_1 = <const cv::Mat& image>
-	/*_futureResizerMT = QtConcurrent::mapped(*_imagesOriginal.get(), fun);
-	_futureResizerWatcherMT.setFuture(_futureResizerMT);
+	/*_futureResizerMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imagesOriginal.get(), fun)));
+	_futureResizerWatcherMT.setFuture(*_futureResizerMT.get());
 	//connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::resultsReadyAt, this, &MainWindow::onImagesResized);
 	connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::finished, this, &MainWindow::onFinishedResizing);
 	*/
@@ -199,7 +227,7 @@ void MainWindow::onFinishedLoading() {
 	/*auto mapPtr = &imageRetrieval.computeHashes_pHash(*_imagesResized.get(), _dir.absolutePath(), *_imageNames.get());
 	_imagesHashed_pHash = std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>>(mapPtr);
 	displayImages<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>>(*_imagesHashed_pHash.get());
-*/
+	*/
 }
 
 void MainWindow::resizeImages(int size) {
@@ -229,7 +257,7 @@ void MainWindow::onFinishedResizing() {
 	logTime("resize time:");
 
 	_timer.start();
-	for (const cv::Mat& image : _futureResizerMT) {
+	for (const cv::Mat& image : *_futureResizerMT.get()) {
 		QImage res = Mat2QImage(image);
 		LayoutItem* item = new LayoutItem(NULL, res);
 		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
@@ -260,12 +288,11 @@ void MainWindow::onSaveImagesClick() {
 }
 
 void MainWindow::onReverseButtonClick() {
-	emit clearLayout();
+	_view->clear();
 	std::reverse(_imagesResized->begin(), _imagesResized->end());
 
-	// display the images in reverse order
 	_timer.start();
-	//displayImages();
+	displayImages(*_imagesResized.get());
 	logTime("display time:");
 }
 

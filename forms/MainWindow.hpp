@@ -5,9 +5,11 @@
 #include <fstream>
 #include <memory>
 #include <functional>
+#include <numeric>
 
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QDesktopWidget>
 #include <QVector>
 #include <QFrame>
@@ -49,8 +51,12 @@ public:
 
 private:
 	void init();
+	/** creates the main view for displaying images */
+	void initView();
 
 	void loadImages();
+	/** no images were selected */
+	void showAlertDialog();
 	cv::Mat loadImage(const QString &fileName) const;
 	void resizeImages(int size);
 	cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
@@ -68,7 +74,7 @@ private:
 	int _nrOfImages;
 	QDir _dir;
 	QDir _dirSmallImg;
-	//QList<QString> _imageNames;
+	QStringList _supportedImgFormats;
 	std::unique_ptr<QList<QString>> _imageNames;
 	int _imgWidth;
 	int _imgHeight;
@@ -77,14 +83,14 @@ private:
 	QElapsedTimer _timer;
 
 	// ------ single-thread image load -------
-	QFuture<void> _futureLoader;
+	std::unique_ptr<QFuture<void>> _futureLoader;
 	QFutureWatcher<void> _futureLoaderWatcher;
 	// ------ multi-threaded image load -------
-	QFuture<cv::Mat> _futureLoaderMT;
-	QFutureWatcher<cv::Mat> _futureLoaderWatcherMT;
+	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;
+	std::unique_ptr<QFutureWatcher<cv::Mat>> _futureLoaderWatcherMT;
 
 	// ------ multi-threaded image resize ------
-	QFuture<cv::Mat> _futureResizerMT;
+	std::unique_ptr<QFuture<cv::Mat>> _futureResizerMT;
 	QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
 
 	GraphicsView* _view;
@@ -108,6 +114,7 @@ private slots:
 
 	void onLoadImagesClick();
 	void onSaveImagesClick();
+	/** display the imges in reverse order */
 	void onReverseButtonClick();
 	void onRadiusChanged(double value);
 	void onPetalNrChanged(int value);
