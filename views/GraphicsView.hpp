@@ -1,10 +1,18 @@
 #ifndef VIEW_HPP
 #define VIEW_HPP
 
+#ifndef __APPLE__
+#include <GL/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
+
 #include <QDebug>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsWidget>
+#include <QLibrary>
+#include <QOpenGLWidget>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -34,6 +42,7 @@ public:
 private:
 	QImage Mat2QImage(const cv::Mat& cvImage) const;
 
+	QOpenGLWidget* _glWidget;
 	QGraphicsScene* _scene;
 	QGraphicsWidget* _layoutWidget;
 	AbstractGraphicsLayout* _layout;

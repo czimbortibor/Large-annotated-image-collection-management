@@ -5,6 +5,15 @@ GraphicsView::GraphicsView() {
 }
 
 void GraphicsView::init() {
+	// try to load the OpenGL library
+	QLibrary lib("GL");
+	// if OpenGL is present on the machine then enable hardware accelerated graphics
+	if (lib.load()) {
+		qDebug() << "OpenGL loaded";
+		_glWidget = new QOpenGLWidget;
+		setViewport(_glWidget);
+	}
+
 	_scene = new QGraphicsScene;
 	setScene(_scene);
 	// align from the top-left corner rather than from the center

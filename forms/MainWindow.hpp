@@ -115,8 +115,12 @@ private slots:
 	void onSaveImagesClick();
 	/** display the imges in reverse order */
 	void onReverseButtonClick();
+
+	// ------------- filters ---------------
 	void onRadiusChanged(double value);
 	void onPetalNrChanged(int value);
+	// TODO: factory method to create the different layouts
+	void onLayoutChanged(const QString& text);
 
 signals:
 	void clearLayout();

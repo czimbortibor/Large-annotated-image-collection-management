@@ -5,8 +5,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 
-	//QThread::currentThread()->setPriority(QThread::HighPriority);
-
 	init();
 }
 
@@ -29,8 +27,8 @@ void MainWindow::init() {
 	connect(ui->spinBox_nrOfPetals, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onPetalNrChanged);
 		// overloaded signal -> have to specify the specific function syntax
 
-	// http://doc.qt.io/qt-5/graphicsview.html#opengl-rendering
-	//QGraphicsView::setViewport(new QGLWidget);
+	// filter fields
+	connect(ui->comboBox_layout, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &MainWindow::onLayoutChanged);
 
 	initView();
 
@@ -60,7 +58,6 @@ void MainWindow::initView() {
 	_view = new GraphicsView;
 	connect(_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
 	ui->centralWidget->layout()->addWidget(_view);
-	//_view->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 	_view->show();
 }
 
@@ -151,7 +148,7 @@ void MainWindow::onLoadImagesClick() {
 	_futureLoaderMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imageNames.get(), fun)));
 	_futureLoaderWatcherMT = std::unique_ptr<QFutureWatcher<cv::Mat>>(new QFutureWatcher<cv::Mat>);
 	_futureLoaderWatcherMT->setFuture(*_futureLoaderMT.get());
-	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedLoading);
+	//connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedLoading);
 	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
 }
 
@@ -189,8 +186,8 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 
 		// ----------- hash ------------
 
-		//LayoutItem* item = new LayoutItem(NULL, image);
-		//layout->addItem(item);
+		LayoutItem* item = new LayoutItem(NULL, Mat2QImage(cvResizedImg));
+		_view->addItem(item);
 	}
 }
 
@@ -355,4 +352,8 @@ void MainWindow::onPetalNrChanged(int value) {
 		emit clearLayout();
 		//displayImages();
 	}
+}
+
+void MainWindow::onLayoutChanged(const QString& text) {
+	qDebug() << text;
 }
