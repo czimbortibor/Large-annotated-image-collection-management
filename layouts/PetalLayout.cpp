@@ -1,6 +1,6 @@
-#include "RingLayout.hpp"
+#include "PetalLayout.hpp"
 
-RingLayout::RingLayout() {
+PetalLayout::PetalLayout() {
 	_spacing[0] = 1;
 	_spacing[1] = 1;
 
@@ -10,7 +10,7 @@ RingLayout::RingLayout() {
 	setSizePolicy(sizePol);
 }
 
-void RingLayout::insertItem(int index, QGraphicsLayoutItem* item) {
+void PetalLayout::insertItem(int index, QGraphicsLayoutItem* item) {
 	QGraphicsLayout::addChildLayoutItem(item);
 	//item->setParentLayoutItem(this);
 	if (index > _items.count()) {
@@ -20,7 +20,7 @@ void RingLayout::insertItem(int index, QGraphicsLayoutItem* item) {
 	invalidate();
 }
 
-void RingLayout::clearAll() {
+void PetalLayout::clearAll() {
 	// calls delete on every element
 	qDeleteAll(_items.begin(), _items.end());
 	// removes the elements from the container
@@ -28,7 +28,7 @@ void RingLayout::clearAll() {
 	invalidate();
 }
 
-void RingLayout::setSpacing(Qt::Orientations orientation, qreal spacing) {
+void PetalLayout::setSpacing(Qt::Orientations orientation, qreal spacing) {
 	if (orientation & Qt::Horizontal) {
 		_spacing[0] = spacing;
 	}
@@ -37,12 +37,12 @@ void RingLayout::setSpacing(Qt::Orientations orientation, qreal spacing) {
 	}
 }
 
-void RingLayout::setGeometry(const QRectF& geometry) {
+void PetalLayout::setGeometry(const QRectF& geometry) {
 	QGraphicsLayout::setGeometry(geometry);
 	doLayout(geometry, true);
 }
 
-qreal RingLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) const {
+qreal PetalLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) const {
 	qreal left, top, right, bottom;
 	getContentsMargins(&left, &top, &right, &bottom);
 	const qreal maxWidth = geometry.width() - left - right;
@@ -104,7 +104,7 @@ qreal RingLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) const 
 	return top + y + maxRowHeight + bottom;
 }
 
-QSizeF RingLayout::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const {
+QSizeF PetalLayout::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const {
 	QSizeF hintedSize = constraint;
 	switch (which) {
 		case Qt::PreferredSize:
@@ -122,7 +122,7 @@ QSizeF RingLayout::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
 	return hintedSize;
 }
 
-QSizeF RingLayout::minSize(const QSizeF& constraint) const {
+QSizeF PetalLayout::minSize(const QSizeF& constraint) const {
 	QSizeF size(0, 0);
 	qreal left, top, right, bottom;
 	getContentsMargins(&left, &top, &right, &bottom);
@@ -141,7 +141,7 @@ QSizeF RingLayout::minSize(const QSizeF& constraint) const {
 	return size;
 }
 
-QSizeF RingLayout::maxSize() const {
+QSizeF PetalLayout::maxSize() const {
 	qreal totalWidth = 0;
 	qreal totalHeight = 0;
 	for (const auto& item : _items) {
@@ -161,7 +161,7 @@ QSizeF RingLayout::maxSize() const {
 	return QSizeF(left + totalWidth + right, top + totalHeight + bottom);
 }
 
-QSizeF RingLayout::prefSize() const {
+QSizeF PetalLayout::prefSize() const {
 	qreal left, right;
 	getContentsMargins(&left, 0, &right, 0);
 

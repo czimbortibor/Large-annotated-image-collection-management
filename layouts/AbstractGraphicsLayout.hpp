@@ -3,11 +3,11 @@
 
 #include <QGraphicsLayout>
 #include <QGraphicsLayoutItem>
+#include <QList>
 
 
 class AbstractGraphicsLayout : public QGraphicsLayout {
 public:
-
 	// ------ inherited functions ------
 	virtual void setGeometry(const QRectF& geom) = 0;
 	virtual int count() const = 0;
@@ -19,6 +19,7 @@ public:
 	virtual void addItem(QGraphicsLayoutItem* item) = 0;
 	/** deletes and removes every element from the layout */
 	virtual void clearAll() = 0;
+	virtual QList<QGraphicsLayoutItem*>& items() = 0;
 
 protected:
 	virtual void insertItem(int index, QGraphicsLayoutItem* item) = 0;

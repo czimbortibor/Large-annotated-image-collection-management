@@ -1,28 +1,30 @@
 #ifndef RINGLAYOUT_HPP
 #define RINGLAYOUT_HPP
 
-#include <QWidget>
 #include <qmath.h>
+
+#include <QWidget>
 #include <QDebug>
 
 #include "AbstractGraphicsLayout.hpp"
 
 
-class RingLayout : public AbstractGraphicsLayout {
+class PetalLayout : public AbstractGraphicsLayout {
 public:
-	RingLayout();
+	explicit PetalLayout();
 
 	void setSpacing(Qt::Orientations orientation, qreal spacing) Q_DECL_OVERRIDE;
 	qreal spacing(Qt::Orientation orientation) const Q_DECL_OVERRIDE { return _spacing[int(orientation) - 1]; }
 	void setGeometry(const QRectF& geometry) Q_DECL_OVERRIDE;
 	int count() const Q_DECL_OVERRIDE { return _items.count(); }
-	QGraphicsLayoutItem* itemAt(int index) const Q_DECL_OVERRIDE { return _items.value(index); }
+	QGraphicsLayoutItem* itemAt(int index) const Q_DECL_OVERRIDE { return _items.at(index); }
 	void removeAt(int index) Q_DECL_OVERRIDE { _items.removeAt(index); invalidate(); }
 
 	void addItem(QGraphicsLayoutItem* item) Q_DECL_OVERRIDE { insertItem(-1, item); }
 	void clearAll() Q_DECL_OVERRIDE;
 	void setNrOfPetals(int value) { _nrOfPetals = value; }
 	void setRadius(qreal value) { _radius = value; }
+	QList<QGraphicsLayoutItem*>& items() Q_DECL_OVERRIDE { return _items; }
 
 protected:
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const Q_DECL_OVERRIDE;

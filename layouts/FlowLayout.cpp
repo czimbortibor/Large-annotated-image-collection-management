@@ -51,8 +51,8 @@
 #include "FlowLayout.hpp"
 
 FlowLayout::FlowLayout() {
-    m_spacing[0] = 1;
-    m_spacing[1] = 1;
+	_spacing[0] = 1;
+	_spacing[1] = 1;
     QSizePolicy sp = sizePolicy();
     sp.setHeightForWidth(true);
     setSizePolicy(sp);
@@ -61,42 +61,42 @@ FlowLayout::FlowLayout() {
 void FlowLayout::insertItem(int index, QGraphicsLayoutItem* item) {
 	QGraphicsLayout::addChildLayoutItem(item);
 	//item->setParentLayoutItem(this);
-    if (uint(index) > uint(m_items.count()))
-        index = m_items.count();
-    m_items.insert(index, item);
+	if (uint(index) > uint(_items.count()))
+		index = _items.count();
+	_items.insert(index, item);
     invalidate();
 }
 
 void FlowLayout::clearAll() {
 	// calls delete on every element
-	qDeleteAll(m_items.begin(), m_items.end());
+	qDeleteAll(_items.begin(), _items.end());
 	// removes the elements from the container
-	m_items.clear();
+	_items.clear();
 	invalidate();
 }
 
 int FlowLayout::count() const {
-    return m_items.count();
+	return _items.count();
 }
 
 QGraphicsLayoutItem* FlowLayout::itemAt(int index) const {
-    return m_items.value(index);
+	return _items.at(index);
 }
 
 void FlowLayout::removeAt(int index) {
-    m_items.removeAt(index);
+	_items.removeAt(index);
     invalidate();
 }
 
 qreal FlowLayout::spacing(Qt::Orientation o) const {
-    return m_spacing[int(o) - 1];
+	return _spacing[int(o) - 1];
 }
 
 void FlowLayout::setSpacing(Qt::Orientations o, qreal spacing) {
     if (o & Qt::Horizontal)
-        m_spacing[0] = spacing;
+		_spacing[0] = spacing;
     if (o & Qt::Vertical)
-        m_spacing[1] = spacing;
+		_spacing[1] = spacing;
 }
 
 void FlowLayout::setGeometry(const QRectF &geom) {
@@ -113,8 +113,8 @@ qreal FlowLayout::doLayout(const QRectF &geom, bool applyNewGeometry) const {
     qreal y = 0;
     qreal maxRowHeight = 0;
     QSizeF pref;
-    for (int i = 0; i < m_items.count(); ++i) {
-		QGraphicsLayoutItem *item = m_items.at(i);
+	for (int i = 0; i < _items.count(); ++i) {
+		QGraphicsLayoutItem *item = _items.at(i);
         pref = item->effectiveSizeHint(Qt::PreferredSize);
         maxRowHeight = qMax(maxRowHeight, pref.height());
 
@@ -150,7 +150,7 @@ QSizeF FlowLayout::minSize(const QSizeF &constraint) const {
         // not supported
     } else {
 		QGraphicsLayoutItem *item;
-        foreach (item, m_items)
+		foreach (item, _items)
             size = size.expandedTo(item->effectiveSizeHint(Qt::MinimumSize));
         size += QSize(left + right, top + bottom);
     }
@@ -164,7 +164,7 @@ QSizeF FlowLayout::prefSize() const {
 	QGraphicsLayoutItem* item;
     qreal maxh = 0;
     qreal totalWidth = 0;
-    foreach (item, m_items) {
+	foreach (item, _items) {
         if (totalWidth > 0)
             totalWidth += spacing(Qt::Horizontal);
         QSizeF pref = item->effectiveSizeHint(Qt::PreferredSize);
@@ -183,7 +183,7 @@ QSizeF FlowLayout::maxSize() const {
 	QGraphicsLayoutItem* item;
     qreal totalWidth = 0;
     qreal totalHeight = 0;
-    foreach (item, m_items) {
+	foreach (item, _items) {
         if (totalWidth > 0)
             totalWidth += spacing(Qt::Horizontal);
         if (totalHeight > 0)

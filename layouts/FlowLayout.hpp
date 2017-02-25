@@ -52,6 +52,7 @@
 #define FLOWLAYOUT_HPP
 
 #include <qmath.h>
+
 #include <QWidget>
 
 #include "AbstractGraphicsLayout.hpp"
@@ -59,7 +60,7 @@
 
 class FlowLayout : public AbstractGraphicsLayout {
 public:
-    FlowLayout();
+	explicit FlowLayout();
 
 	void setSpacing(Qt::Orientations o, qreal spacing) Q_DECL_OVERRIDE;
 	qreal spacing(Qt::Orientation o) const Q_DECL_OVERRIDE;
@@ -70,6 +71,7 @@ public:
 
 	void addItem(QGraphicsLayoutItem* item) Q_DECL_OVERRIDE { insertItem(-1, item); }
 	void clearAll() Q_DECL_OVERRIDE;
+	QList<QGraphicsLayoutItem*>& items() Q_DECL_OVERRIDE { return _items; }
 
 protected:
 	void insertItem(int index, QGraphicsLayoutItem* item) Q_DECL_OVERRIDE;
@@ -81,8 +83,8 @@ private:
 	QSizeF prefSize() const Q_DECL_OVERRIDE;
 	QSizeF maxSize() const Q_DECL_OVERRIDE;
 
-	QList<QGraphicsLayoutItem*> m_items;
-    qreal m_spacing[2];
+	QList<QGraphicsLayoutItem*> _items;
+	qreal _spacing[2];
 };
 
 #endif // FLOWLAYOUT_HPP

@@ -56,7 +56,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::initView() {
 	_view = new GraphicsView;
-	connect(_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
+	connect(&_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
 	ui->centralWidget->layout()->addWidget(_view);
 	_view->show();
 }
@@ -66,10 +66,6 @@ void MainWindow::onSceneChanged() {
 	qreal radius = ui->spinBox_radius->value();
 	QSizeF newSize(viewSize.width() - radius, viewSize.height());
 	_view->setMinSceneSize(newSize);
-	/*if (_imageNames.length()) {
-		clearLayout();
-		displayImages();
-	}*/
 }
 
 void MainWindow::showAlertDialog() {
@@ -355,5 +351,5 @@ void MainWindow::onPetalNrChanged(int value) {
 }
 
 void MainWindow::onLayoutChanged(const QString& text) {
-	qDebug() << text;
+	_view->setLayout(text);
 }

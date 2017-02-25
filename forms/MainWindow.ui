@@ -54,6 +54,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="btn_save">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(148, 255, 157);</string>
          </property>
@@ -186,7 +189,7 @@
         <widget class="QComboBox" name="comboBox_layout">
          <item>
           <property name="text">
-           <string>grid</string>
+           <string>flow</string>
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
@@ -195,7 +198,7 @@
          </item>
          <item>
           <property name="text">
-           <string>flower</string>
+           <string>petal</string>
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">

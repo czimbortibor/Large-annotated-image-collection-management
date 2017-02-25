@@ -48,7 +48,7 @@
 
 class LayoutItem : public QGraphicsLayoutItem, public QGraphicsItem {
 public:
-	LayoutItem(QGraphicsItem* parent = 0, const QImage& image = QImage());
+	explicit LayoutItem(QGraphicsItem* parent = 0, const QImage& image = QImage());
 	~LayoutItem() = default;
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);

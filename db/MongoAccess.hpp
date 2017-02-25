@@ -16,7 +16,7 @@
 
 class MongoAccess {
 public:
-	MongoAccess(const std::string& hostName, const std::string& databaseName, const std::string& collectionName);
+	explicit MongoAccess(const std::string& hostName, const std::string& databaseName, const std::string& collectionName);
 	bool init();
 
 	/** finds a tweet by it's ID */

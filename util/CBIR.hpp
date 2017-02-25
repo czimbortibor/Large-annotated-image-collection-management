@@ -20,7 +20,7 @@
 
 class CBIR {
 public:
-	CBIR();
+	explicit CBIR();
 
 	/** compares 2 cv::Mat objects */
 	struct MatCompare {

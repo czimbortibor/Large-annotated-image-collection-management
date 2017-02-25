@@ -1,11 +1,13 @@
-#ifndef VIEW_HPP
-#define VIEW_HPP
+#ifndef GRAPHICSVIEW_HPP
+#define GRAPHICSVIEW_HPP
 
 #ifndef __APPLE__
 #include <GL/gl.h>
 #else
 #include <OpenGL/gl.h>
 #endif
+#include <map>
+#include <memory>
 
 #include <QDebug>
 #include <QGraphicsView>
@@ -19,21 +21,25 @@
 #include <opencv2/highgui.hpp>
 
 #include "util/LayoutItem.hpp"
+#include "util/FlowLayoutFactory.hpp"
+#include "util/PetalLayoutFactory.hpp"
 #include "layouts/FlowLayout.hpp"
-#include "layouts/RingLayout.hpp"
+#include "layouts/PetalLayout.hpp"
 
 
 class GraphicsView : public QGraphicsView {
 public:
-	explicit GraphicsView();
+	explicit GraphicsView(QWidget* parent = 0);
 	void init();
-	void setLayout(AbstractGraphicsLayout* layout) { _layout = layout; _layout->invalidate(); }
+	/** makes a new layout from the available factories and sets it onto the scene */
+	void setLayout(const QString& value);
 	void setMinSceneSize(const QSizeF value) { _layoutWidget->setMinimumSize(value); _layout->invalidate();}
 	void addItem(QGraphicsLayoutItem* item) { _layout->addItem(item); }
+	int itemCount() const { return _layout->count(); }
 	void clear() { _layout->clearAll(); }
 
-	// expose the scene to get it's signals
-	QGraphicsScene* scene() { return _scene; }
+	/** expose a reference to the scene to get it's signals; reference, so the ownership won't move */
+	QGraphicsScene& scene() { return *_scene; }
 
 	template<typename L> void displayImages(const QVector<cv::Mat>& images, const L& layout) const;
 	/** opencv img_hash & pHash display */
@@ -46,6 +52,8 @@ private:
 	QGraphicsScene* _scene;
 	QGraphicsWidget* _layoutWidget;
 	AbstractGraphicsLayout* _layout;
+
+	std::unique_ptr<std::map<std::string, AbstractLayoutFactory*>> _layouts;
 };
 
-#endif // VIEW_HPP
+#endif // GRAPHICSVIEW_HPP

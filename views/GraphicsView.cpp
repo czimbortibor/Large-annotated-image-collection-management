@@ -1,13 +1,14 @@
 #include "GraphicsView.hpp"
 
-GraphicsView::GraphicsView() {
+GraphicsView::GraphicsView(QWidget* parent) : QGraphicsView(parent) {
+	_layouts = std::unique_ptr<std::map<std::string, AbstractLayoutFactory*>>(new std::map<std::string, AbstractLayoutFactory*>);
 	init();
 }
 
 void GraphicsView::init() {
 	// try to load the OpenGL library
 	QLibrary lib("GL");
-	// if OpenGL is present on the machine then enable hardware accelerated graphics
+	// if OpenGL is present on the machine then enable hardware accelerated graphics on the scene
 	if (lib.load()) {
 		qDebug() << "OpenGL loaded";
 		_glWidget = new QOpenGLWidget;
@@ -20,9 +21,31 @@ void GraphicsView::init() {
 	//setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	_layoutWidget = new QGraphicsWidget;
-	_layout = new FlowLayout;
+	/*_layout = new FlowLayout;
+	_layoutWidget->setLayout(_layout);
+	_scene->addItem(_layoutWidget);*/
+
+	// initialize the layout factories
+	_layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("flow", new FlowLayoutFactory));
+	_layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("petal", new PetalLayoutFactory));
+
+	// make the default FlowLayout and set it onto the scene
+	_layout = _layouts->at("flow")->makeLayout();
 	_layoutWidget->setLayout(_layout);
 	_scene->addItem(_layoutWidget);
+}
+
+void GraphicsView::setLayout(const QString& value) {
+	AbstractGraphicsLayout* tmp = _layouts->at(value.toStdString())->makeLayout();
+
+	// TODO: overload operator=
+
+	for (const auto& item : _layout->items()) {
+		tmp->addItem(item);
+	}
+	_layout->clearAll();
+	_layout = tmp;
+	_layoutWidget->setLayout(_layout);
 }
 
 template<typename L>

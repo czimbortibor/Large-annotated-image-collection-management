@@ -33,7 +33,7 @@
 #include "util/CBIR.hpp"
 #include "views/GraphicsView.hpp"
 #include "layouts/FlowLayout.hpp"
-#include "layouts/RingLayout.hpp"
+#include "layouts/PetalLayout.hpp"
 #include "db/MongoAccess.hpp"
 
 namespace Ui {
