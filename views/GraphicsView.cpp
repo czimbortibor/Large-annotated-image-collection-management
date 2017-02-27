@@ -48,6 +48,20 @@ void GraphicsView::setLayout(const QString& value) {
 	_layoutWidget->setLayout(_layout);
 }
 
+void GraphicsView::setNrOfPetals(int value) {
+	const auto layoutPtr = static_cast<PetalLayout*>(_layout);
+	if (layoutPtr != nullptr) {
+		layoutPtr->setNrOfPetals(value);
+	}
+}
+
+void GraphicsView::setRadius(double value) {
+	const auto layoutPtr = static_cast<PetalLayout*>(_layout);
+	if (layoutPtr != nullptr) {
+		layoutPtr->setRadius(value);
+	}
+}
+
 template<typename L>
 void GraphicsView::displayImages(const QVector<cv::Mat>& images, const L& layout) const {
 	for (const auto& image : images) {

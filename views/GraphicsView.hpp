@@ -45,6 +45,9 @@ public:
 	/** opencv img_hash & pHash display */
 	template<typename T, typename L> void displayImages(const T& images, const L& layout) const;
 
+	void setNrOfPetals(int value);
+	void setRadius(double value);
+
 private:
 	QImage Mat2QImage(const cv::Mat& cvImage) const;
 

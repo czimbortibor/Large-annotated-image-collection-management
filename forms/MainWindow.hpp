@@ -21,9 +21,7 @@
 #include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QDebug>
-#include <QGraphicsWidget>
-#include <QGraphicsScene>
-#include <QGraphicsView>
+#include <QListWidget>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -121,6 +119,8 @@ private slots:
 	void onPetalNrChanged(int value);
 	// TODO: factory method to create the different layouts
 	void onLayoutChanged(const QString& text);
+
+	void onFiltersClicked();
 
 signals:
 	void clearLayout();

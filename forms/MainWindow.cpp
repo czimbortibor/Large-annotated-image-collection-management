@@ -29,6 +29,8 @@ void MainWindow::init() {
 
 	// filter fields
 	connect(ui->comboBox_layout, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &MainWindow::onLayoutChanged);
+	connect(ui->btn_addFilter, &QPushButton::clicked, this, &MainWindow::onFiltersClicked);
+	ui->groupBox_layoutControls->hide();
 
 	initView();
 
@@ -335,21 +337,30 @@ QImage MainWindow::Mat2QImage(const cv::Mat& image) const {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-	//_layout->setRadius(value);
+	_view->setRadius(value);
 	if (_imageNames->length()) {
-		emit clearLayout();
-		//displayImages();
+		_view->clear();
+		displayImages(*_imagesResized.get());
 	}
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-	//_layout->setNrOfPetals(value);
+	_view->setNrOfPetals(value);
 	if (_imageNames->length()) {
-		emit clearLayout();
-		//displayImages();
+		_view->clear();
+		displayImages(*_imagesResized.get());
 	}
 }
 
 void MainWindow::onLayoutChanged(const QString& text) {
 	_view->setLayout(text);
+	text.compare("petal") == 0 ? ui->groupBox_layoutControls->setVisible(true) : ui->groupBox_layoutControls->hide();
+}
+
+void MainWindow::onFiltersClicked() {
+	QListWidget* filterList = new QListWidget(ui->widget_filters);
+	filterList->addItems(QStringList() << "keyword" << "date range" << "image");
+	ui->widget_filters->setMinimumSize(filterList->size());
+	//ui->widget_filters->layout()->addWidget(filterList);
+	filterList->show();
 }
