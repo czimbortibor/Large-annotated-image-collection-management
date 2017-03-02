@@ -72,7 +72,7 @@ void FlowLayout::clearAll() {
 	qDeleteAll(_items.begin(), _items.end());
 	// removes the elements from the container
 	_items.clear();
-	invalidate();
+    invalidate();
 }
 
 int FlowLayout::count() const {

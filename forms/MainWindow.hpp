@@ -56,9 +56,8 @@ private:
 	/** no images were selected */
 	void showAlertDialog();
 	cv::Mat loadImage(const QString &fileName) const;
-	void resizeImages(int size);
 	cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-	void displayImages(const QVector<cv::Mat>& images) const;
+    void displayImages(const QList<cv::Mat>& images) const;
 	/** opencv_img_hash & pHash display */
 	template<typename T> void displayImages(const T& images) const;
 
@@ -75,8 +74,8 @@ private:
 	std::unique_ptr<QList<QString>> _imageNames;
 	int _imgWidth;
 	int _imgHeight;
-	std::unique_ptr<QVector<cv::Mat>> _imagesOriginal;
-	std::unique_ptr<QVector<cv::Mat>> _imagesResized;
+    std::unique_ptr<QVector<cv::Mat>> _imagesOriginal;
+    std::unique_ptr<QList<cv::Mat>> _imagesResized;
 	QElapsedTimer _timer;
 
 	// ------ single-thread image load -------
@@ -87,8 +86,8 @@ private:
 	std::unique_ptr<QFutureWatcher<cv::Mat>> _futureLoaderWatcherMT;
 
 	// ------ multi-threaded image resize ------
-	std::unique_ptr<QFuture<cv::Mat>> _futureResizerMT;
-	QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
+    std::unique_ptr<QFuture<void>> _futureResizerMT;
+    QFutureWatcher<void> _futureResizerWatcherMT;
 
 	GraphicsView* _view;
 
@@ -109,6 +108,8 @@ private slots:
 	void onImagesResized(int resultsBeginInd, int resultsEndInd);
 	void onFinishedResizing();
 
+    void onHashImages();
+
 	void onLoadImagesClick();
 	void onSaveImagesClick();
 	/** display the imges in reverse order */
@@ -119,6 +120,7 @@ private slots:
 	void onPetalNrChanged(int value);
 	// TODO: factory method to create the different layouts
 	void onLayoutChanged(const QString& text);
+    void onImageSizeChanged(int size);
 
 	void onFiltersClicked();
 

@@ -67,3 +67,5 @@ LIBS += -L/usr/local/lib \
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES +=

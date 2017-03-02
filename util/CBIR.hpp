@@ -33,7 +33,7 @@ public:
 
 	/** using OpenCV's img_hash library */
 	//std::multimap<const cv::Mat, const cv::Mat, MatCompare>& computeHashes(QVector<cv::Mat>& images) const;
-	std::multimap<double, const cv::Mat>& computeHashes(QVector<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
+    std::multimap<double, const cv::Mat>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
 
 	/** using the pHash library */
 	std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QVector<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const;

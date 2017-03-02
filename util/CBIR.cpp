@@ -16,7 +16,7 @@ bool CBIR::HashCompare::operator()(const ulong64& hashA, const ulong64& hashB) c
 }
 
 //std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>& CBIR::computeHashes(QVector<cv::Mat>& images) const {
-std::multimap<double, const cv::Mat>& CBIR::computeHashes(QVector<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const {
+std::multimap<double, const cv::Mat>& CBIR::computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const {
 	//std::multimap<const cv::Mat, const cv::Mat, MatCompare>* resMap = new std::multimap<const cv::Mat, const cv::Mat, MatCompare>;
 	std::multimap<double, const cv::Mat>* resMap = new std::multimap<double, const cv::Mat>;
 
