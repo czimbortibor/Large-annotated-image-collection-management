@@ -71,7 +71,7 @@
        <item>
         <widget class="QPushButton" name="btn_load">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(148, 255, 157);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Load images</string>
@@ -128,7 +128,7 @@
        <item>
         <widget class="QPushButton" name="btn_clear">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(148, 255, 157);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Clear</string>
@@ -138,7 +138,7 @@
        <item>
         <widget class="QPushButton" name="btn_reverse">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(148, 255, 157);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Reverse</string>
@@ -151,7 +151,7 @@
           <bool>false</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(148, 255, 157);</string>
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Hash</string>

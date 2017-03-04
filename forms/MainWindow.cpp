@@ -165,7 +165,12 @@ void MainWindow::loadImages() {
 cv::Mat MainWindow::loadImage(const QString &imageName) const {
 	QString fileName = _dir.absoluteFilePath(imageName);
 	cv::Mat cvImage = cv::imread(fileName.toStdString());
-	return cvImage;
+    if (cvImage.data == 0) {
+        return cv::Mat();
+    }
+    else {
+        return cvImage;
+    }
 }
 
 void MainWindow::onImageReceive(int resultInd) {
@@ -177,14 +182,14 @@ void MainWindow::onImagesReceive(int resultsBeginInd, int resultsEndInd) {
 		cv::Mat image = _futureLoaderWatcherMT->resultAt(i);
         //_imagesOriginal->append(image);
 
-		cv::Mat cvResizedImg;
-		cv::resize(image, cvResizedImg, cv::Size(_imgWidth, _imgHeight));
-        _imagesResized->append(cvResizedImg);
+        if (image.data) {
+            cv::Mat cvResizedImg;
+            cv::resize(image, cvResizedImg, cv::Size(_imgWidth, _imgHeight));
+            _imagesResized->append(cvResizedImg);
 
-		// ----------- hash ------------
-
-		LayoutItem* item = new LayoutItem(NULL, Mat2QImage(cvResizedImg));
-		_view->addItem(item);
+            LayoutItem* item = new LayoutItem(NULL, Mat2QImage(cvResizedImg));
+            _view->addItem(item);
+        }
 	}
 }
 
@@ -192,6 +197,12 @@ void MainWindow::onFinishedLoading() {
 	logTime("load time:");
 
     ui->btn_hash->setEnabled(true);
+
+    emit clearLayout();
+    // shuffle the images
+    auto listPtr = *_imagesResized.get();
+    std::random_shuffle(listPtr.begin(), listPtr.end());
+    displayImages(listPtr);
     /*_timer.start();
     int newWidth = _imgWidth;
 	int newHeight = _imgHeight;
@@ -227,9 +238,6 @@ void MainWindow::onFinishedResizing() {
     emit clearLayout();
     displayImages(*_imagesResized.get());
     //logTime("display time:");
-
-    // TODO: shuffle the images
-    //std::random_shuffle(*_imagesResized.get()->begin(), *_imagesResized.get()->end());
 }
 
 void MainWindow::onHashImages() {
@@ -356,8 +364,7 @@ void MainWindow::onLayoutChanged(const QString& text) {
 void MainWindow::onImageSizeChanged(int size) {
     QString text = "size: " + QString::number(size);
     ui->lbl_size->setText(text);
-    emit clearLayout();
-    if (_imageNames->size()) {
+    if (_imageNames) {
         // smaller size is requested, no need to reload the images
         //if (size <= _iconSize) {
             _iconSize = size;

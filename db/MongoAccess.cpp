@@ -39,9 +39,15 @@ bool MongoAccess::init() {
 }
 
 void MongoAccess::test() {
-	auto document = bsoncxx::builder::stream::document{} << "id_str" << "673849483520815108";
+    /*auto document = bsoncxx::builder::stream::document{} << "id_str" << "673849483520815108";
 	mongocxx::cursor res = _collection.find(document << bsoncxx::builder::stream::finalize);
 	for (auto&& doc : res) {
 		std::cout << bsoncxx::to_json(doc) << "\n";
-	}
+    }*/
+   /* bsoncxx::types::b_regex regex('', '');
+    auto document = bsoncxx::builder::stream::document{} << "display_url";
+    mongocxx::cursor res = _collection.find(document << bsoncxx::builder::stream::finalize);
+    for (auto&& doc : res) {
+        std::cout << bsoncxx::to_json(doc) << "\n";
+    }*/
 }
