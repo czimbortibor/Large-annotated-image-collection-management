@@ -31,7 +31,8 @@ SOURCES +=\
     forms/MainWindow.cpp \
     views/GraphicsView.cpp \
     db/MongoAccess.cpp \
-    layouts/PetalLayout.cpp
+    layouts/PetalLayout.cpp \
+    util/ImageLoader.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -45,7 +46,8 @@ HEADERS  +=\
     util/PetalLayoutFactory.hpp \
     layouts/PetalLayout.hpp \
     util/AbstractLayoutFactory.hpp \
-    util/AbstractFilterFactory.hpp
+    util/AbstractFilterFactory.hpp \
+    util/ImageLoader.hpp
 
 FORMS    +=\
     forms/MainWindow.ui

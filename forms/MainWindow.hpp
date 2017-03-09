@@ -29,6 +29,7 @@
 
 #include "util/LayoutItem.hpp"
 #include "util/CBIR.hpp"
+#include "util/ImageLoader.hpp"
 #include "views/GraphicsView.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
@@ -49,16 +50,15 @@ public:
 
 private:
 	void init();
-	/** creates the main view for displaying images */
+    /* creates the main view for displaying images */
 	void initView();
 
-	void loadImages();
-	/** no images were selected */
+    /* no images were selected */
 	void showAlertDialog();
-	cv::Mat loadImage(const QString &fileName) const;
-	cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
+    cv::Mat loadImage(const QString& fileName) const;
+    cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
     void displayImages(const QList<cv::Mat>& images) const;
-	/** opencv_img_hash & pHash display */
+    /* opencv_img_hash & pHash display */
 	template<typename T> void displayImages(const T& images) const;
 
 	void logTime(QString message);
@@ -74,16 +74,15 @@ private:
 	std::unique_ptr<QList<QString>> _imageNames;
 	int _imgWidth;
 	int _imgHeight;
-    std::unique_ptr<QVector<cv::Mat>> _imagesOriginal;
-    std::unique_ptr<QList<cv::Mat>> _imagesResized;
+    std::unique_ptr<QList<cv::Mat>> _images;
 	QElapsedTimer _timer;
 
-	// ------ single-thread image load -------
-	std::unique_ptr<QFuture<void>> _futureLoader;
-	QFutureWatcher<void> _futureLoaderWatcher;
 	// ------ multi-threaded image load -------
 	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;
 	std::unique_ptr<QFutureWatcher<cv::Mat>> _futureLoaderWatcherMT;
+
+    // -------- custom single-threaded image load -----------
+    ImageLoader* _loadingWorker;
 
 	// ------ multi-threaded image resize ------
     std::unique_ptr<QFuture<void>> _futureResizerMT;
@@ -102,8 +101,7 @@ private slots:
 	void onSceneChanged();
 	void onClearLayout();
 
-    void onImageReceive(int resultInd);
-    void onImagesReceive(int resultsBeginInd, int resultsEndInd);
+    void onImagesReceived(int resultsBeginInd, int resultsEndInd);
 	void onFinishedLoading();
 	void onImagesResized(int resultsBeginInd, int resultsEndInd);
 	void onFinishedResizing();
@@ -112,16 +110,16 @@ private slots:
 
 	void onLoadImagesClick();
 	void onSaveImagesClick();
-	/** display the imges in reverse order */
+    /* display the images in reverse order */
 	void onReverseButtonClick();
 
 	// ------------- filters ---------------
 	void onRadiusChanged(double value);
 	void onPetalNrChanged(int value);
-	// TODO: factory method to create the different layouts
 	void onLayoutChanged(const QString& text);
     void onImageSizeChanged(int size);
 
+    // TODO: factory method to create different filters
 	void onFiltersClicked();
 
 signals:
