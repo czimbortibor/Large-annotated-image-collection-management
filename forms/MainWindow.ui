@@ -19,7 +19,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
     <item>
-     <widget class="QFrame" name="frame_controls">
+     <widget class="QFrame" name="frame_mainControls">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -35,141 +35,142 @@
       <property name="frameShadow">
        <enum>QFrame::Sunken</enum>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,0,0,0,0">
-       <property name="spacing">
-        <number>10</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <spacer name="horizontalSpacer_left">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_save">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>Save images</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_load">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>Load images</string>
-         </property>
-         <property name="default">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lbl_size">
-         <property name="text">
-          <string>size</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="slider_imgSize">
-         <property name="minimum">
-          <number>40</number>
-         </property>
-         <property name="maximum">
-          <number>200</number>
-         </property>
-         <property name="singleStep">
-          <number>20</number>
-         </property>
-         <property name="pageStep">
-          <number>20</number>
-         </property>
-         <property name="value">
-          <number>60</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="invertedControls">
-          <bool>false</bool>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>20</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_clear">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>Clear</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_reverse">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>Reverse</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_hash">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>Hash</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_right">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+        <layout class="QHBoxLayout" name="frame_controls">
+         <item>
+          <spacer name="horizontalSpacer_right">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_save">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Save images</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_load">
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Load images</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_size">
+           <property name="text">
+            <string>size</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="slider_imgSize">
+           <property name="minimum">
+            <number>40</number>
+           </property>
+           <property name="maximum">
+            <number>200</number>
+           </property>
+           <property name="singleStep">
+            <number>20</number>
+           </property>
+           <property name="pageStep">
+            <number>20</number>
+           </property>
+           <property name="value">
+            <number>60</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="invertedAppearance">
+            <bool>false</bool>
+           </property>
+           <property name="invertedControls">
+            <bool>false</bool>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksAbove</enum>
+           </property>
+           <property name="tickInterval">
+            <number>20</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_hash">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Hash</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_reverse">
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Reverse</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_clear">
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_left">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

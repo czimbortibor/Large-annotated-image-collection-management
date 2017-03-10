@@ -81,10 +81,8 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
     return constraint;
 }
 
-qreal LayoutItem::getWidth() {
-	return _width;
-}
-
-qreal LayoutItem::getHeight() {
-	return _height;
+void LayoutItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
+    qDebug() << "hooover";
+    QGraphicsItem::mouseMoveEvent(event);
+    setScale(2.0);
 }

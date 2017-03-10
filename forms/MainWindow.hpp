@@ -22,6 +22,7 @@
 #include <QElapsedTimer>
 #include <QDebug>
 #include <QListWidget>
+#include <QProgressBar>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -76,6 +77,8 @@ private:
 	int _imgHeight;
     std::unique_ptr<QList<cv::Mat>> _images;
 	QElapsedTimer _timer;
+    int _notifyRate;
+    QProgressBar* _progressBar;
 
 	// ------ multi-threaded image load -------
 	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;

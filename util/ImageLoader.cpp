@@ -1,18 +1,16 @@
 #include "ImageLoader.hpp"
 
-ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, QObject* parent) : QObject(parent) {
+ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, int notifyRate, QObject* parent) : QObject(parent) {
     _imageNames = imageNames;
     _dirName = dirName;
     _results = &results;
     _size = size;
+    _notifyRate = notifyRate;
 }
 
 void ImageLoader::run() {
     _running = true;
     int counter = 0;
-    /* signal the loaded images every k-th time */
-    int k = (_imageNames->length() >> 7) + 1;
-    qDebug() << k;
     /* starting index of the results */
     int j = 0;
     for (int i = 0; i < _imageNames->length(); ++i) {
@@ -26,7 +24,7 @@ void ImageLoader::run() {
             cv::resize(cvImage, cvResizedImg, _size);
             _results->append(cvResizedImg);
             ++counter;
-            if (counter >= k) {
+            if (counter >= _notifyRate) {
                 emit resultsReadyAt(j, i);
                 counter = 0;
                 j = i;

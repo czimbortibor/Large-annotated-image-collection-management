@@ -21,16 +21,13 @@ void GraphicsView::init() {
 	//setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	_layoutWidget = new QGraphicsWidget;
-	/*_layout = new FlowLayout;
-	_layoutWidget->setLayout(_layout);
-	_scene->addItem(_layoutWidget);*/
 
 	// initialize the layout factories
-        _layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("grid", new FlowLayoutFactory));
+    _layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("grid", new FlowLayoutFactory));
 	_layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("petal", new PetalLayoutFactory));
 
 	// make the default FlowLayout and set it onto the scene
-        _layout = _layouts->at("grid")->makeLayout();
+    _layout = _layouts->at("grid")->makeLayout();
 	_layoutWidget->setLayout(_layout);
 	_scene->addItem(_layoutWidget);
 }

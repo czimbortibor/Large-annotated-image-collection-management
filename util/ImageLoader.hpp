@@ -14,7 +14,7 @@
 class ImageLoader : public QObject, public QRunnable {
     Q_OBJECT
 public:
-    explicit ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, QObject* parent = 0);
+    explicit ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, int notifyRate, QObject* parent = 0);
     void run();
 
     bool isRunning() { return _running; }
@@ -25,6 +25,7 @@ private:
     QList<QString>* _imageNames;
     cv::Size _size;
     QList<cv::Mat>* _results;
+    int _notifyRate;
 
     bool _running = false;
     bool _cancel = false;

@@ -38,13 +38,14 @@
 **
 ****************************************************************************/
 
-#ifndef LAYOUTITEM_H
-#define LAYOUTITEM_H
+#ifndef LAYOUTITEM_HPP
+#define LAYOUTITEM_HPP
 
 #include <QtGui>
 #include <QGraphicsLayout>
 #include <QGraphicsLayoutItem>
 #include <QGraphicsItem>
+#include <QDebug>
 
 class LayoutItem : public QGraphicsLayoutItem, public QGraphicsItem {
 public:
@@ -56,15 +57,17 @@ public:
 
     // Inherited from QGraphicsItem
     QRectF boundingRect() const;
-	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-		QWidget* widget = 0);
-    qreal getWidth();
-    qreal getHeight();
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
+    qreal getWidth() { return _width; }
+    qreal getHeight() { return _height; }
 
 private:
 	QPixmap _pix;
 	qreal _width;
 	qreal _height;
+
+private slots:
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 };
 
-#endif
+#endif //LAYOUTITEM_HPP

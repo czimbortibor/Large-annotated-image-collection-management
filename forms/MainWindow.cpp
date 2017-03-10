@@ -141,11 +141,18 @@ void MainWindow::onLoadImagesClick() {
 	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
     */
 
+    ui->btn_hash->setEnabled(false);
+
     cv::Size size(_imgWidth, _imgHeight);
-    _loadingWorker = new ImageLoader(_dir.absolutePath(), _imageNames.get(), *_images.get(), size);
+    _notifyRate = 10;
+    _loadingWorker = new ImageLoader(_dir.absolutePath(), _imageNames.get(), *_images.get(), size, _notifyRate);
     connect(_loadingWorker, &ImageLoader::resultsReadyAt, this, &MainWindow::onImagesReceived);
     connect(_loadingWorker, &ImageLoader::finished, this, &MainWindow::onFinishedLoading);
     QThreadPool::globalInstance()->start(_loadingWorker);
+
+    _progressBar = new QProgressBar(this);
+    _progressBar->setMaximum(_imageNames->length());
+    ui->frame_mainControls->layout()->addWidget(_progressBar);
 }
 
 cv::Mat MainWindow::loadImage(const QString& imageName) const {
@@ -167,14 +174,15 @@ void MainWindow::onImagesReceived(int resultsBeginInd, int resultsEndInd) {
         _view->addItem(item);
         //}
     }
+    _progressBar->setValue(_progressBar->value() + _notifyRate);
 }
 
 void MainWindow::onFinishedLoading() {
 	logTime("load time:");
 
     ui->btn_hash->setEnabled(true);
+    delete _progressBar;
 
-    //emit clearLayout();
     // shuffle the images
     //auto listPtr = *_images.get();
     //std::random_shuffle(listPtr.begin(), listPtr.end());
@@ -319,16 +327,16 @@ QImage MainWindow::Mat2QImage(const cv::Mat& image) const {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-	_view->setRadius(value);
 	if (_imageNames->length()) {
+        _view->setRadius(value);
 		_view->clear();
         displayImages(*_images.get());
 	}
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-	_view->setNrOfPetals(value);
 	if (_imageNames->length()) {
+        _view->setNrOfPetals(value);
 		_view->clear();
         displayImages(*_images.get());
 	}
