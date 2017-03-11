@@ -9,14 +9,15 @@ ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::
 }
 
 void ImageLoader::run() {
-    _running = true;
+    _running.testAndSetOrdered(0, 1);
     int counter = 0;
-    /* starting index of the results */
+    // starting index of the results
     int j = 0;
     for (int i = 0; i < _imageNames->length(); ++i) {
-        if (_cancel == 0) {
+        if (static_cast<int>(_running)) {
             QString fullFileName = _dirName + "/" + _imageNames->at(i);
-            cv::Mat cvImage = cv::imread(fullFileName.toStdString());
+            cv::Mat cvImage;
+            cvImage = cv::imread(fullFileName.toStdString());
             if (cvImage.data == 0) {
                 continue;
             }
@@ -38,6 +39,6 @@ void ImageLoader::run() {
     if (counter) {
         emit resultsReadyAt(j, j+counter);
     }
-    _running = false;
+    _running.testAndSetOrdered(1, 0);
     emit finished();
 }

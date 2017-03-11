@@ -20,8 +20,6 @@ void MainWindow::init() {
 	connect(ui->btn_load, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
 	connect(ui->btn_save, &QPushButton::clicked, this, &MainWindow::onSaveImagesClick);
 	connect(ui->btn_clear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
-	connect(ui->btn_reverse, &QPushButton::clicked, this, &MainWindow::onReverseButtonClick);
-    connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
 
 	// spinboxes
 	connect(ui->spinBox_radius, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onRadiusChanged);
@@ -38,6 +36,8 @@ void MainWindow::init() {
     QString text = "size: " + QString::number(ui->slider_imgSize->value());
     ui->lbl_size->setText(text);
 
+    ui->btn_cancelLoad->hide();
+
 	initView();
 
 	std::string host = "mongodb://localhost:27017";
@@ -52,6 +52,7 @@ void MainWindow::init() {
 MainWindow::~MainWindow() {
     if (_loadingWorker != nullptr) {
         if (_loadingWorker->isRunning()) {
+            qDebug() << "stahp destrc";
             _loadingWorker->cancel();
         }
     }
@@ -60,7 +61,6 @@ MainWindow::~MainWindow() {
             _futureLoaderWatcherMT->cancel();
         }
     }
-
     if (_futureResizerWatcherMT.isRunning()) {
         _futureResizerWatcherMT.cancel();
     }
@@ -141,18 +141,20 @@ void MainWindow::onLoadImagesClick() {
 	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
     */
 
-    ui->btn_hash->setEnabled(false);
-
     cv::Size size(_imgWidth, _imgHeight);
     _notifyRate = 10;
-    _loadingWorker = new ImageLoader(_dir.absolutePath(), _imageNames.get(), *_images.get(), size, _notifyRate);
-    connect(_loadingWorker, &ImageLoader::resultsReadyAt, this, &MainWindow::onImagesReceived);
-    connect(_loadingWorker, &ImageLoader::finished, this, &MainWindow::onFinishedLoading);
-    QThreadPool::globalInstance()->start(_loadingWorker);
+    _loadingWorker = std::unique_ptr<ImageLoader>(new ImageLoader(_dir.absolutePath(), _imageNames.get(), *_images.get(), size, _notifyRate));
+    connect(_loadingWorker.get(), &ImageLoader::resultsReadyAt, this, &MainWindow::onImagesReceived);
+    connect(_loadingWorker.get(), &ImageLoader::finished, this, &MainWindow::onFinishedLoading);
+    QThreadPool::globalInstance()->start(_loadingWorker.get());
 
-    _progressBar = new QProgressBar(this);
+    connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingWorker.get(), &ImageLoader::onCancel);
+    connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
+    ui->btn_cancelLoad->setVisible(true);
+
+    _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
     _progressBar->setMaximum(_imageNames->length());
-    ui->frame_mainControls->layout()->addWidget(_progressBar);
+    ui->frame_mainControls->layout()->addWidget(_progressBar.get());
 }
 
 cv::Mat MainWindow::loadImage(const QString& imageName) const {
@@ -165,23 +167,19 @@ cv::Mat MainWindow::loadImage(const QString& imageName) const {
 
 void MainWindow::onImagesReceived(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
-        /*if (_futureLoaderWatcherMT->resultAt(i).data) {
-            cv::Mat cvResizedImg;
-            cv::resize(_futureLoaderWatcherMT->resultAt(i), cvResizedImg, cv::Size(_imgWidth, _imgHeight));
-            _images->append(cvResizedImg);
-        */
         LayoutItem* item = new LayoutItem(NULL, Mat2QImage(_images->at(i)));
         _view->addItem(item);
-        //}
     }
+
     _progressBar->setValue(_progressBar->value() + _notifyRate);
 }
 
 void MainWindow::onFinishedLoading() {
 	logTime("load time:");
 
-    ui->btn_hash->setEnabled(true);
-    delete _progressBar;
+    _loadingWorker.release();
+    ui->btn_cancelLoad->hide();
+    connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
 
     // shuffle the images
     //auto listPtr = *_images.get();

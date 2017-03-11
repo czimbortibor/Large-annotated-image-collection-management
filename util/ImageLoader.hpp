@@ -17,8 +17,8 @@ public:
     explicit ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, int notifyRate, QObject* parent = 0);
     void run();
 
-    bool isRunning() { return _running; }
-    void cancel() { _cancel = true; }
+    bool isRunning() const { return static_cast<int>(_running); }
+    void cancel() { _running.testAndSetOrdered(1, 0); }
 
 private:
     QString _dirName;
@@ -27,12 +27,14 @@ private:
     QList<cv::Mat>* _results;
     int _notifyRate;
 
-    bool _running = false;
-    bool _cancel = false;
+    QAtomicInt _running;
 
 signals:
     void resultsReadyAt(int begin, int end);
     void finished();
+
+public slots:
+    void onCancel() { _running.testAndSetOrdered(1, 0); }
 };
 
 #endif // IMAGELOADER_HPP

@@ -78,14 +78,14 @@ private:
     std::unique_ptr<QList<cv::Mat>> _images;
 	QElapsedTimer _timer;
     int _notifyRate;
-    QProgressBar* _progressBar;
+    std::unique_ptr<QProgressBar> _progressBar;
 
 	// ------ multi-threaded image load -------
 	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;
 	std::unique_ptr<QFutureWatcher<cv::Mat>> _futureLoaderWatcherMT;
 
     // -------- custom single-threaded image load -----------
-    ImageLoader* _loadingWorker;
+    std::unique_ptr<ImageLoader> _loadingWorker;
 
 	// ------ multi-threaded image resize ------
     std::unique_ptr<QFuture<void>> _futureResizerMT;
