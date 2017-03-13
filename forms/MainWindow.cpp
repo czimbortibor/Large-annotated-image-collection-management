@@ -1,6 +1,9 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
+typedef libconfig::Config Config;
+typedef libconfig::Setting Setting;
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
@@ -18,7 +21,6 @@ void MainWindow::init() {
 
 	// buttons
 	connect(ui->btn_load, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
-	connect(ui->btn_save, &QPushButton::clicked, this, &MainWindow::onSaveImagesClick);
 	connect(ui->btn_clear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
 
 	// spinboxes
@@ -38,6 +40,34 @@ void MainWindow::init() {
 
     ui->btn_cancelLoad->hide();
 
+    //  configuration file
+    _config = std::unique_ptr<Config>(new Config());
+    try {
+        _config->readFile("configurations.cfg");
+    }
+    catch (const libconfig::FileIOException& ex) {
+        std::cerr << "Configuration file I/O error!" << std::endl;
+        std::cout << "creating new configuration file..." << std::endl;
+        _config->writeFile("configurations.cfg");
+    }
+
+    Setting& root = _config->getRoot();
+    // create the collection if it doesnt exists
+    if (root.exists("collections") == 0) {
+        root.add("collections", Setting::TypeGroup);
+    }
+    // load the collections
+    _collections = std::unique_ptr<Setting>(&root["collections"]);
+    int count = _collections->getLength();
+    qDebug() << "collection count" << count;
+    for (const auto& collection : *_collections.get()) {
+        std::string name;
+        collection.lookupValue("name", name);
+        std::string URL;
+        collection.lookupValue("URL", URL);
+        qDebug() << "name:" << QString::fromStdString(name) << "URL:" << QString::fromStdString(URL);
+    }
+
 	initView();
 
 	std::string host = "mongodb://localhost:27017";
@@ -52,7 +82,6 @@ void MainWindow::init() {
 MainWindow::~MainWindow() {
     if (_loadingWorker != nullptr) {
         if (_loadingWorker->isRunning()) {
-            qDebug() << "stahp destrc";
             _loadingWorker->cancel();
         }
     }
@@ -60,9 +89,6 @@ MainWindow::~MainWindow() {
         if (_futureLoaderWatcherMT->isRunning()) {
             _futureLoaderWatcherMT->cancel();
         }
-    }
-    if (_futureResizerWatcherMT.isRunning()) {
-        _futureResizerWatcherMT.cancel();
     }
     delete ui;
 }
@@ -81,7 +107,7 @@ void MainWindow::onSceneChanged() {
 	_view->setMinSceneSize(newSize);
 }
 
-void MainWindow::showAlertDialog() {
+void MainWindow::showAlertDialog() const {
 	QMessageBox msgBox;
 	msgBox.setIcon(QMessageBox::Warning);
 	msgBox.setText("The selected directory does not contain any supported image files!");
@@ -182,21 +208,25 @@ void MainWindow::onFinishedLoading() {
     connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
 
     // shuffle the images
-    //auto listPtr = *_images.get();
-    //std::random_shuffle(listPtr.begin(), listPtr.end());
-    //displayImages(listPtr);
-    /*_timer.start();
-    int newWidth = _imgWidth;
-	int newHeight = _imgHeight;
-	auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
-		// this: the hidden this parameter for member functions, placeholders::_1 = <const cv::Mat& image>
-	_futureResizerMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imagesOriginal.get(), fun)));
-	_futureResizerWatcherMT.setFuture(*_futureResizerMT.get());
-	//connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::resultsReadyAt, this, &MainWindow::onImagesResized);
-	connect(&_futureResizerWatcherMT, &QFutureWatcher<QImage>::finished, this, &MainWindow::onFinishedResizing);
-	*/
-	//displayImages();
-	//logTime("display time:");
+    /*
+    auto listPtr = *_images.get();
+    std::random_shuffle(listPtr.begin(), listPtr.end());
+    displayImages(listPtr);
+    logTime("display time:");
+    */
+    _dir.cdUp();
+    saveImages(100);
+}
+
+void MainWindow::resizeImages(int newWidth, int newHeight) {
+    ui->btn_clear->setEnabled(false);
+    _timer.start();
+    auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
+    _futureResizerMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_images.get(), fun)));
+    _futureResizerWatcherMT.setFuture(*_futureResizerMT.get());
+    connect(&_futureResizerWatcherMT, &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesResized);
+    connect(&_futureResizerWatcherMT, &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedResizing);
+    //connect(&_futureResizerWatcherMT, &QFutureWatcher<cv::Mat>::finished, &QFutureWatcher<cv::Mat>::deleteLater);
 }
 
 cv::Mat MainWindow::resizeImage(const cv::Mat& image, int newWidth, int newHeight) const {
@@ -206,21 +236,18 @@ cv::Mat MainWindow::resizeImage(const cv::Mat& image, int newWidth, int newHeigh
 }
 
 void MainWindow::onImagesResized(int resultsBeginInd, int resultsEndInd) {
-    /*for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
-		QImage res = Mat2QImage(_futureResizerWatcherMT.resultAt(i));
-		LayoutItem* item = new LayoutItem(NULL, res);
-		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
-    }*/
+    for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
+        QString newFileName = (_dirSmallImg->absolutePath() + "/" + _imageNames->at(i));
+        cv::imwrite(newFileName.toStdString(), _futureResizerMT->resultAt(i));
+    }
 }
 
 void MainWindow::onFinishedResizing() {
-    logTime("resize time:");
+    logTime("time needed to save the images:");
     // TODO: disable buttons during resizing
     ui->btn_clear->setEnabled(true);
-	_timer.start();
-    _view->clear();
-    displayImages(*_images.get());
-    logTime("display time:");
+
+    saveImages(10);
 }
 
 void MainWindow::onHashImages() {
@@ -244,25 +271,36 @@ void MainWindow::onHashImages() {
     */
 }
 
-void MainWindow::onSaveImagesClick() {
-	_dir.cdUp();
-	QString currentDir = _dir.absolutePath();
-	if (!QDir(currentDir + "/smallImages").exists()) {
-		QDir().mkdir(currentDir + "/smallImages");
-	}
-	else {
-		_dirSmallImg.removeRecursively();
-	}
-	_dirSmallImg = QDir(currentDir + "/smallImages");
+void MainWindow::saveImages(int size) {
+    QString currentDir = _dir.absolutePath();
+    QString collectionName = QString::number(_imageNames->length()) + "_" + QString::number(size);
+    QString collectionDir = "/collections/" + collectionName;
+    QString absPath = currentDir + collectionDir;
+    //if (_collections->exists(collectionName.toStdString()) == 0) {
+        //qDebug() << collectionName;
+        if (!QDir(absPath).exists()) {
+            QDir().mkdir(absPath);
+        //}
+        _dirSmallImg = new QDir(absPath);
 
-	qDebug() << "saving the " << _iconSize << "x" << _iconSize << "icons to: " + _dirSmallImg.absolutePath();
-	_timer.start();
-    for (int i = 0; i < _images->length(); ++i) {
-		QString newFileName = (_dirSmallImg.absolutePath() + "/" + _imageNames->at(i));
-		//_imagesResized->at(i).save(newFileName);
-        cv::imwrite(newFileName.toStdString(), _images->at(i));
-	}
-	logTime("time needed to save the images:");
+        qDebug() << "creating collection index...";
+        // create new entry
+        Setting& collection = _collections->add(Setting::TypeGroup);
+        collection.add("name", Setting::TypeString) = collectionName.toStdString();
+        collection.add("URL", Setting::TypeString) = absPath.toStdString();
+
+        // write out the updated configuration
+        _config->writeFile("configurations.cfg");
+
+        qDebug() << "saving the " << size << "x" << size << "icons to: " + _dirSmallImg->absolutePath() << "...";
+        _timer.start();
+        resizeImages(size, size);
+    }
+    else {
+        //_dirSmallImg.removeRecursively();
+    }
+
+
 }
 
 void MainWindow::onReverseButtonClick() {
@@ -353,12 +391,7 @@ void MainWindow::onImageSizeChanged(int size) {
         // smaller size is requested, no need to reload the images
         //if (size <= _iconSize) {
             _iconSize = size;
-            _imgWidth = size;
-            _imgHeight = size;
-            auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, size, size);
-            _futureResizerMT = std::unique_ptr<QFuture<void>>(new QFuture<void>(QtConcurrent::map(*_images.get(), fun)));
-            _futureResizerWatcherMT.setFuture(*_futureResizerMT.get());
-            connect(&_futureResizerWatcherMT, &QFutureWatcher<void>::finished, this, &MainWindow::onFinishedResizing);
+           //resizeImages(size, size);
  // }
         // have to reload the images to not damage their quality during resizing
        /* else {

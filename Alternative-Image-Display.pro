@@ -65,7 +65,8 @@ LIBS += -L/usr/local/lib \
     -lopencv_img_hash \
     -lpHash \
     -lmongocxx \
-    -lbsoncxx
+    -lbsoncxx \
+    -lconfig++
 
 RESOURCES += \
     resources.qrc

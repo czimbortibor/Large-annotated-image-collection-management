@@ -28,6 +28,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <libconfig.h++>
+
 #include "util/LayoutItem.hpp"
 #include "util/CBIR.hpp"
 #include "util/ImageLoader.hpp"
@@ -54,8 +56,11 @@ private:
     /* creates the main view for displaying images */
 	void initView();
 
+    void resizeImages(int newWidth, int newHeight);
+    void saveImages(int size);
+
     /* no images were selected */
-	void showAlertDialog();
+    void showAlertDialog() const;
     cv::Mat loadImage(const QString& fileName) const;
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
     void displayImages(const QList<cv::Mat>& images) const;
@@ -70,7 +75,7 @@ private:
 	int _iconSize;
 	int _nrOfImages;
 	QDir _dir;
-	QDir _dirSmallImg;
+    QDir* _dirSmallImg;
 	QStringList _supportedImgFormats;
 	std::unique_ptr<QList<QString>> _imageNames;
 	int _imgWidth;
@@ -80,6 +85,9 @@ private:
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
 
+    std::unique_ptr<libconfig::Config> _config;
+    std::unique_ptr<libconfig::Setting> _collections;
+
 	// ------ multi-threaded image load -------
 	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;
 	std::unique_ptr<QFutureWatcher<cv::Mat>> _futureLoaderWatcherMT;
@@ -88,8 +96,8 @@ private:
     std::unique_ptr<ImageLoader> _loadingWorker;
 
 	// ------ multi-threaded image resize ------
-    std::unique_ptr<QFuture<void>> _futureResizerMT;
-    QFutureWatcher<void> _futureResizerWatcherMT;
+    std::unique_ptr<QFuture<cv::Mat>> _futureResizerMT;
+    QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
 
 	GraphicsView* _view;
 
@@ -112,7 +120,6 @@ private slots:
     void onHashImages();
 
 	void onLoadImagesClick();
-	void onSaveImagesClick();
     /* display the images in reverse order */
 	void onReverseButtonClick();
 
