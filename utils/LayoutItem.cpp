@@ -47,6 +47,10 @@ LayoutItem::LayoutItem(QGraphicsItem* parent/* = 0*/, const QImage& image)
 	this->_width = image.width();
 	this->_height = image.height();
 	QGraphicsLayoutItem::setGraphicsItem(this);
+
+    QGraphicsItem::setAcceptHoverEvents(true);
+    setFlag(QGraphicsItem::ItemIsSelectable);
+    setFlag(QGraphicsItem::ItemIsFocusable);
 }
 
 void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
@@ -81,8 +85,14 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
     return constraint;
 }
 
+void LayoutItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+    qDebug() << "cliiiicked!";
+    /*setSelected(true);
+    QGraphicsItem::mousePressEvent(event);
+    */
+}
+
 void LayoutItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     qDebug() << "hooover";
-    QGraphicsItem::mouseMoveEvent(event);
     setScale(2.0);
 }

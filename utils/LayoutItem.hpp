@@ -61,13 +61,15 @@ public:
     qreal getWidth() { return _width; }
     qreal getHeight() { return _height; }
 
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+
 private:
 	QPixmap _pix;
 	qreal _width;
 	qreal _height;
 
-private slots:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 };
 
 #endif //LAYOUTITEM_HPP

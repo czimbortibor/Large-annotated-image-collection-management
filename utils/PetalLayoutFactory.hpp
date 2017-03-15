@@ -1,7 +1,7 @@
 #ifndef PETALLAYOUTFACTORY_HPP
 #define PETALLAYOUTFACTORY_HPP
 
-#include "util/AbstractLayoutFactory.hpp"
+#include "utils/AbstractLayoutFactory.hpp"
 #include "layouts/PetalLayout.hpp"
 
 
