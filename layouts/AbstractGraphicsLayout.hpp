@@ -22,6 +22,7 @@ public:
 	virtual QList<QGraphicsLayoutItem*>& items() = 0;
 
 protected:
+    AbstractGraphicsLayout() {}
 	virtual void insertItem(int index, QGraphicsLayoutItem* item) = 0;
 	virtual void setSpacing(Qt::Orientations o, qreal spacing) = 0;
 	virtual qreal spacing(Qt::Orientation o) const = 0;

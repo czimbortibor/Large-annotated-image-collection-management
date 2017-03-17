@@ -32,7 +32,7 @@ void MainWindow::init() {
 
 	// filter fields
 	connect(ui->comboBox_layout, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &MainWindow::onLayoutChanged);
-	connect(ui->btn_addFilter, &QPushButton::clicked, this, &MainWindow::onFiltersClicked);
+    connect(ui->btn_addFilter, &QPushButton::clicked, this, &MainWindow::onAddFilter);
 	ui->groupBox_layoutControls->hide();
 
     QString text = "size: " + QString::number(ui->slider_imgSize->value());
@@ -59,17 +59,18 @@ void MainWindow::init() {
     // load the collections
     _collections = std::unique_ptr<Setting>(&root["collections"]);
     int count = _collections->getLength();
-    qInfo() << "collection count" << count;
+    //qInfo() << "collection count" << count;
     for (const auto& collection : *_collections.get()) {
         std::string name;
         collection.lookupValue("name", name);
         std::string URL;
         collection.lookupValue("URL", URL);
-        qInfo() << "name:" << QString::fromStdString(name) << "URL:" << QString::fromStdString(URL);
+        //qInfo() << "name:" << QString::fromStdString(name) << "URL:" << QString::fromStdString(URL);
     }
 
 	initView();
 
+    // ---------- DB -----------
 	std::string host = "mongodb://localhost:27017";
 	std::string database = "local";
 	std::string collection = "TwitterFDL2015";
@@ -77,6 +78,17 @@ void MainWindow::init() {
 	if (_mongoAccess->init()) {
 		_mongoAccess->test();
 	}
+
+    // ---------- filters -----------
+    ui->widget_createFilters->hide();
+    _filters.insert("date range", new DateFilter);
+    _filterList = new QListWidget(ui->widget_createFilters);
+    for (const auto& filter : _filters.keys()) {
+        _filterList->addItem(filter);
+    }
+    ui->widget_createFilters->setMinimumSize(_filterList->size());
+
+    connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 }
 
 MainWindow::~MainWindow() {
@@ -194,7 +206,7 @@ cv::Mat MainWindow::loadImage(const QString& imageName) const {
 
 void MainWindow::onImagesReceived(int resultsBeginInd, int resultsEndInd) {
 	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
-        LayoutItem* item = new LayoutItem(Mat2QImage(_images->at(i)));
+        LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(_images->at(i)));
         connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
         _view->addItem(item);
     }
@@ -259,8 +271,8 @@ void MainWindow::onHashImages() {
     // cv::Ptr<cv::img_hash::MarrHildrethHash> hasher = cv::img_hash::MarrHildrethHash::create();
     // cv::Ptr<cv::img_hash::RadialVarianceHash> hasher = cv::img_hash::RadialVarianceHash::create();
     auto mapPtr = &imageRetrieval.computeHashes(*_images.get(), hasher);
-    //_imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(mapPtr);
-    _imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
+    _imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(mapPtr);
+    //_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
     _view->clear();
     displayImages(*_imagesHashed.get());
     //_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
@@ -309,7 +321,7 @@ void MainWindow::onClearLayout() {
 
 void MainWindow::displayImages(const QList<cv::Mat>& images) const {
 	for (const auto& image : images) {
-		QImage res = Mat2QImage(image);
+        QImage res = ImageConverter::Mat2QImage(image);
         LayoutItem* item = new LayoutItem(res);
 		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
@@ -317,15 +329,11 @@ void MainWindow::displayImages(const QList<cv::Mat>& images) const {
 
 template<typename T>
 void MainWindow::displayImages(const T& images) const {
-    //typedef std::multimap<double, const cv::Mat> map;
-    //if (std::is_same<map, T>::value) {
     for (const auto& entry : images) {
-        QImage image = Mat2QImage(entry.second);
-        //qDebug() << entry.first;
+        QImage image = ImageConverter::Mat2QImage(entry.second);
         LayoutItem* item = new LayoutItem(image);
         _view->addItem(static_cast<QGraphicsLayoutItem*>(item));
     }
-   // }
 }
 
 void MainWindow::logTime(QString message) {
@@ -336,78 +344,6 @@ void MainWindow::logTime(QString message) {
 	logFile << "number of images: " << _nrOfImages << "\n";
 	logFile << message.toStdString() << _nrOfImages << "\n";
 	logFile.close();
-}
-
-QImage MainWindow::Mat2QImage(const cv::Mat& cvimage) const {
-    switch (cvimage.type()) {
-         // 8-bit, 4 channel
-         case CV_8UC4: {
-            QImage qimage(cvimage.data, cvimage.cols, cvimage.rows,
-                          static_cast<int>(cvimage.step),
-                          QImage::Format_ARGB32);
-            return qimage;
-         }
-
-         // 8-bit, 3 channel
-         case CV_8UC3: {
-            QImage qimage(cvimage.data, cvimage.cols, cvimage.rows,
-                          static_cast<int>(cvimage.step),
-                          QImage::Format_RGB888);
-            return qimage.rgbSwapped();
-         }
-
-         // 8-bit, 1 channel
-         case CV_8UC1: {
-            QImage qimage(cvimage.data, cvimage.cols, cvimage.rows,
-                          static_cast<int>(cvimage.step),
-                          QImage::Format_Grayscale8);
-            return qimage;
-         }
-
-         default: {
-            qWarning() << "cv::Mat type not handled:" << cvimage.type();
-            return QImage();
-         }
-      }
-}
-
-cv::Mat MainWindow::QImage2Mat(const QImage& qimage) const {
-    switch (qimage.format()) {
-         // 8-bit, 4 channel
-         case QImage::Format_ARGB32:
-         case QImage::Format_ARGB32_Premultiplied: {
-            cv::Mat cvimage(qimage.height(), qimage.width(), CV_8UC4,
-                          const_cast<uchar*>(qimage.bits()),
-                          static_cast<size_t>(qimage.bytesPerLine()));
-            return cvimage;
-         }
-
-         // 8-bit, 3 channel
-         case QImage::Format_RGB32:
-         case QImage::Format_RGB888: {
-            QImage swapped = qimage;
-            if (qimage.format() == QImage::Format_RGB32) {
-               swapped = swapped.convertToFormat(QImage::Format_RGB888);
-            }
-            swapped = swapped.rgbSwapped();
-            return cv::Mat(swapped.height(), swapped.width(), CV_8UC3,
-                            const_cast<uchar*>(swapped.bits()),
-                            static_cast<size_t>(swapped.bytesPerLine())).clone();
-         }
-
-         // 8-bit, 1 channel
-         case QImage::Format_Indexed8: {
-            cv::Mat cvimage(qimage.height(), qimage.width(), CV_8UC1,
-                          const_cast<uchar*>(qimage.bits()),
-                          static_cast<size_t>(qimage.bytesPerLine()));
-            return cvimage;
-         }
-
-         default: {
-            qWarning() << "QImage format not handled:" << qimage.format();
-            return cv::Mat();
-         }
-    }
 }
 
 void MainWindow::onRadiusChanged(double value) {
@@ -455,13 +391,17 @@ void MainWindow::onImageSizeChanged(int size) {
     }
 }
 
-void MainWindow::onFiltersClicked() {
-	QListWidget* filterList = new QListWidget(ui->widget_filters);
+void MainWindow::onAddFilter() {
+    ui->widget_createFilters->setVisible(true);
+    _filterList->show();
+}
 
-	filterList->addItems(QStringList() << "keyword" << "date range" << "image");
-	ui->widget_filters->setMinimumSize(filterList->size());
-    //ui->widget_filters->layout()->addWidget(filterList);
-	filterList->show();
+void MainWindow::onAddNewFilter(QListWidgetItem* item) {
+    ui->widget_createFilters->hide();
+    AbstractFilter* filter = _filters.value(item->text())->makeFilter();
+    QWidget* filterControl = filter->makeControl();
+    ui->widget_filters->layout()->addWidget(new QLabel(item->text()));
+    ui->widget_filters->layout()->addWidget(filterControl);
 }
 
 void MainWindow::onImageClicked(LayoutItem* image) {
@@ -480,12 +420,13 @@ QList<cv::Mat>& MainWindow::getSimilarImages(const LayoutItem& target) const {
         nrOfSimilars = ui->spinBox_nrOfPetals->value();
     }
     else {
-        nrOfSimilars = 0;
+        nrOfSimilars = 2;
     }
 
     QImage image = target.getPixmap()->toImage();
-    cv::Mat cvImage = QImage2Mat(image);
-    cv::Mat targetHash = CBIR::getHash(cvImage);
+    cv::Mat cvImage = ImageConverter::QImage2Mat(image);
+    //cv::Mat targetHash = CBIR::getHash(cvImage);
+    double targetHash = CBIR::getHashValue(cvImage);
     auto it = _imagesHashed->find(targetHash);
     QList<cv::Mat>* res = new QList<cv::Mat>;
     res->push_front(cvImage);
@@ -497,11 +438,19 @@ QList<cv::Mat>& MainWindow::getSimilarImages(const LayoutItem& target) const {
     auto rightIt = it;
     auto leftIt = it;
     while (k <= nrOfSimilars) {
-        std::advance(rightIt, k);
-        std::advance(leftIt, -k);
-        double rightDist = CBIR::getDistance(it->first, rightIt->first);
-        double leftDist = CBIR::getDistance(it->first, leftIt->first);
-        (rightDist < leftDist) ? res->push_front(rightIt->second) : res->push_front(leftIt->second);
+        rightIt = std::next(it, k);
+        if (rightIt == _imagesHashed->end()) {
+            break;
+        }
+        leftIt = std::next(it, -k);
+        if (leftIt == _imagesHashed->begin()) {
+            break;
+        }
+        /*double rightDist = CBIR::getDistance(it->first, rightIt->first);
+        double leftDist = CBIR::getDistance(it->first, leftIt->first);*/
+        double rightDist = abs(it->first - rightIt->first);
+        double leftDist = abs(it->first - leftIt->first);
+        (rightDist < leftDist) ? res->push_back(rightIt->second) : res->push_back(leftIt->second);
         ++k;
     }
     return *res;

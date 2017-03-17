@@ -6,6 +6,7 @@
 #include <memory>
 #include <functional>
 #include <numeric>
+#include <iterator>
 
 #include <QMainWindow>
 #include <QFileDialog>
@@ -33,10 +34,12 @@
 #include "utils/LayoutItem.hpp"
 #include "utils/CBIR.hpp"
 #include "utils/ImageLoader.hpp"
+#include "utils/ImageConverter.hpp"
 #include "view/GraphicsView.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 #include "db/MongoAccess.hpp"
+#include "filters/DateFilter.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -68,8 +71,6 @@ private:
 	template<typename T> void displayImages(const T& images) const;
 
 	void logTime(QString message);
-	QImage Mat2QImage(const cv::Mat &cvImage) const;
-    cv::Mat QImage2Mat(const QImage& image) const;
 
     /* returns the similar images of the target image */
     QList<cv::Mat>& getSimilarImages(const LayoutItem& target) const;
@@ -108,11 +109,14 @@ private:
 	GraphicsView* _view;
 
 	CBIR imageRetrieval;
-    std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
-    //std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
-	std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
+    //std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
+    std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
+    std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
 
 	std::unique_ptr<MongoAccess> _mongoAccess;
+
+    QMultiMap<QString, AbstractFilter*> _filters;
+    QListWidget* _filterList;
 
 private slots:
 	void onSceneChanged();
@@ -134,10 +138,10 @@ private slots:
 	void onLayoutChanged(const QString& text);
     void onImageSizeChanged(int size);
 
-    // TODO: factory method to create different filters
-	void onFiltersClicked();
+    void onAddFilter();
 
     void onImageClicked(LayoutItem* image);
+    void onAddNewFilter(QListWidgetItem* item);
 
 signals:
 	void clearLayout();

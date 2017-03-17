@@ -32,7 +32,9 @@ SOURCES +=\
     view/GraphicsView.cpp \
     db/MongoAccess.cpp \
     layouts/PetalLayout.cpp \
-    utils/ImageLoader.cpp
+    utils/ImageLoader.cpp \
+    filters/DateFilter.cpp \
+    utils/ImageConverter.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -46,8 +48,11 @@ HEADERS  +=\
     utils/PetalLayoutFactory.hpp \
     layouts/PetalLayout.hpp \
     utils/AbstractLayoutFactory.hpp \
-    utils/AbstractFilterFactory.hpp \
-    utils/ImageLoader.hpp
+    utils/ImageLoader.hpp \
+    filters/DateFilter.hpp \
+    utils/AbstractFilter.hpp \
+    filters/AbstractFilter.hpp \
+    utils/ImageConverter.hpp
 
 FORMS    +=\
     ui/MainWindow.ui
