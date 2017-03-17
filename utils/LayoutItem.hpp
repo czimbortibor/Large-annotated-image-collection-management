@@ -44,13 +44,16 @@
 #include <QtGui>
 #include <QGraphicsLayout>
 #include <QGraphicsLayoutItem>
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 #include <QDebug>
 
-class LayoutItem : public QGraphicsLayoutItem, public QGraphicsItem {
+class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
+    Q_OBJECT
+    Q_INTERFACES(QGraphicsItem)
+    Q_INTERFACES(QGraphicsLayoutItem)
 public:
-	explicit LayoutItem(QGraphicsItem* parent = 0, const QImage& image = QImage());
-	~LayoutItem() = default;
+    explicit LayoutItem(const QImage& image = QImage());
+    ~LayoutItem();
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const;
@@ -61,15 +64,19 @@ public:
     qreal getWidth() { return _width; }
     qreal getHeight() { return _height; }
 
+    QPixmap* getPixmap() const { return _pix; }
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
 private:
-	QPixmap _pix;
+    QPixmap* _pix;
 	qreal _width;
 	qreal _height;
 
+signals:
+    void clicked(LayoutItem* item);
 };
 
 #endif //LAYOUTITEM_HPP

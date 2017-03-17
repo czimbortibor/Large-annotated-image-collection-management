@@ -1,4 +1,4 @@
-#include "forms/MainWindow.hpp"
+#include "ui/MainWindow.hpp"
 #include <QApplication>
 
 int main(int argc, char* argv[]) {

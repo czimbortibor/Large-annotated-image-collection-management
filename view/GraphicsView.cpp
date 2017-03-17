@@ -38,6 +38,7 @@ void GraphicsView::setLayout(const QString& value) {
 	// TODO: overload operator=
 
 	for (const auto& item : _layout->items()) {
+        //connect(item, &LayoutItem::clicked, this, &GraphicsView::onImageClicked);
 		tmp->addItem(item);
 	}
 	_layout->clearAll();
@@ -63,7 +64,7 @@ template<typename L>
 void GraphicsView::displayImages(const QVector<cv::Mat>& images, const L& layout) const {
 	for (const auto& image : images) {
 		QImage res = Mat2QImage(image);
-		LayoutItem* item = new LayoutItem(NULL, res);
+        LayoutItem* item = new LayoutItem(res);
 		layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 }
@@ -72,7 +73,7 @@ template<typename T, typename L>
 void GraphicsView::displayImages(const T& images, const L& layout) const {
 	for (const auto& entry : images) {
 		QImage image = Mat2QImage(entry.second);
-		LayoutItem* item = new LayoutItem(NULL, image);
+        LayoutItem* item = new LayoutItem(image);
 		layout->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
 }

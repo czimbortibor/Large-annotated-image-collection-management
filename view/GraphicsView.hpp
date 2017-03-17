@@ -20,9 +20,9 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "util/LayoutItem.hpp"
-#include "util/FlowLayoutFactory.hpp"
-#include "util/PetalLayoutFactory.hpp"
+#include "utils/LayoutItem.hpp"
+#include "utils/FlowLayoutFactory.hpp"
+#include "utils/PetalLayoutFactory.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 
@@ -36,7 +36,7 @@ public:
 	void setMinSceneSize(const QSizeF value) { _layoutWidget->setMinimumSize(value); _layout->invalidate();}
 	void addItem(QGraphicsLayoutItem* item) { _layout->addItem(item); }
 	int itemCount() const { return _layout->count(); }
-	void clear() { _layout->clearAll(); }
+    void clear() { _layout->clearAll(); }
 
 	/** expose a reference to the scene to get it's signals; reference, so the ownership won't move */
 	QGraphicsScene& scene() { return *_scene; }
@@ -48,6 +48,11 @@ public:
 	void setNrOfPetals(int value);
 	void setRadius(double value);
 
+protected:
+    /*void mousePressEvent(QMouseEvent* event) {
+        QGraphicsView::mousePressEvent(event);
+    }*/
+
 private:
 	QImage Mat2QImage(const cv::Mat& cvImage) const;
 
@@ -57,6 +62,12 @@ private:
 	AbstractGraphicsLayout* _layout;
 
 	std::unique_ptr<std::map<std::string, AbstractLayoutFactory*>> _layouts;
+
+signals:
+    void imageClick(QGraphicsItem* image);
+
+private slots:
+    void onImageClicked(QGraphicsItem* image) { emit imageClick(image); }
 };
 
 #endif // GRAPHICSVIEW_HPP

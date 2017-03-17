@@ -1,7 +1,6 @@
 #ifndef CBIR_HPP
 #define CBIR_HPP
 
-#include <QVector>
 #include <QList>
 #include <QDebug>
 
@@ -32,11 +31,15 @@ public:
 	};
 
 	/** using OpenCV's img_hash library */
-	//std::multimap<const cv::Mat, const cv::Mat, MatCompare>& computeHashes(QVector<cv::Mat>& images) const;
-    std::multimap<double, const cv::Mat>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
+    std::multimap<const cv::Mat, const cv::Mat, MatCompare>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
+    //std::multimap<double, const cv::Mat>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
 
 	/** using the pHash library */
-	std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QVector<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const;
+    std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QList<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const;
+
+    /** returns the image's hash value */
+    static cv::Mat getHash(const cv::Mat& image);
+    static double getDistance(const cv::Mat& hashmatA, const cv::Mat& hashmatB);
 
 private:
 

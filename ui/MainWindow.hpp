@@ -30,10 +30,10 @@
 
 #include <libconfig.h++>
 
-#include "util/LayoutItem.hpp"
-#include "util/CBIR.hpp"
-#include "util/ImageLoader.hpp"
-#include "views/GraphicsView.hpp"
+#include "utils/LayoutItem.hpp"
+#include "utils/CBIR.hpp"
+#include "utils/ImageLoader.hpp"
+#include "view/GraphicsView.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 #include "db/MongoAccess.hpp"
@@ -56,7 +56,7 @@ private:
     /* creates the main view for displaying images */
 	void initView();
 
-    void resizeImages(int newWidth, int newHeight);
+    //void resizeImages(int newWidth, int newHeight);
     void saveImages(int size);
 
     /* no images were selected */
@@ -69,6 +69,10 @@ private:
 
 	void logTime(QString message);
 	QImage Mat2QImage(const cv::Mat &cvImage) const;
+    cv::Mat QImage2Mat(const QImage& image) const;
+
+    /* returns the similar images of the target image */
+    QList<cv::Mat>& getSimilarImages(const LayoutItem& target) const;
 
 
 	Ui::MainWindow* ui;
@@ -84,6 +88,8 @@ private:
 	QElapsedTimer _timer;
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
+    /* were the images already hashed? */
+    bool _wereHashed = false;
 
     std::unique_ptr<libconfig::Config> _config;
     std::unique_ptr<libconfig::Setting> _collections;
@@ -96,14 +102,14 @@ private:
     std::unique_ptr<ImageLoader> _loadingWorker;
 
 	// ------ multi-threaded image resize ------
-    std::unique_ptr<QFuture<cv::Mat>> _futureResizerMT;
-    QFutureWatcher<cv::Mat> _futureResizerWatcherMT;
+    std::shared_ptr<QFuture<cv::Mat>> _futureResizerMT;
+    std::shared_ptr<QFutureWatcher<cv::Mat>> _futureResizerWatcherMT;
 
 	GraphicsView* _view;
 
 	CBIR imageRetrieval;
-	//std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
-	std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
+    std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
+    //std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
 	std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
 
 	std::unique_ptr<MongoAccess> _mongoAccess;
@@ -120,8 +126,7 @@ private slots:
     void onHashImages();
 
 	void onLoadImagesClick();
-    /* display the images in reverse order */
-	void onReverseButtonClick();
+    void onResizeImages(int newWidth, int newHeight);
 
 	// ------------- filters ---------------
 	void onRadiusChanged(double value);
@@ -132,8 +137,11 @@ private slots:
     // TODO: factory method to create different filters
 	void onFiltersClicked();
 
+    void onImageClicked(LayoutItem* image);
+
 signals:
 	void clearLayout();
+    void resizeImages(int newWidth, int newHeight);
 };
 
 #endif // MAINWINDOW_H

@@ -26,31 +26,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES +=\
     Main.cpp \
     layouts/FlowLayout.cpp \
-    util/CBIR.cpp \
-    util/LayoutItem.cpp \
-    forms/MainWindow.cpp \
-    views/GraphicsView.cpp \
+    utils/CBIR.cpp \
+    utils/LayoutItem.cpp \
+    ui/MainWindow.cpp \
+    view/GraphicsView.cpp \
     db/MongoAccess.cpp \
     layouts/PetalLayout.cpp \
-    util/ImageLoader.cpp
+    utils/ImageLoader.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
     layouts/FlowLayout.hpp \
-    util/CBIR.hpp \
-    util/LayoutItem.hpp \
-    forms/MainWindow.hpp \
-    views/GraphicsView.hpp \
+    utils/CBIR.hpp \
+    utils/LayoutItem.hpp \
+    ui/MainWindow.hpp \
+    view/GraphicsView.hpp \
     db/MongoAccess.hpp \
-    util/FlowLayoutFactory.hpp \
-    util/PetalLayoutFactory.hpp \
+    utils/FlowLayoutFactory.hpp \
+    utils/PetalLayoutFactory.hpp \
     layouts/PetalLayout.hpp \
-    util/AbstractLayoutFactory.hpp \
-    util/AbstractFilterFactory.hpp \
-    util/ImageLoader.hpp
+    utils/AbstractLayoutFactory.hpp \
+    utils/AbstractFilterFactory.hpp \
+    utils/ImageLoader.hpp
 
 FORMS    +=\
-    forms/MainWindow.ui
+    ui/MainWindow.ui
 
 INCLUDEPATH += /usr/local/include \
     /usr/local/include/opencv \
