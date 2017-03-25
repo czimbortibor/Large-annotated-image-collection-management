@@ -1,10 +1,13 @@
 #ifndef DB_HPP
 #define DB_HPP
 
+#include <QString>
+
 #include <string>
 #include <iostream>
 
 #include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/stdx/make_unique.hpp>
 #include <mongocxx/uri.hpp>
@@ -19,8 +22,7 @@ public:
 	explicit MongoAccess(const std::string& hostName, const std::string& databaseName, const std::string& collectionName);
 	bool init();
 
-	/** finds a tweet by it's ID */
-	void test();
+    void test(const std::string& testStr);
 
 private:
 	std::string _hostName;

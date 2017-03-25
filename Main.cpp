@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
     }*/
 
     MainWindow w;
-    //w.setStyleSheet("QWidget QFrame QPushButton { background-color: yellow }");
+    w.setStyleSheet("QPushButton { background-color: yellow }");
     w.showMaximized();
 
     return a->exec();

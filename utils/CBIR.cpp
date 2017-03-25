@@ -19,15 +19,17 @@ std::multimap<double, const cv::Mat>& CBIR::computeHashes(QList<cv::Mat>& images
     std::multimap<double, const cv::Mat>* resMap = new std::multimap<double, const cv::Mat>;
 
 	// compute the hash from each image
-	for (const auto& image : images) {
+    QList<cv::Mat>::iterator iter;
+    for (iter = images.begin(); iter != images.end(); ++iter) {
 		double hashNorm;
 		cv::Mat hashMat;
 
-		hasher->compute(image, hashMat);
+        hasher->compute(*iter, hashMat);
 		// get the norm for every hash
         hashNorm = cv::norm(hashMat, cv::NORM_INF);
         //resMap->emplace(hashMat, image);
-        resMap->emplace(hashNorm, image);
+        resMap->emplace(hashNorm, *iter);
+        images.erase(iter);
 	}
 
 	return *resMap;

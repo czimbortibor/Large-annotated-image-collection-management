@@ -68,16 +68,14 @@ void MainWindow::init() {
         //qInfo() << "name:" << QString::fromStdString(name) << "URL:" << QString::fromStdString(URL);
     }
 
-	initView();
-
     // ---------- DB -----------
 	std::string host = "mongodb://localhost:27017";
 	std::string database = "local";
 	std::string collection = "TwitterFDL2015";
 	_mongoAccess = std::unique_ptr<MongoAccess>(new MongoAccess(host, database, collection));
 	if (_mongoAccess->init()) {
-		_mongoAccess->test();
-	}
+        qInfo() << "succesful database connection";
+    }
 
     // ---------- filters -----------
     ui->widget_createFilters->hide();
@@ -88,7 +86,10 @@ void MainWindow::init() {
     }
     ui->widget_createFilters->setMinimumSize(_filterList->size());
 
+
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
+
+    initView();
 }
 
 MainWindow::~MainWindow() {
@@ -102,6 +103,7 @@ MainWindow::~MainWindow() {
             _futureLoaderWatcherMT->cancel();
         }
     }
+    _config.release();
     delete ui;
 }
 
@@ -193,7 +195,8 @@ void MainWindow::onLoadImagesClick() {
 
     _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
     _progressBar->setMaximum(_imageNames->length());
-    ui->frame_mainControls->layout()->addWidget(_progressBar.get());
+    ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
+    //ui->frame_mainControls->layout()->addWidget(_progressBar.get());
 }
 
 cv::Mat MainWindow::loadImage(const QString& imageName) const {
@@ -218,6 +221,8 @@ void MainWindow::onFinishedLoading() {
 	logTime("load time:");
     _loadingWorker.release();
     ui->btn_cancelLoad->hide();
+    _progressBar->reset();
+    _progressBar.reset(nullptr);
     connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
     connect(this, &MainWindow::resizeImages, this, &MainWindow::onResizeImages);
     // shuffle the images
@@ -275,6 +280,9 @@ void MainWindow::onHashImages() {
     //_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
     _view->clear();
     displayImages(*_imagesHashed.get());
+    // release and delete the owned object
+    _images.reset(nullptr);
+    //_images.reset(_imagesHashed.get());
     //_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
     //displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
 
@@ -347,7 +355,7 @@ void MainWindow::logTime(QString message) {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-    if (_images->length()) {
+    if (_images != nullptr) {
         _view->setRadius(value);
 		_view->clear();
         displayImages(*_images.get());
@@ -355,7 +363,7 @@ void MainWindow::onRadiusChanged(double value) {
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-    if (_images->length()) {
+    if (_images != nullptr) {
         _view->setNrOfPetals(value);
 		_view->clear();
         displayImages(*_images.get());
@@ -402,6 +410,15 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
     QWidget* filterControl = filter->makeControl();
     ui->widget_filters->layout()->addWidget(new QLabel(item->text()));
     ui->widget_filters->layout()->addWidget(filterControl);
+
+    QDateEdit* datePicker = static_cast<QDateEdit*>(filterControl);
+    connect(datePicker, &QDateEdit::dateChanged, this, &MainWindow::testMongo);
+}
+
+void MainWindow::testMongo(const QDate& date) {
+    qInfo() << date.toString();
+    std::string testStr = std::to_string(date.year());
+    _mongoAccess->test(testStr);
 }
 
 void MainWindow::onImageClicked(LayoutItem* image) {

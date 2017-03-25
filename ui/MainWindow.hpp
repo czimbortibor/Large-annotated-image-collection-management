@@ -143,6 +143,8 @@ private slots:
     void onImageClicked(LayoutItem* image);
     void onAddNewFilter(QListWidgetItem* item);
 
+    void testMongo(const QDate& date);
+
 signals:
 	void clearLayout();
     void resizeImages(int newWidth, int newHeight);

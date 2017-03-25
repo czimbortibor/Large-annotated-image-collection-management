@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>687</width>
+    <width>863</width>
     <height>515</height>
    </rect>
   </property>
@@ -17,462 +17,342 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
-    <item>
-     <widget class="QFrame" name="frame_mainControls">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 255);</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+   <layout class="QVBoxLayout" name="verticalLayout"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_mainControls">
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_mainControls">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_load">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Load images</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbl_size">
+       <property name="text">
+        <string>size</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="slider_imgSize">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimum">
+        <number>40</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="singleStep">
+        <number>20</number>
+       </property>
+       <property name="pageStep">
+        <number>20</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+       <property name="tickInterval">
+        <number>20</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_hash">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Hash</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_clear">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_cancelLoad">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Cancel loading</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+    <zorder>btn_hash</zorder>
+    <zorder>slider_imgSize</zorder>
+    <zorder>btn_clear</zorder>
+    <zorder>lbl_size</zorder>
+    <zorder>btn_load</zorder>
+    <zorder>btn_cancelLoad</zorder>
+    <zorder>horizontalSpacer</zorder>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_layouts">
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_layouts">
+    <layout class="QGridLayout" name="gridLayout_layouts">
+     <item row="1" column="4">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>layout</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5" rowspan="3">
+      <widget class="QGroupBox" name="groupBox_layoutControls">
+       <property name="title">
+        <string/>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="lbl_petalNumber">
+          <property name="text">
+           <string>petals</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spinBox_nrOfPetals">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>35</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="value">
+           <number>7</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_radius">
+          <property name="text">
+           <string>radius</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="spinBox_radius">
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>200.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>20.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="comboBox_layout">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <item>
-        <layout class="QHBoxLayout" name="frame_controls">
-         <item>
-          <spacer name="horizontalSpacer_right">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_load">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Load images</string>
-           </property>
-           <property name="default">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="lbl_size">
-           <property name="text">
-            <string>size</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="slider_imgSize">
-           <property name="minimum">
-            <number>40</number>
-           </property>
-           <property name="maximum">
-            <number>200</number>
-           </property>
-           <property name="singleStep">
-            <number>20</number>
-           </property>
-           <property name="pageStep">
-            <number>20</number>
-           </property>
-           <property name="value">
-            <number>100</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="invertedAppearance">
-            <bool>false</bool>
-           </property>
-           <property name="invertedControls">
-            <bool>false</bool>
-           </property>
-           <property name="tickPosition">
-            <enum>QSlider::TicksAbove</enum>
-           </property>
-           <property name="tickInterval">
-            <number>20</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_cancelLoad">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Cancel loading</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_hash">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Hash</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_clear">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_left">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        <property name="text">
+         <string>grid</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/resources/icons/grid_layout.png</normaloff>:/icons/resources/icons/grid_layout.png</iconset>
+        </property>
        </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QFrame" name="frame_layouts">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+        <property name="text">
+         <string>petal</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/resources/icons/flower_layout.png</normaloff>:/icons/resources/icons/flower_layout.png</iconset>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_filters">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_filters">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_addFilter">
+       <item>
+        <widget class="QLabel" name="label_filter">
+         <property name="text">
+          <string>filters</string>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
+        <widget class="QPushButton" name="btn_addFilter">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
          </property>
          <property name="text">
-          <string>layout</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBox_layout">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <item>
-          <property name="text">
-           <string>grid</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../resources.qrc">
-            <normaloff>:/icons/resources/icons/grid_layout.png</normaloff>:/icons/resources/icons/grid_layout.png</iconset>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>petal</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../resources.qrc">
-            <normaloff>:/icons/resources/icons/flower_layout.png</normaloff>:/icons/resources/icons/flower_layout.png</iconset>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_layoutControls">
-         <property name="title">
           <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/icons/resources/icons/plus_icon.png</normaloff>:/icons/resources/icons/plus_icon.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>35</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+         <property name="default">
+          <bool>false</bool>
          </property>
          <property name="flat">
           <bool>true</bool>
          </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="lbl_petalNumber">
-            <property name="text">
-             <string>petal number</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spinBox_nrOfPetals">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>35</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="value">
-             <number>7</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lbl_radius">
-            <property name="text">
-             <string>radius</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="spinBox_radius">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="minimum">
-             <double>100.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>200.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>20.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>100.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QFrame" name="frame_filters">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>filters</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_addFilter">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../resources.qrc">
-             <normaloff>:/icons/resources/icons/plus_icon.png</normaloff>:/icons/resources/icons/plus_icon.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>35</height>
-            </size>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-           <property name="default">
-            <bool>false</bool>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QWidget" name="widget_createFilters" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_2"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QWidget" name="widget_filters" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
         </widget>
        </item>
       </layout>
-     </widget>
-    </item>
-   </layout>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget_createFilters" native="true"/>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget_filters" native="true">
+       <layout class="QFormLayout" name="formLayout"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
+  <zorder>dockWidget_mainControls</zorder>
+  <zorder>dockWidget_filters</zorder>
+  <zorder>dockWidget_layouts</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
