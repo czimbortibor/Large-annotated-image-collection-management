@@ -1,6 +1,8 @@
 #include "ImageLoader.hpp"
 
-ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, int notifyRate, QObject* parent) : QObject(parent) {
+ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames,
+                         QList<cv::Mat>& results,
+                         const cv::Size& size, int notifyRate, QObject* parent) : QObject(parent) {
     _imageNames = imageNames;
     _dirName = dirName;
     _results = &results;

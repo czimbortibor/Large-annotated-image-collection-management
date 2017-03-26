@@ -38,21 +38,26 @@ bool MongoAccess::init() {
 	return true;
 }
 
-void MongoAccess::test(const std::string& testStr) {
-    /*auto document = bsoncxx::builder::stream::document{} << "created_at" << "673849510750257152";
+QStringList* MongoAccess::test(const std::string& date1, const std::string& date2) {
+    auto document = bsoncxx::builder::stream::document{} << "created_at" << "673849510750257152";
 	mongocxx::cursor res = _collection.find(document << bsoncxx::builder::stream::finalize);
 	for (auto&& doc : res) {
         std::cout << bsoncxx::to_json(doc) << std::flush;
-    }*/
-    using bsoncxx::builder::stream::finalize;
-    using bsoncxx::types::value;
-    std::string regexpDate = "/.*" + testStr + ".*/i";
+    }
+
+   // using bsoncxx::builder::stream::finalize;
+   // using bsoncxx::types::value;
+   // std::string regexpDate = "/.*" + testStr + ".*/i";
     // with picture
     //std::string regexpPic = "entities.media.0.display_url": { $exists: true }
-    auto regex = bsoncxx::types::b_regex(regexpDate, "");
+    /*auto regex = bsoncxx::types::b_regex(regexpDate, "");
     bsoncxx::builder::stream::document filter;
     filter << "created_at" << value{regex};
     std::cout << bsoncxx::to_json(filter) << "\n" << std::flush;
-    mongocxx::cursor cursor = _collection.find(filter << finalize);
+    mongocxx::cursor cursor = _collection.find(filter << finalize);*/
 
+    QStringList* results = new QStringList;
+    *results << "695609799455584258_1.jpg"
+            << "695609932029280256_1.jpg";
+    return results;
 }

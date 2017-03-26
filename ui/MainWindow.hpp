@@ -29,12 +29,11 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include <libconfig.h++>
-
 #include "utils/LayoutItem.hpp"
 #include "utils/CBIR.hpp"
 #include "utils/ImageLoader.hpp"
 #include "utils/ImageConverter.hpp"
+#include "utils/ConfigurationsHandler.hpp"
 #include "view/GraphicsView.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
@@ -55,16 +54,37 @@ public:
     ~MainWindow();
 
 private:
-	void init();
-    /* creates the main view for displaying images */
+    /**
+     * @brief initializes the main window's elements
+     */
+    void initWindow();
+
+    /**
+     * @brief initiiaizes the MongoDB connection
+     */
+    void initDb();
+
+    /**
+     * @brief creates the available hashing functions
+     */
+    void initHashes();
+
+    /** creates the main view for displaying images */
 	void initView();
 
     //void resizeImages(int newWidth, int newHeight);
     void saveImages(int size);
 
-    /* no images were selected */
+    /** no images were selected */
     void showAlertDialog() const;
     cv::Mat loadImage(const QString& fileName) const;
+
+    /**
+     * @brief loads the images in the given directory
+     * @param path: to the images
+     * @param imageNames: the image filenames
+     */
+    void loadImages(const QString& path, const QStringList& imageNames);
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
     void displayImages(const QList<cv::Mat>& images) const;
     /* opencv_img_hash & pHash display */
@@ -89,11 +109,10 @@ private:
 	QElapsedTimer _timer;
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
-    /* were the images already hashed? */
+    /** were the images already hashed? */
     bool _wereHashed = false;
 
-    std::unique_ptr<libconfig::Config> _config;
-    std::unique_ptr<libconfig::Setting> _collections;
+    std::unique_ptr<ConfigurationsHandler> _configHandler;
 
 	// ------ multi-threaded image load -------
 	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;
@@ -108,14 +127,18 @@ private:
 
 	GraphicsView* _view;
 
+    /**
+     * @brief available hashing algorithms
+     */
+    QMap<QString, cv::Ptr<cv::img_hash::ImgHashBase>> _hashes;
 	CBIR imageRetrieval;
-    //std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
-    std::unique_ptr<std::multimap<double, const cv::Mat>> _imagesHashed;
+    std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
+    //std::unique_ptr<std::multimap<double, const cv::Mat>> _images;
     std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
 
 	std::unique_ptr<MongoAccess> _mongoAccess;
 
-    QMultiMap<QString, AbstractFilter*> _filters;
+    QMap<QString, AbstractFilter*> _filters;
     QListWidget* _filterList;
 
 private slots:
@@ -142,8 +165,9 @@ private slots:
 
     void onImageClicked(LayoutItem* image);
     void onAddNewFilter(QListWidgetItem* item);
+    void on_btn_applyFilters_clicked();
 
-    void testMongo(const QDate& date);
+    void testMongo(const std::string& date1, const std::string& date2);
 
 signals:
 	void clearLayout();

@@ -1,17 +1,20 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-typedef libconfig::Config Config;
-typedef libconfig::Setting Setting;
+
+using ImageMap = std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>;
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 
-	init();
+    initWindow();
+    initDb();
+    initHashes();
+    initView();
 }
 
-void MainWindow::init() {
+void MainWindow::initWindow() {
 	// set the supported image formats
 	for (const QByteArray& item : QImageReader::supportedImageFormats()) {
 		_supportedImgFormats.append("*." + item);
@@ -40,42 +43,8 @@ void MainWindow::init() {
 
     ui->btn_cancelLoad->hide();
 
-    //  configuration file
-    _config = std::unique_ptr<Config>(new Config());
-    try {
-        _config->readFile("configurations.cfg");
-    }
-    catch (const libconfig::FileIOException& ex) {
-        qWarning() << "Configuration file I/O error!";
-        qInfo() << "creating new configuration file...";
-        _config->writeFile("configurations.cfg");
-    }
-
-    Setting& root = _config->getRoot();
-    // create the collection if it doesnt exists
-    if (root.exists("collections") == 0) {
-        root.add("collections", Setting::TypeList);
-    }
-    // load the collections
-    _collections = std::unique_ptr<Setting>(&root["collections"]);
-    int count = _collections->getLength();
-    //qInfo() << "collection count" << count;
-    for (const auto& collection : *_collections.get()) {
-        std::string name;
-        collection.lookupValue("name", name);
-        std::string URL;
-        collection.lookupValue("URL", URL);
-        //qInfo() << "name:" << QString::fromStdString(name) << "URL:" << QString::fromStdString(URL);
-    }
-
-    // ---------- DB -----------
-	std::string host = "mongodb://localhost:27017";
-	std::string database = "local";
-	std::string collection = "TwitterFDL2015";
-	_mongoAccess = std::unique_ptr<MongoAccess>(new MongoAccess(host, database, collection));
-	if (_mongoAccess->init()) {
-        qInfo() << "succesful database connection";
-    }
+    // ------- configurations -----------
+    _configHandler = std::unique_ptr<ConfigurationsHandler>(new ConfigurationsHandler("configurations.cfg"));
 
     // ---------- filters -----------
     ui->widget_createFilters->hide();
@@ -85,11 +54,9 @@ void MainWindow::init() {
         _filterList->addItem(filter);
     }
     ui->widget_createFilters->setMinimumSize(_filterList->size());
-
-
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 
-    initView();
+    ui->btn_applyFilters->hide();
 }
 
 MainWindow::~MainWindow() {
@@ -103,8 +70,32 @@ MainWindow::~MainWindow() {
             _futureLoaderWatcherMT->cancel();
         }
     }
-    _config.release();
+    _configHandler.release();
     delete ui;
+}
+
+void MainWindow::initDb() {
+    std::string host = "mongodb://localhost:27017";
+    std::string database = "local";
+    std::string collection = "TwitterFDL2015";
+    _mongoAccess = std::unique_ptr<MongoAccess>(new MongoAccess(host, database, collection));
+    if (_mongoAccess->init()) {
+        qInfo() << "succesful database connection";
+    }
+}
+
+void MainWindow::initHashes() {
+    // store the available hashing algorithms
+    QStringList hashingAlgorithms;
+    hashingAlgorithms << "Average hash" << "Perceptual hash" << "Marr Hildreth hash"
+    << "Radial Variance hash" << "Block Mean hash" << "Color Moment hash";
+    ui->comboBox_hashes->addItems(hashingAlgorithms);
+    _hashes.insert("Average hash", cv::img_hash::AverageHash::create());
+    _hashes.insert("Perceptual hash", cv::img_hash::PHash::create());
+    _hashes.insert("Marr Hildreth hash", cv::img_hash::MarrHildrethHash::create());
+    _hashes.insert("Radial Variance hash", cv::img_hash::RadialVarianceHash::create());
+    _hashes.insert("Block Mean hash", cv::img_hash::BlockMeanHash::create());
+    _hashes.insert("Color Moment hash", cv::img_hash::ColorMomentHash::create());
 }
 
 void MainWindow::initView() {
@@ -208,11 +199,18 @@ cv::Mat MainWindow::loadImage(const QString& imageName) const {
 }
 
 void MainWindow::onImagesReceived(int resultsBeginInd, int resultsEndInd) {
-	for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
+    for (int i = resultsBeginInd; i < resultsEndInd; ++i) {
         LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(_images->at(i)));
         connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
         _view->addItem(item);
     }
+    /*ImageMap::const_iterator iter = std::next(_images->begin(), resultsBeginInd);
+    ImageMap::const_iterator endIter = std::next(_images->begin(), resultsEndInd);
+    for (iter; iter != endIter; ++iter) {
+        LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage((*iter).second));
+        connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+        _view->addItem(item);
+    }*/
 
     _progressBar->setValue(_progressBar->value() + _notifyRate);
 }
@@ -240,13 +238,14 @@ void MainWindow::onFinishedLoading() {
 void MainWindow::onResizeImages(int newWidth, int newHeight) {
     ui->btn_clear->setEnabled(false);
     _timer.start();
-    auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
+    /*auto fun = std::bind(&MainWindow::resizeImage, this, std::placeholders::_1, newWidth, newHeight);
     _futureResizerMT = std::make_shared<QFuture<cv::Mat>>(QtConcurrent::mapped(*_images.get(), fun));
     _futureResizerWatcherMT = std::make_shared<QFutureWatcher<cv::Mat>>();
     _futureResizerWatcherMT->setFuture(*_futureResizerMT.get());
     connect(_futureResizerWatcherMT.get(), &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesResized);
     connect(_futureResizerWatcherMT.get(), &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedResizing);
     //connect(&_futureResizerWatcherMT, &QFutureWatcher<cv::Mat>::finished, &QFutureWatcher<cv::Mat>::deleteLater);
+    */
 }
 
 cv::Mat MainWindow::resizeImage(const cv::Mat& image, int newWidth, int newHeight) const {
@@ -270,20 +269,17 @@ void MainWindow::onFinishedResizing() {
 
 void MainWindow::onHashImages() {
     _wereHashed = true;
-    // ------ opencv img_hash ------- : https://github.com/stereomatchingkiss/opencv_contrib/tree/img_hash/modules/img_hash
-    cv::Ptr<cv::img_hash::PHash> hasher = cv::img_hash::PHash::create();
-    // cv::Ptr<cv::img_hash::AverageHash> hasher = cv::img_hash::AverageHash::create();
-    // cv::Ptr<cv::img_hash::MarrHildrethHash> hasher = cv::img_hash::MarrHildrethHash::create();
-    // cv::Ptr<cv::img_hash::RadialVarianceHash> hasher = cv::img_hash::RadialVarianceHash::create();
-    auto mapPtr = &imageRetrieval.computeHashes(*_images.get(), hasher);
-    _imagesHashed = std::unique_ptr<std::multimap<double, const cv::Mat>>(mapPtr);
-    //_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
+
+    const QString& algorithm = ui->comboBox_hashes->currentText();
+    cv::Ptr<cv::img_hash::ImgHashBase> hasher = _hashes.value(algorithm);
+    auto mapPtr = imageRetrieval.computeHashes(*_images.get(), hasher);
+    //_imagesHashed = std::unique_ptr<ImageMap>(mapPtr);
+    _imagesHashed.reset(mapPtr);
     _view->clear();
     displayImages(*_imagesHashed.get());
-    // release and delete the owned object
-    _images.reset(nullptr);
-    //_images.reset(_imagesHashed.get());
-    //_imagesHashed = std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(mapPtr);
+    /** release and delete the owned object */
+    //_images.reset(nullptr);
+
     //displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
 
 
@@ -297,22 +293,15 @@ void MainWindow::onHashImages() {
 void MainWindow::saveImages(int size) {
     const char dirSeparator = QDir::separator().toLatin1();
     QString currentDir(_dir.absolutePath());
-    QString collectionName(QString::number(_images->length()) + "_" + QString::number(size));
+    QString collectionName(QString::number(_images->size()) + "_" + QString::number(size));
     QString collectionDir(dirSeparator + QString("collections") + dirSeparator + collectionName + dirSeparator);
     QString absPath = currentDir + collectionDir;
     if (!QDir(absPath).exists()) {
         QDir().mkdir(currentDir + dirSeparator + "collections");
         QDir().mkdir(absPath);
         _dirSmallImg = new QDir(absPath);
-        qInfo() << "creating collection index...";
-        // create new entry
-        Setting& collection = _collections->add(Setting::TypeGroup);
-        collection.add("name", Setting::TypeString) = collectionName.toStdString();
-        collection.add("URL", Setting::TypeString) = absPath.toStdString();
 
-        qInfo() << "saving the configurations...";
-        // write out the updated configuration
-        _config->writeFile("configurations.cfg");
+        _configHandler->addNewCollection(collectionName, absPath);
 
         qInfo() << "saving the " << size << "x" << size << "icons to: " + _dirSmallImg->absolutePath() << "...";
         _timer.start();
@@ -402,23 +391,55 @@ void MainWindow::onImageSizeChanged(int size) {
 void MainWindow::onAddFilter() {
     ui->widget_createFilters->setVisible(true);
     _filterList->show();
+    ui->btn_applyFilters->setVisible(true);
 }
 
 void MainWindow::onAddNewFilter(QListWidgetItem* item) {
     ui->widget_createFilters->hide();
+    // create the selected filter
     AbstractFilter* filter = _filters.value(item->text())->makeFilter();
+    // put back the created filter
+    _filters.insert(item->text(), filter);
     QWidget* filterControl = filter->makeControl();
     ui->widget_filters->layout()->addWidget(new QLabel(item->text()));
     ui->widget_filters->layout()->addWidget(filterControl);
 
-    QDateEdit* datePicker = static_cast<QDateEdit*>(filterControl);
-    connect(datePicker, &QDateEdit::dateChanged, this, &MainWindow::testMongo);
+    QGroupBox* datePicker = static_cast<QGroupBox*>(filterControl);
+
+    //connect(datePicker, &QDateEdit::dateChanged, this, &MainWindow::testMongo);
 }
 
-void MainWindow::testMongo(const QDate& date) {
-    qInfo() << date.toString();
-    std::string testStr = std::to_string(date.year());
-    _mongoAccess->test(testStr);
+void MainWindow::on_btn_applyFilters_clicked() {
+    // 1449493211046 -> Mon Dec 07 13:00:11 +0000 2015
+    const QGroupBox* dateEdits = ui->widget_filters->findChild<QGroupBox*>();
+    DateFilter* dateFilter = static_cast<DateFilter*>(_filters.value("date range"));
+    QList<std::string> selectedRanges = dateFilter->getDates();
+    std::string date1 = selectedRanges[0];
+    std::string date2 = selectedRanges[1];
+    qInfo() << QString::fromStdString(date1);
+    qInfo() << QString::fromStdString(date2);
+
+    //testMongo(date1, date2);
+}
+
+void MainWindow::testMongo(const std::string& date1, const std::string& date2) {
+    QStringList* results = _mongoAccess->test(date1, date2);
+
+    cv::Size size(_imgWidth, _imgHeight);
+    _notifyRate = 10;
+    QString dir = "/home/czimbortibor/images/500";
+    _loadingWorker = std::unique_ptr<ImageLoader>(new ImageLoader(dir, results, *_images.get(), size, _notifyRate));
+    connect(_loadingWorker.get(), &ImageLoader::resultsReadyAt, this, &MainWindow::onImagesReceived);
+    connect(_loadingWorker.get(), &ImageLoader::finished, this, &MainWindow::onFinishedLoading);
+    QThreadPool::globalInstance()->start(_loadingWorker.get());
+
+    connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingWorker.get(), &ImageLoader::onCancel);
+    connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
+    ui->btn_cancelLoad->setVisible(true);
+
+    _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
+    _progressBar->setMaximum(_imageNames->length());
+    ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
 }
 
 void MainWindow::onImageClicked(LayoutItem* image) {
@@ -428,11 +449,11 @@ void MainWindow::onImageClicked(LayoutItem* image) {
     QList<cv::Mat> similarImages = getSimilarImages(*image);
     //emit clearLayout();
     _view->clear();
-    displayImages(similarImages);
+    //displayImages(similarImages);
 }
 
 QList<cv::Mat>& MainWindow::getSimilarImages(const LayoutItem& target) const {
-    int nrOfSimilars;
+    /*int nrOfSimilars;
     if (ui->comboBox_layout->currentText() == "petal") {
         nrOfSimilars = ui->spinBox_nrOfPetals->value();
     }
@@ -465,10 +486,10 @@ QList<cv::Mat>& MainWindow::getSimilarImages(const LayoutItem& target) const {
         }
         /*double rightDist = CBIR::getDistance(it->first, rightIt->first);
         double leftDist = CBIR::getDistance(it->first, leftIt->first);*/
-        double rightDist = abs(it->first - rightIt->first);
+        /*double rightDist = abs(it->first - rightIt->first);
         double leftDist = abs(it->first - leftIt->first);
         (rightDist < leftDist) ? res->push_back(rightIt->second) : res->push_back(leftIt->second);
         ++k;
     }
-    return *res;
+    return *res;*/
 }

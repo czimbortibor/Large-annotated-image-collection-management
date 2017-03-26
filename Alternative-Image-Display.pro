@@ -34,7 +34,8 @@ SOURCES +=\
     layouts/PetalLayout.cpp \
     utils/ImageLoader.cpp \
     filters/DateFilter.cpp \
-    utils/ImageConverter.cpp
+    utils/ImageConverter.cpp \
+    utils/ConfigurationsHandler.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -52,7 +53,8 @@ HEADERS  +=\
     filters/DateFilter.hpp \
     utils/AbstractFilter.hpp \
     filters/AbstractFilter.hpp \
-    utils/ImageConverter.hpp
+    utils/ImageConverter.hpp \
+    utils/ConfigurationsHandler.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

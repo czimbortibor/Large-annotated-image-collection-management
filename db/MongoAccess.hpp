@@ -2,6 +2,7 @@
 #define DB_HPP
 
 #include <QString>
+#include <QStringList>
 
 #include <string>
 #include <iostream>
@@ -22,7 +23,7 @@ public:
 	explicit MongoAccess(const std::string& hostName, const std::string& databaseName, const std::string& collectionName);
 	bool init();
 
-    void test(const std::string& testStr);
+    QStringList* test(const std::string& date1, const std::string& date2);
 
 private:
 	std::string _hostName;

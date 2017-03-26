@@ -10,11 +10,15 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "CBIR.hpp"
+
 
 class ImageLoader : public QObject, public QRunnable {
     Q_OBJECT
 public:
-    explicit ImageLoader(QString dirName, QList<QString>* imageNames, QList<cv::Mat>& results, const cv::Size& size, int notifyRate, QObject* parent = 0);
+    explicit ImageLoader(QString dirName, QList<QString>* imageNames,
+                         QList<cv::Mat>& results,
+                         const cv::Size& size, int notifyRate, QObject* parent = 0);
     void run();
 
     bool isRunning() const { return static_cast<int>(_running); }
@@ -25,6 +29,7 @@ private:
     QList<QString>* _imageNames;
     cv::Size _size;
     QList<cv::Mat>* _results;
+    //QList<cv::Mat>* _results;
     int _notifyRate;
 
     QAtomicInt _running;
