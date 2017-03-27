@@ -1,9 +1,9 @@
 #include "ImageLoader.hpp"
 
-ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames,
+ImageLoader::ImageLoader(const QString dirName, QStringList& imageNames,
                          QList<cv::Mat>& results,
-                         const cv::Size& size, int notifyRate, QObject* parent) : QObject(parent) {
-    _imageNames = imageNames;
+                         const cv::Size& size, const int notifyRate, QObject* parent) : QObject(parent) {
+    _imageNames = &imageNames;
     _dirName = dirName;
     _results = &results;
     _size = size;
@@ -13,7 +13,7 @@ ImageLoader::ImageLoader(QString dirName, QList<QString>* imageNames,
 void ImageLoader::run() {
     _running.testAndSetOrdered(0, 1);
     int counter = 0;
-    // starting index of the results
+    /** starting index of the results */
     int j = 0;
     for (int i = 0; i < _imageNames->length(); ++i) {
         if (static_cast<int>(_running)) {
@@ -37,7 +37,7 @@ void ImageLoader::run() {
             return;
         }
     }
-    // if loaded images are left
+    /** if loaded images are left */
     if (counter) {
         emit resultsReadyAt(j, j+counter);
     }

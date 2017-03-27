@@ -5,13 +5,21 @@
 using ImageMap = std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>;
 
 MainWindow::MainWindow(QWidget* parent) :
-	QMainWindow(parent), ui(new Ui::MainWindow) {
+    QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 
     initWindow();
     initDb();
     initHashes();
     initView();
+}
+
+MainWindow::~MainWindow() {
+    if (_loadingHandler) {
+        _loadingHandler->onCancel();
+    }
+    _configHandler.release();
+    delete ui;
 }
 
 void MainWindow::initWindow() {
@@ -57,21 +65,6 @@ void MainWindow::initWindow() {
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 
     ui->btn_applyFilters->hide();
-}
-
-MainWindow::~MainWindow() {
-    if (_loadingWorker != nullptr) {
-        if (_loadingWorker->isRunning()) {
-            _loadingWorker->cancel();
-        }
-    }
-    if (_futureLoaderWatcherMT != nullptr) {
-        if (_futureLoaderWatcherMT->isRunning()) {
-            _futureLoaderWatcherMT->cancel();
-        }
-    }
-    _configHandler.release();
-    delete ui;
 }
 
 void MainWindow::initDb() {
@@ -124,6 +117,15 @@ void MainWindow::showAlertDialog() const {
 	msgBox.exec();
 }
 
+void MainWindow::showProgressBar(const int maximumValue, const QString& taskName) {
+    _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
+    _progressBar->setMaximum(maximumValue);
+    QLabel* taskLabel = new QLabel(taskName);
+    ui->dockWidgetContents_mainControls->layout()->addWidget(taskLabel);
+    ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
+    connect(_progressBar.get(), &QProgressBar::destroyed, taskLabel, &QLabel::deleteLater);
+}
+
 void MainWindow::onLoadImagesClick() {
     if (_images) {
 		clearLayout();
@@ -147,10 +149,10 @@ void MainWindow::onLoadImagesClick() {
 		showAlertDialog();
 		return;
 	}
-	_imageNames = std::unique_ptr<QList<QString>>(new QList<QString>);
-	*_imageNames.get() = _dir.entryList();
-    _images = std::unique_ptr<QList<cv::Mat>>(new QList<cv::Mat>);
+    _imageNames = std::unique_ptr<QStringList>(new QStringList);
+    *_imageNames.get() = _dir.entryList();
 	_nrOfImages = _imageNames->length();
+    _images = std::unique_ptr<QList<cv::Mat>>(new QList<cv::Mat>);
     _wereHashed = false;
 
     _iconSize = ui->slider_imgSize->value();
@@ -163,39 +165,30 @@ void MainWindow::onLoadImagesClick() {
 
 	_timer.start();
 
-	// ------------- multi-threaded image load ---------------------
-    /*auto fun = std::bind(&MainWindow::loadImage, this, std::placeholders::_1);
-		// this: the hidden this parameter for member functions, placeholders::_1 = <const QString& fileName>
-	_futureLoaderMT = std::unique_ptr<QFuture<cv::Mat>>(new QFuture<cv::Mat>(QtConcurrent::mapped(*_imageNames.get(), fun)));
-	_futureLoaderWatcherMT = std::unique_ptr<QFutureWatcher<cv::Mat>>(new QFutureWatcher<cv::Mat>);
-	_futureLoaderWatcherMT->setFuture(*_futureLoaderMT.get());
-    connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::finished, this, &MainWindow::onFinishedLoading);
-	connect(_futureLoaderWatcherMT.get(), &QFutureWatcher<cv::Mat>::resultsReadyAt, this, &MainWindow::onImagesReceive);
-    */
-
-    cv::Size size(_imgWidth, _imgHeight);
-    _notifyRate = 10;
-    _loadingWorker = std::unique_ptr<ImageLoader>(new ImageLoader(_dir.absolutePath(), _imageNames.get(), *_images.get(), size, _notifyRate));
-    connect(_loadingWorker.get(), &ImageLoader::resultsReadyAt, this, &MainWindow::onImagesReceived);
-    connect(_loadingWorker.get(), &ImageLoader::finished, this, &MainWindow::onFinishedLoading);
-    QThreadPool::globalInstance()->start(_loadingWorker.get());
-
-    connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingWorker.get(), &ImageLoader::onCancel);
+    _loadingHandler = std::unique_ptr<LoadingHandler>(new LoadingHandler);
+    _loadingHandler->setWidth(_imgWidth);
+    _loadingHandler->setHeight(_imgHeight);
+    connect(_loadingHandler.get(), &LoadingHandler::imageReady, this, &MainWindow::onImageReceived);
+    connect(_loadingHandler.get(), &LoadingHandler::imagesReady, this, &MainWindow::onImagesReceived);
+    connect(_loadingHandler.get(), &LoadingHandler::finishedLoading, this, &MainWindow::onFinishedLoading);
+    connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
+    /** start loading */
+    _notifyRate = 10;
+    auto loaderPtr = _loadingHandler->loadImages_st(_dir.absolutePath(), _imageNames.get(), _notifyRate);
+    //auto loaderPtr = _loadingHandler->loadImages_mt(_dir.absolutePath(), *_imageNames.get());
+    _images.reset(loaderPtr);
+
     ui->btn_cancelLoad->setVisible(true);
 
-    _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
-    _progressBar->setMaximum(_imageNames->length());
-    ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
-    //ui->frame_mainControls->layout()->addWidget(_progressBar.get());
+    showProgressBar(_imageNames->length(), "loading");
 }
 
-cv::Mat MainWindow::loadImage(const QString& imageName) const {
-    cv::Mat cvImage = cv::imread(_dir.absoluteFilePath(imageName).toStdString());
-    if (cvImage.data == 0) {
-        return cv::Mat();
-    }
-    return cvImage;
+void MainWindow::onImageReceived(const cv::Mat& image) {
+    LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(image));
+    connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+    _view->addItem(item);
+    _progressBar->setValue(_progressBar->value() + 1);
 }
 
 void MainWindow::onImagesReceived(int resultsBeginInd, int resultsEndInd) {
@@ -217,7 +210,7 @@ void MainWindow::onImagesReceived(int resultsBeginInd, int resultsEndInd) {
 
 void MainWindow::onFinishedLoading() {
 	logTime("load time:");
-    _loadingWorker.release();
+    _loadingHandler.release();
     ui->btn_cancelLoad->hide();
     _progressBar->reset();
     _progressBar.reset(nullptr);
@@ -263,7 +256,6 @@ void MainWindow::onImagesResized(int resultsBeginInd, int resultsEndInd) {
 
 void MainWindow::onFinishedResizing() {
     logTime("time needed to save the images:");
-    // TODO: disable buttons during resizing
     ui->btn_clear->setEnabled(true);
 }
 
@@ -428,18 +420,6 @@ void MainWindow::testMongo(const std::string& date1, const std::string& date2) {
     cv::Size size(_imgWidth, _imgHeight);
     _notifyRate = 10;
     QString dir = "/home/czimbortibor/images/500";
-    _loadingWorker = std::unique_ptr<ImageLoader>(new ImageLoader(dir, results, *_images.get(), size, _notifyRate));
-    connect(_loadingWorker.get(), &ImageLoader::resultsReadyAt, this, &MainWindow::onImagesReceived);
-    connect(_loadingWorker.get(), &ImageLoader::finished, this, &MainWindow::onFinishedLoading);
-    QThreadPool::globalInstance()->start(_loadingWorker.get());
-
-    connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingWorker.get(), &ImageLoader::onCancel);
-    connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
-    ui->btn_cancelLoad->setVisible(true);
-
-    _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
-    _progressBar->setMaximum(_imageNames->length());
-    ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
 }
 
 void MainWindow::onImageClicked(LayoutItem* image) {

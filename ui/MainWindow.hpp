@@ -17,9 +17,6 @@
 #include <QThread>
 #include <QLabel>
 #include <QPushButton>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QDebug>
 #include <QListWidget>
@@ -29,16 +26,17 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "view/GraphicsView.hpp"
 #include "utils/LayoutItem.hpp"
 #include "utils/CBIR.hpp"
-#include "utils/ImageLoader.hpp"
-#include "utils/ImageConverter.hpp"
 #include "utils/ConfigurationsHandler.hpp"
-#include "view/GraphicsView.hpp"
+#include "utils/image_load/LoadingHandler.hpp"
+#include "utils/image_load/ImageLoader.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 #include "db/MongoAccess.hpp"
 #include "filters/DateFilter.hpp"
+
 
 namespace Ui {
 class MainWindow;
@@ -77,22 +75,22 @@ private:
 
     /** no images were selected */
     void showAlertDialog() const;
-    cv::Mat loadImage(const QString& fileName) const;
 
     /**
-     * @brief loads the images in the given directory
-     * @param path: to the images
-     * @param imageNames: the image filenames
+     * @brief showProgressBar displays a progress bar to the given task
+     * @param maximumValue the completion point
+     * @param taskName the name of the ongoing task
      */
-    void loadImages(const QString& path, const QStringList& imageNames);
+    void showProgressBar(const int maximumValue, const QString& taskName);
+
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
     void displayImages(const QList<cv::Mat>& images) const;
-    /* opencv_img_hash & pHash display */
+    /** opencv_img_hash & pHash display */
 	template<typename T> void displayImages(const T& images) const;
 
 	void logTime(QString message);
 
-    /* returns the similar images of the target image */
+    /** returns the similar images of the target image */
     QList<cv::Mat>& getSimilarImages(const LayoutItem& target) const;
 
 
@@ -102,7 +100,7 @@ private:
 	QDir _dir;
     QDir* _dirSmallImg;
 	QStringList _supportedImgFormats;
-	std::unique_ptr<QList<QString>> _imageNames;
+    std::unique_ptr<QStringList> _imageNames;
 	int _imgWidth;
 	int _imgHeight;
     std::unique_ptr<QList<cv::Mat>> _images;
@@ -114,13 +112,6 @@ private:
 
     std::unique_ptr<ConfigurationsHandler> _configHandler;
 
-	// ------ multi-threaded image load -------
-	std::unique_ptr<QFuture<cv::Mat>> _futureLoaderMT;
-	std::unique_ptr<QFutureWatcher<cv::Mat>> _futureLoaderWatcherMT;
-
-    // -------- custom single-threaded image load -----------
-    std::unique_ptr<ImageLoader> _loadingWorker;
-
 	// ------ multi-threaded image resize ------
     std::shared_ptr<QFuture<cv::Mat>> _futureResizerMT;
     std::shared_ptr<QFutureWatcher<cv::Mat>> _futureResizerWatcherMT;
@@ -128,8 +119,14 @@ private:
 	GraphicsView* _view;
 
     /**
+     * @brief _loadingHandler handles the image loading, in single/multi-threaded ways
+     */
+    std::unique_ptr<LoadingHandler> _loadingHandler;
+
+    /**
      * @brief available hashing algorithms
      */
+
     QMap<QString, cv::Ptr<cv::img_hash::ImgHashBase>> _hashes;
 	CBIR imageRetrieval;
     std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
@@ -145,8 +142,10 @@ private slots:
 	void onSceneChanged();
 	void onClearLayout();
 
+    void onImageReceived(const cv::Mat& image);
     void onImagesReceived(int resultsBeginInd, int resultsEndInd);
-	void onFinishedLoading();
+    void onFinishedLoading();
+
 	void onImagesResized(int resultsBeginInd, int resultsEndInd);
 	void onFinishedResizing();
 

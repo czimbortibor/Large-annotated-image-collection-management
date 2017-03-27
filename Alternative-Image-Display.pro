@@ -26,35 +26,39 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES +=\
     Main.cpp \
     layouts/FlowLayout.cpp \
-    utils/CBIR.cpp \
-    utils/LayoutItem.cpp \
+    layouts/PetalLayout.cpp \
     ui/MainWindow.cpp \
     view/GraphicsView.cpp \
     db/MongoAccess.cpp \
-    layouts/PetalLayout.cpp \
-    utils/ImageLoader.cpp \
     filters/DateFilter.cpp \
+    utils/CBIR.cpp \
+    utils/LayoutItem.cpp \
+    utils/ConfigurationsHandler.cpp \
     utils/ImageConverter.cpp \
-    utils/ConfigurationsHandler.cpp
+    utils/image_load/ImageLoader.cpp \
+    utils/image_load/LoadingHandler.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
     layouts/FlowLayout.hpp \
-    utils/CBIR.hpp \
-    utils/LayoutItem.hpp \
+    layouts/PetalLayout.hpp \
     ui/MainWindow.hpp \
     view/GraphicsView.hpp \
     db/MongoAccess.hpp \
+    filters/DateFilter.hpp \
+    filters/AbstractFilter.hpp \
+    utils/AbstractFilter.hpp \
+    utils/AbstractLayoutFactory.hpp \
     utils/FlowLayoutFactory.hpp \
     utils/PetalLayoutFactory.hpp \
-    layouts/PetalLayout.hpp \
-    utils/AbstractLayoutFactory.hpp \
-    utils/ImageLoader.hpp \
-    filters/DateFilter.hpp \
-    utils/AbstractFilter.hpp \
-    filters/AbstractFilter.hpp \
+    utils/CBIR.hpp \
+    utils/LayoutItem.hpp \
     utils/ImageConverter.hpp \
-    utils/ConfigurationsHandler.hpp
+    utils/ConfigurationsHandler.hpp \
+    utils/image_load/ImageLoader.hpp \
+    utils/image_load/Mapper.hpp \
+    utils/image_load/Reducer.hpp \
+    utils/image_load/LoadingHandler.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

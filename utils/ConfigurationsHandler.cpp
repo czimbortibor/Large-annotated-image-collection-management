@@ -2,6 +2,7 @@
 
 ConfigurationsHandler::ConfigurationsHandler(const QString& configFile) {
     _fileName = configFile.toStdString().c_str();
+    init();
 }
 
 void ConfigurationsHandler::init() {
