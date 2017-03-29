@@ -52,8 +52,8 @@ class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
     Q_INTERFACES(QGraphicsItem)
     Q_INTERFACES(QGraphicsLayoutItem)
 public:
-    explicit LayoutItem(const QImage& image = QImage());
-    ~LayoutItem();
+    explicit LayoutItem(const QImage& image, const QString& url = "");
+    ~LayoutItem() { QGraphicsLayoutItem::setGraphicsItem(0); }
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const;
@@ -64,19 +64,20 @@ public:
     qreal getWidth() { return _width; }
     qreal getHeight() { return _height; }
 
-    QPixmap* getPixmap() const { return _pix; }
+    QPixmap getPixmap() const { return _pix; }
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 
 private:
-    QPixmap* _pix;
+    QPixmap _pix;
+    QString _url;
 	qreal _width;
 	qreal _height;
 
 signals:
-    void clicked(LayoutItem* item);
+    void clicked(const LayoutItem& item);
 };
 
 #endif //LAYOUTITEM_HPP

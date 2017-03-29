@@ -11,6 +11,7 @@
 #include <opencv2/highgui.hpp>
 
 #include "../CBIR.hpp"
+#include "../ImageCollection.hpp"
 
 
 class ImageLoader : public QObject, public QRunnable {
@@ -18,23 +19,24 @@ class ImageLoader : public QObject, public QRunnable {
 public:
     ImageLoader(const QString dirName, QStringList& imageNames,
                          QList<cv::Mat>& results,
-                         const cv::Size& size, const int notifyRate, QObject* parent = 0);
+                         const cv::Size& size,
+                         ImageCollection& imageCollection, QObject* parent = 0);
     void run();
 
     bool isRunning() const { return static_cast<int>(_running); }
     void cancel() { _running.testAndSetOrdered(1, 0); }
 
 private:
+    ImageCollection* _imageCollection;
     QString _dirName;
     QStringList* _imageNames;
     cv::Size _size;
     QList<cv::Mat>* _results;
-    int _notifyRate;
 
     QAtomicInt _running;
 
 signals:
-    void resultsReadyAt(int begin, int end);
+    void resultReady(int index, const QString& url);
     void finished();
 
 public slots:

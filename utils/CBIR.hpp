@@ -6,6 +6,7 @@
 
 #include <bitset>
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 
@@ -21,9 +22,15 @@ class CBIR {
 public:
 	explicit CBIR();
 
+    struct MatKey : cv::Mat {
+        double operator<(const MatKey& other) {
+            return CBIR::static_hasher->compare(*this, other);
+        }
+    };
+
 	/** compares 2 cv::Mat objects */
 	struct MatCompare {
-		double operator()(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const;
+        double operator()(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const;
 	};
 
 	struct HashCompare {
@@ -31,22 +38,24 @@ public:
 	};
 
 	/** using OpenCV's img_hash library */
-    std::multimap<const cv::Mat, const cv::Mat, MatCompare>* computeHashes(const QList<cv::Mat>& images,
+    std::map<cv::Mat, cv::Mat, MatCompare>* computeHashes(const QList<cv::Mat>& images,
             cv::Ptr<cv::img_hash::ImgHashBase> hasher);
     //std::multimap<double, const cv::Mat>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
-
+    std::set<cv::Mat, MatCompare>* getHashes(const QList<cv::Mat>& images,
+                                             cv::Ptr<cv::img_hash::ImgHashBase> hasher);
 	/** using the pHash library */
     std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QList<cv::Mat>& images,
                                                                             const QString& dirname, QList<QString>& imageNames) const;
 
+    void setHasher(cv::Ptr<cv::img_hash::ImgHashBase> hasher) { static_hasher = hasher; }
     /** returns the image's hash value */
-    static cv::Mat getHash(const cv::Mat& image);
-    static double getHashValue(const cv::Mat& image);
-    static double getDistance(const cv::Mat& hashmatA, const cv::Mat& hashmatB);
-    static cv::Ptr<cv::img_hash::ImgHashBase> _hasher;
+    cv::Mat getHash(const cv::Mat& image, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
+    double getHashValue(const cv::Mat& image) const;
+    double getDistance(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const;
+    static cv::Ptr<cv::img_hash::ImgHashBase> static_hasher;
 
 private:
-
+    cv::Ptr<cv::img_hash::ImgHashBase> _hasher;
 };
 
 #endif // CBIR_HPP

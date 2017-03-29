@@ -9,7 +9,8 @@ void LoadingHandler::loadImages_mt(const QString& path, const QStringList& image
             _reducer(images, image);
     };
 
-    connect(&_reducer, &Reducer::imageReady, this, &LoadingHandler::onImageReady);
+    // TODO: multi-thread image load PROPERLY!
+    //connect(&_reducer, &Reducer::imageReady, this, &LoadingHandler::onImageReady);
     using mt_LoaderPtr = std::unique_ptr<QFuture<QList<cv::Mat>>>;
     using mt_Loader = QFuture<QList<cv::Mat>>;
     _loaderMT = mt_LoaderPtr(new mt_Loader(QtConcurrent::mappedReduced<QList<cv::Mat>>
@@ -20,28 +21,23 @@ void LoadingHandler::loadImages_mt(const QString& path, const QStringList& image
     connect(_loaderWatcherMT.get(), &mt_Watcher::finished, this, &LoadingHandler::onFinishedLoading);
 }
 
-QList<cv::Mat>* LoadingHandler::loadImages_st(const QString& path, QStringList* imageNames,
-                                             const int notifyRate) {
+QList<cv::Mat>* LoadingHandler::loadImages_st(const QString& path, QStringList* imageNames) {
     QList<cv::Mat>* results = new QList<cv::Mat>;
     cv::Size size(_width, _height);
     _loaderST = std::unique_ptr<ImageLoader>(new ImageLoader(path, *imageNames,
-                                                                *results, size, notifyRate));
-    connect(_loaderST.get(), &ImageLoader::resultsReadyAt, this, &LoadingHandler::onImagesReady);
+                                                                *results, size, *_imageCollection));
+    connect(_loaderST.get(), &ImageLoader::resultReady, this, &LoadingHandler::onImageReady);
     connect(_loaderST.get(), &ImageLoader::finished, this, &LoadingHandler::onFinishedLoading);
     QThreadPool::globalInstance()->start(_loaderST.get());
     return results;
 }
 
-void LoadingHandler::onImageReady(const cv::Mat& image) {
-    emit imageReady(image);
+void LoadingHandler::onImageReady(int index, const QString& url) {
+    emit imageReady(index, url);
 }
 
 void LoadingHandler::onFinishedLoading() {
     emit finishedLoading();
-}
-
-void LoadingHandler::onImagesReady(int resultsBeginInd, int resultsEndInd) {
-    emit imagesReady(resultsBeginInd, resultsEndInd);
 }
 
 void LoadingHandler::onCancel() {

@@ -32,6 +32,10 @@ void GraphicsView::init() {
 	_scene->addItem(_layoutWidget);
 }
 
+void GraphicsView::addItem(QGraphicsLayoutItem* item) {
+    _layout->addItem(item);
+}
+
 void GraphicsView::setLayout(const QString& value) {
 	AbstractGraphicsLayout* tmp = _layouts->at(value.toStdString())->makeLayout();
 

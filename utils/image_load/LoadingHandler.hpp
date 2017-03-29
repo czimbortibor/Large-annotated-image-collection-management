@@ -17,7 +17,9 @@
 class LoadingHandler : public QObject {
     Q_OBJECT
 public:
-    LoadingHandler() = default;
+    LoadingHandler(ImageCollection& imageCollection) {
+        _imageCollection = &imageCollection;
+    }
 
     /**
      * @brief loadImages_mt loads the images located at the chosen path
@@ -36,8 +38,7 @@ public:
      * of available results
      * @return the loaded images
      */
-    QList<cv::Mat>* loadImages_st(const QString& path, QStringList* imageNames,
-                                 const int notifyRate);
+    QList<cv::Mat>* loadImages_st(const QString& path, QStringList* imageNames);
 
     cv::Mat loadImage(const QString& fileName) const;
 
@@ -45,6 +46,7 @@ public:
     void setHeight(int height) { _height = height; }
 
 private:
+    ImageCollection* _imageCollection;
     std::unique_ptr<QList<cv::Mat>> _images;
     /**
      * @brief the given width of the image to be loaded
@@ -66,13 +68,13 @@ private:
 
 
 signals:
-    void imageReady(const cv::Mat& image);
-    void imagesReady(int resultsBeginInd, int resultsEndInd);
+    void imageReady(int index, const QString& url);
+    //void imageReadyMT(const cv::Mat& image);
     void finishedLoading();
 
 public slots:
-    void onImageReady(const cv::Mat& image);
-    void onImagesReady(int resultsBeginInd, int resultsEndInd);
+    void onImageReady(int index, const QString& url);
+    //void onImageReadyMT(const cv::Mat& result);
     void onFinishedLoading();
     void onCancel();
 };

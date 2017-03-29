@@ -34,7 +34,7 @@ public:
 	/** makes a new layout from the available factories and sets it onto the scene */
 	void setLayout(const QString& value);
 	void setMinSceneSize(const QSizeF value) { _layoutWidget->setMinimumSize(value); _layout->invalidate();}
-	void addItem(QGraphicsLayoutItem* item) { _layout->addItem(item); }
+    void addItem(QGraphicsLayoutItem* item);
 	int itemCount() const { return _layout->count(); }
     void clear() { _layout->clearAll(); }
 

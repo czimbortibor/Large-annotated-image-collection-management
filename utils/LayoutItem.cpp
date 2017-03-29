@@ -40,19 +40,17 @@
 
 #include "LayoutItem.hpp"
 
-LayoutItem::LayoutItem(const QImage& image): QGraphicsObject(), QGraphicsLayoutItem() {
-    _pix = new QPixmap(QPixmap::fromImage(image));
-	this->_width = image.width();
-	this->_height = image.height();
+LayoutItem::LayoutItem(const QImage& image, const QString& url): QGraphicsObject(), QGraphicsLayoutItem() {
+    //_pix = new QPixmap(QPixmap::fromImage(image));
+    _pix = QPixmap::fromImage(image);
+    _width = image.width();
+    _height = image.height();
 	QGraphicsLayoutItem::setGraphicsItem(this);
+    _url = url;
 
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemIsFocusable);
-}
-
-LayoutItem::~LayoutItem() {
-    QGraphicsLayoutItem::setGraphicsItem(0);
 }
 
 void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
@@ -60,7 +58,7 @@ void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
-    painter->drawPixmap(QPointF(), *_pix);;
+    painter->drawPixmap(QPointF(), _pix);;
 }
 
 QRectF LayoutItem::boundingRect() const {
@@ -78,7 +76,7 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
         case Qt::MinimumSize:
         case Qt::PreferredSize:
             // Do not allow a size smaller than the pixmap with two frames around it
-            return _pix->size() + QSize(1, 1);
+            return _pix.size() + QSize(1, 1);
         case Qt::MaximumSize:
             return QSizeF(1000,1000);
         default:
@@ -88,12 +86,12 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
 }
 
 void LayoutItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
-    emit clicked(this);
+    emit clicked(*this);
     /*setSelected(true);
     QGraphicsItem::mousePressEvent(event);
     */
 }
 
 void LayoutItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
-    setScale(2.0);
+    //setScale(2.0);
 }

@@ -36,7 +36,8 @@ SOURCES +=\
     utils/ConfigurationsHandler.cpp \
     utils/ImageConverter.cpp \
     utils/image_load/ImageLoader.cpp \
-    utils/image_load/LoadingHandler.cpp
+    utils/image_load/LoadingHandler.cpp \
+    utils/ImageCollection.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -58,7 +59,8 @@ HEADERS  +=\
     utils/image_load/ImageLoader.hpp \
     utils/image_load/Mapper.hpp \
     utils/image_load/Reducer.hpp \
-    utils/image_load/LoadingHandler.hpp
+    utils/image_load/LoadingHandler.hpp \
+    utils/ImageCollection.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

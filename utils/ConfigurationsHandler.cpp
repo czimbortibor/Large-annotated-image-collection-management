@@ -1,19 +1,19 @@
 #include "ConfigurationsHandler.hpp"
 
 ConfigurationsHandler::ConfigurationsHandler(const QString& configFile) {
-    _fileName = configFile.toStdString().c_str();
+    _fileName = configFile.toStdString();
     init();
 }
 
 void ConfigurationsHandler::init() {
     _config = std::unique_ptr<libconfig::Config>(new libconfig::Config());
     try {
-        _config->readFile(_fileName);
+        _config->readFile(_fileName.c_str());
     }
     catch (const libconfig::FileIOException& ex) {
         qWarning() << "Configuration file I/O error!";
         qInfo() << "creating new configuration file...";
-        _config->writeFile(_fileName);
+        _config->writeFile(_fileName.c_str());
     }
 
     libconfig::Setting& root = _config->getRoot();
@@ -43,6 +43,6 @@ void ConfigurationsHandler::addNewCollection(const QString& name, const QString&
 
     qInfo() << "saving the configurations...";
     // write out the updated configuration
-    _config->writeFile(_fileName);
+    _config->writeFile(_fileName.c_str());
 }
 

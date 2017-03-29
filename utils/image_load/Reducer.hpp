@@ -14,10 +14,11 @@ public:
     ~Reducer() = default;
     void operator()(QList<cv::Mat>& images, const cv::Mat& image) {
         //images.push_front(image);
-        emit imageReady(image);
+        // TODO: pass URL
+        emit imageReady(image, "");
     }
 signals:
-    void imageReady(const cv::Mat& image);
+    void imageReady(const cv::Mat& image, const QString& url);
 };
 
 Q_DECLARE_METATYPE(cv::Mat)

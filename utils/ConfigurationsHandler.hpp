@@ -16,11 +16,11 @@ public:
     ~ConfigurationsHandler() = default;
 
     void init();
-    void setConfigFile(const QString& fileName) { _fileName = fileName.toStdString().c_str(); }
+    void setConfigFile(const QString& fileName) { _fileName = fileName.toStdString(); }
     void addNewCollection(const QString& name, const QString& URL);
 
 private:
-    const char* _fileName;
+    std::string _fileName;
     std::unique_ptr<libconfig::Config> _config;
     std::unique_ptr<libconfig::Setting> _collections;
 };

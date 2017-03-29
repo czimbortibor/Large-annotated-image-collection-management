@@ -22,16 +22,13 @@
 #include <QListWidget>
 #include <QProgressBar>
 
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
 #include "view/GraphicsView.hpp"
 #include "utils/LayoutItem.hpp"
 #include "utils/CBIR.hpp"
 #include "utils/ConfigurationsHandler.hpp"
 #include "utils/image_load/LoadingHandler.hpp"
 #include "utils/image_load/ImageLoader.hpp"
+#include "utils/ImageCollection.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 #include "db/MongoAccess.hpp"
@@ -70,8 +67,12 @@ private:
     /** creates the main view for displaying images */
 	void initView();
 
-    //void resizeImages(int newWidth, int newHeight);
     void saveImages(int size);
+    /**
+     * @brief imageSaving
+     * @param size
+     */
+    void imageSaving(int size);
 
     /** no images were selected */
     void showAlertDialog() const;
@@ -84,15 +85,11 @@ private:
     void showProgressBar(const int maximumValue, const QString& taskName);
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-    void displayImages(const QList<cv::Mat>& images) const;
+    void displayImages(const QList<cv::Mat>& images, const QStringList& urls) const;
     /** opencv_img_hash & pHash display */
-	template<typename T> void displayImages(const T& images) const;
+    template<typename T> void displayImages(const T& images, const QStringList& urls) const;
 
 	void logTime(QString message);
-
-    /** returns the similar images of the target image */
-    QList<cv::Mat>& getSimilarImages(const LayoutItem& target) const;
-
 
 	Ui::MainWindow* ui;
 	int _iconSize;
@@ -103,18 +100,17 @@ private:
     std::unique_ptr<QStringList> _imageNames;
 	int _imgWidth;
 	int _imgHeight;
-    std::unique_ptr<QList<cv::Mat>> _images;
 	QElapsedTimer _timer;
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
-    /** were the images already hashed? */
-    bool _wereHashed = false;
 
     std::unique_ptr<ConfigurationsHandler> _configHandler;
 
-	// ------ multi-threaded image resize ------
-    std::shared_ptr<QFuture<cv::Mat>> _futureResizerMT;
-    std::shared_ptr<QFutureWatcher<cv::Mat>> _futureResizerWatcherMT;
+    /**
+     * @brief _imageSaver saves the images to the disk
+     */
+    std::unique_ptr<QFuture<void>> _imageSaver;
+    QFutureWatcher<void> _saverWatcher;
 
 	GraphicsView* _view;
 
@@ -123,14 +119,13 @@ private:
      */
     std::unique_ptr<LoadingHandler> _loadingHandler;
 
-    /**
-     * @brief available hashing algorithms
-     */
+    std::unique_ptr<QList<cv::Mat>> _images;
+    std::unique_ptr<std::map<cv::Mat, cv::Mat, CBIR::MatCompare>> _hashedImages;
 
-    QMap<QString, cv::Ptr<cv::img_hash::ImgHashBase>> _hashes;
-	CBIR imageRetrieval;
-    std::unique_ptr<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>> _imagesHashed;
-    //std::unique_ptr<std::multimap<double, const cv::Mat>> _images;
+    ImageCollection _imageCollection;
+
+    CBIR _imageRetrieval;
+
     std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
 
 	std::unique_ptr<MongoAccess> _mongoAccess;
@@ -142,17 +137,15 @@ private slots:
 	void onSceneChanged();
 	void onClearLayout();
 
-    void onImageReceived(const cv::Mat& image);
-    void onImagesReceived(int resultsBeginInd, int resultsEndInd);
+    void onImageReceived(int index, const QString& url);
     void onFinishedLoading();
 
-	void onImagesResized(int resultsBeginInd, int resultsEndInd);
-	void onFinishedResizing();
+    void onSavingChange(int value);
+    void onFinishedSaving();
 
     void onHashImages();
 
 	void onLoadImagesClick();
-    void onResizeImages(int newWidth, int newHeight);
 
 	// ------------- filters ---------------
 	void onRadiusChanged(double value);
@@ -162,7 +155,7 @@ private slots:
 
     void onAddFilter();
 
-    void onImageClicked(LayoutItem* image);
+    void onImageClicked(const LayoutItem& image);
     void onAddNewFilter(QListWidgetItem* item);
     void on_btn_applyFilters_clicked();
 
