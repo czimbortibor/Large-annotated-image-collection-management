@@ -1,5 +1,5 @@
-#ifndef RINGLAYOUT_HPP
-#define RINGLAYOUT_HPP
+#ifndef PETALLAYOUT_HPP
+#define PETALLAYOUT_HPP
 
 #include <qmath.h>
 
@@ -45,4 +45,4 @@ private:
 
 };
 
-#endif // RINGLAYOUT_HPP
+#endif // PETALLAYOUT_HPP

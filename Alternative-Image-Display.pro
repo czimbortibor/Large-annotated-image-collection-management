@@ -27,6 +27,7 @@ SOURCES +=\
     Main.cpp \
     layouts/FlowLayout.cpp \
     layouts/PetalLayout.cpp \
+    layouts/SpiralLayout.cpp \
     ui/MainWindow.cpp \
     view/GraphicsView.cpp \
     db/MongoAccess.cpp \
@@ -39,10 +40,12 @@ SOURCES +=\
     utils/image_load/LoadingHandler.cpp \
     utils/ImageCollection.cpp
 
+
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
     layouts/FlowLayout.hpp \
     layouts/PetalLayout.hpp \
+    layouts/SpiralLayout.hpp \
     ui/MainWindow.hpp \
     view/GraphicsView.hpp \
     db/MongoAccess.hpp \
@@ -60,7 +63,8 @@ HEADERS  +=\
     utils/image_load/Mapper.hpp \
     utils/image_load/Reducer.hpp \
     utils/image_load/LoadingHandler.hpp \
-    utils/ImageCollection.hpp
+    utils/ImageCollection.hpp \
+    utils/SpiralLayoutFactory.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

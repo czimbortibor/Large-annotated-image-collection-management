@@ -23,8 +23,7 @@
 #include "utils/LayoutItem.hpp"
 #include "utils/FlowLayoutFactory.hpp"
 #include "utils/PetalLayoutFactory.hpp"
-#include "layouts/FlowLayout.hpp"
-#include "layouts/PetalLayout.hpp"
+#include "utils/SpiralLayoutFactory.hpp"
 
 
 class GraphicsView : public QGraphicsView {
@@ -38,6 +37,10 @@ public:
 	int itemCount() const { return _layout->count(); }
     void clear() { _layout->clearAll(); }
 
+    void resizeEvent(QResizeEvent* event) {
+        fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
+    }
+
 	/** expose a reference to the scene to get it's signals; reference, so the ownership won't move */
 	QGraphicsScene& scene() { return *_scene; }
 
@@ -47,6 +50,9 @@ public:
 
 	void setNrOfPetals(int value);
 	void setRadius(double value);
+
+    void setSpiralDistance(int value);
+    void setSpiralTurn(int value);
 
 protected:
     /*void mousePressEvent(QMouseEvent* event) {
@@ -67,6 +73,7 @@ signals:
     void imageClick(QGraphicsItem* image);
 
 private slots:
+    void onSceneRectChanged(const QRectF& rect);
     void onImageClicked(QGraphicsItem* image) { emit imageClick(image); }
 };
 

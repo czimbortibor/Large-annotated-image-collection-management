@@ -3,6 +3,7 @@
         <file>resources/icons/grid_layout.png</file>
         <file>resources/icons/plus_icon.png</file>
         <file>resources/icons/flower_layout.png</file>
+        <file>resources/icons/spiral_layout.png</file>
     </qresource>
     <qresource prefix="/stylesheet">
         <file>resources/stylesheet/stylesheet.qss</file>

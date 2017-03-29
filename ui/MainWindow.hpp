@@ -134,7 +134,6 @@ private:
     QListWidget* _filterList;
 
 private slots:
-	void onSceneChanged();
 	void onClearLayout();
 
     void onImageReceived(int index, const QString& url);
@@ -152,6 +151,8 @@ private slots:
 	void onPetalNrChanged(int value);
 	void onLayoutChanged(const QString& text);
     void onImageSizeChanged(int size);
+    void onSpiralTurnChanged(int value);
+    void onSpiralDistanceChanged(int value);
 
     void onAddFilter();
 

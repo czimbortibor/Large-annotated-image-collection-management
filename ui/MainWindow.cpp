@@ -39,13 +39,15 @@ void MainWindow::initWindow() {
 	connect(ui->spinBox_radius, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onRadiusChanged);
 	connect(ui->spinBox_nrOfPetals, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onPetalNrChanged);
 		// overloaded signal -> have to specify the specific function syntax
+    connect(ui->spinBox_a, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onSpiralTurnChanged);
+    connect(ui->spinBox_b, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::onSpiralDistanceChanged);
 
     connect(ui->slider_imgSize, &QSlider::valueChanged ,this, &MainWindow::onImageSizeChanged);
 
 	// filter fields
 	connect(ui->comboBox_layout, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &MainWindow::onLayoutChanged);
     connect(ui->btn_addFilter, &QPushButton::clicked, this, &MainWindow::onAddFilter);
-	ui->groupBox_layoutControls->hide();
+    ui->tabWidget->hide();
 
     QString text = "size: " + QString::number(ui->slider_imgSize->value());
     ui->lbl_size->setText(text);
@@ -85,16 +87,8 @@ void MainWindow::initHashes() {
 
 void MainWindow::initView() {
 	_view = new GraphicsView;
-	connect(&_view->scene(), &QGraphicsScene::changed, this, &MainWindow::onSceneChanged);
 	ui->centralWidget->layout()->addWidget(_view);
 	_view->show();
-}
-
-void MainWindow::onSceneChanged() {
-	QSizeF viewSize = _view->size();
-	qreal radius = ui->spinBox_radius->value();
-	QSizeF newSize(viewSize.width() - radius, viewSize.height());
-	_view->setMinSceneSize(newSize);
 }
 
 void MainWindow::showAlertDialog() const {
@@ -208,9 +202,6 @@ void MainWindow::onHashImages() {
     _view->clear();
     displayImages(*_hashedImages.get(), *_imageNames.get());
 
-    /** release and delete the owned object */
-    //_images.reset(nullptr);
-
     //displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
 
 
@@ -222,7 +213,7 @@ void MainWindow::onHashImages() {
 }
 
 void MainWindow::imageSaving(int size) {
-    for (int i = 0; i < _imageNames->length(); ++i) {
+    for (int i = 0; i < _images->length(); ++i) {
         QString fileName = (_dirSmallImg->absolutePath() + QDir::separator() + _imageNames->at(i));
         cv::imwrite(fileName.toStdString(), _images->at(i));
     }
@@ -280,6 +271,7 @@ void MainWindow::displayImages(const QList<cv::Mat>& images, const QStringList& 
         connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
 		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
+    // _view->setMinSceneSize(_view->size());
 }
 
 template<typename T>
@@ -305,24 +297,70 @@ void MainWindow::logTime(QString message) {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-    if (_images != nullptr) {
+    if (_hashedImages != nullptr) {
         _view->setRadius(value);
 		_view->clear();
+        displayImages(*_hashedImages.get(), *_imageNames.get());
+    } else {
+        _view->setNrOfPetals(value);
+        _view->clear();
         displayImages(*_images.get(), *_imageNames.get());
-	}
+    }
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-    if (_images != nullptr) {
+    if (_hashedImages != nullptr) {
         _view->setNrOfPetals(value);
 		_view->clear();
+        displayImages(*_hashedImages.get(), *_imageNames.get());
+    } else {
+        _view->setNrOfPetals(value);
+        _view->clear();
         displayImages(*_images.get(), *_imageNames.get());
-	}
+    }
+}
+
+void MainWindow::onSpiralDistanceChanged(int value) {
+    if (_hashedImages != nullptr) {
+        _view->setSpiralDistance(value);
+        _view->clear();
+        displayImages(*_hashedImages.get(), *_imageNames.get());
+    } else {
+        _view->setNrOfPetals(value);
+        _view->clear();
+        displayImages(*_images.get(), *_imageNames.get());
+    }
+}
+
+void MainWindow::onSpiralTurnChanged(int value) {
+    if (_hashedImages != nullptr) {
+        _view->setSpiralTurn(value);
+        _view->clear();
+        displayImages(*_hashedImages.get(), *_imageNames.get());
+    } else {
+        _view->setNrOfPetals(value);
+        _view->clear();
+        displayImages(*_images.get(), *_imageNames.get());
+    }
 }
 
 void MainWindow::onLayoutChanged(const QString& text) {
     _view->setLayout(text);
-	text.compare("petal") == 0 ? ui->groupBox_layoutControls->setVisible(true) : ui->groupBox_layoutControls->hide();
+    if (text.compare("petal") == 0) {
+        ui->tabWidget->setVisible(true);
+        ui->tabWidget->setTabEnabled(1, true);
+        ui->tabWidget->setTabEnabled(0, false);
+    }
+    else {
+        if (text.compare("spiral") == 0) {
+            ui->tabWidget->setVisible(true);
+            ui->tabWidget->setTabEnabled(0, true);
+            ui->tabWidget->setTabEnabled(1, false);
+        }
+        else {
+            ui->tabWidget->hide();
+        }
+    }
 }
 
 void MainWindow::onImageSizeChanged(int size) {

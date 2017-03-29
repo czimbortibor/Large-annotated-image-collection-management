@@ -17,19 +17,26 @@ void GraphicsView::init() {
 
 	_scene = new QGraphicsScene;
 	setScene(_scene);
+    connect(_scene, &QGraphicsScene::sceneRectChanged, this, &GraphicsView::onSceneRectChanged);
+
 	// align from the top-left corner rather than from the center
 	//setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	_layoutWidget = new QGraphicsWidget;
 
 	// initialize the layout factories
-    _layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("grid", new FlowLayoutFactory));
-	_layouts->insert(std::pair<std::string, AbstractLayoutFactory*>("petal", new PetalLayoutFactory));
+    _layouts->emplace("grid", new FlowLayoutFactory);
+    _layouts->emplace("petal", new PetalLayoutFactory);
+    _layouts->emplace("spiral", new SpiralLayoutFactory);
 
 	// make the default FlowLayout and set it onto the scene
     _layout = _layouts->at("grid")->makeLayout();
 	_layoutWidget->setLayout(_layout);
 	_scene->addItem(_layoutWidget);
+}
+
+void GraphicsView::onSceneRectChanged(const QRectF& rect) {
+    this->setMinSceneSize(this->size());
 }
 
 void GraphicsView::addItem(QGraphicsLayoutItem* item) {
@@ -48,6 +55,8 @@ void GraphicsView::setLayout(const QString& value) {
 	_layout->clearAll();
 	_layout = tmp;
 	_layoutWidget->setLayout(_layout);
+
+    this->setMinSceneSize(this->size());
 }
 
 void GraphicsView::setNrOfPetals(int value) {
@@ -62,6 +71,20 @@ void GraphicsView::setRadius(double value) {
 	if (layoutPtr != nullptr) {
 		layoutPtr->setRadius(value);
 	}
+}
+
+void GraphicsView::setSpiralDistance(int value) {
+    const auto layoutPtr = static_cast<SpiralLayout*>(_layout);
+    if (layoutPtr != nullptr) {
+        layoutPtr->setDistance(value);
+    }
+}
+
+void GraphicsView::setSpiralTurn(int value) {
+    const auto layoutPtr = static_cast<SpiralLayout*>(_layout);
+    if (layoutPtr != nullptr) {
+        layoutPtr->setTurn(value);
+    }
 }
 
 template<typename L>
