@@ -26,7 +26,11 @@ public:
     QList<QGraphicsLayoutItem*>& items() Q_DECL_OVERRIDE { return _items; }
 
     void setTurn(int value) { _a = value; }
-    void setDistance(int value) { _b = value; }
+    void setDistance(int value) {
+        if (_items.length()) {
+            _b = (_items[0]->preferredHeight() + _items[0]->preferredWidth()) / 8 + value;
+        }
+    }
 
 protected:
     QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const Q_DECL_OVERRIDE;
@@ -42,7 +46,7 @@ private:
     qreal _spacing[2];
 
     qreal _a = 1;
-    qreal _b;
+    qreal _b = 10;
 
 };
 

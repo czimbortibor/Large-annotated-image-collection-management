@@ -61,7 +61,6 @@ qreal SpiralLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) cons
      * b - controls the distance
     */
 
-    qreal b;
     qreal angle = 0;
     qreal increment = 2 * M_PI / _items.size();
     qreal x, y;
@@ -69,10 +68,9 @@ qreal SpiralLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) cons
         QGraphicsLayoutItem* item = _items.at(i);
         prefSize = item->effectiveSizeHint(Qt::PreferredSize);
 
-        b = (prefSize.height() + prefSize.width()) / 8;
         angle = 0.1 * i + increment;
-        x = x0 + (_a + b * angle) * std::cos(angle);
-        y = y0 + (_a + b * angle) * std::sin(angle);
+        x = x0 + (_a + _b * angle) * std::cos(angle);
+        y = y0 + (_a + _b * angle) * std::sin(angle);
 
         qreal next_x;
         next_x = x + prefSize.width() + spacing(Qt::Vertical);

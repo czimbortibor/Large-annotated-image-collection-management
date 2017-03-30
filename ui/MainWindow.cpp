@@ -326,7 +326,7 @@ void MainWindow::onSpiralDistanceChanged(int value) {
         _view->clear();
         displayImages(*_hashedImages.get(), *_imageNames.get());
     } else {
-        _view->setNrOfPetals(value);
+        _view->setSpiralDistance(value);
         _view->clear();
         displayImages(*_images.get(), *_imageNames.get());
     }
@@ -338,7 +338,7 @@ void MainWindow::onSpiralTurnChanged(int value) {
         _view->clear();
         displayImages(*_hashedImages.get(), *_imageNames.get());
     } else {
-        _view->setNrOfPetals(value);
+        _view->setSpiralTurn(value);
         _view->clear();
         displayImages(*_images.get(), *_imageNames.get());
     }
@@ -369,61 +369,8 @@ void MainWindow::onImageSizeChanged(int size) {
 }
 
 void MainWindow::onImageClicked(const LayoutItem& image) {
-
-    /*if (_wereHashed == false) {
-        auto resPtr = hashImages(*_images.get());
-        _imagesHashed.reset(resPtr);
-        _wereHashed = true;
-    }
-    QList<cv::Mat>* similarImages = getSimilarImages(image);
-    _view->clear();
-    displayImages(*similarImages);*/
+    // TODO: on image clicked
 }
-
-
-
-    /*QImage image = target.getPixmap().toImage();
-    cv::Mat targetImage = ImageConverter::QImage2Mat(image);
-    cv::imshow("target", targetImage);
-    cv::waitKey(-1);
-    cv::Mat targetHash = _imageRetrieval.getHash(targetImage);
-    cv::imshow("hash", targetHash);
-    cv::waitKey(-1);
-    auto it = _imagesHashed->find(targetHash);
-    cv::imshow("found", _imagesHashed->at(targetHash));
-    cv::waitKey(-1);
-    QList<cv::Mat>* res = new QList<cv::Mat>;
-    /*res->push_front(it->second);
-    return res;*/
-
-    /*if (it == _imagesHashed->end()) {
-        return *res;
-    }*/
-
-    /*int k = 1;
-    auto rightIt = it;
-    std::advance(rightIt, 1);
-    auto leftIt = it;
-    std::advance(leftIt, -1);
-    while (k < 3) {
-        if (rightIt != _imagesHashed->end()) {
-            rightIt = std::next(rightIt, 1);
-            cv::imshow("right", (*it).second);
-            cv::waitKey(-1);
-        }
-        if (leftIt != _imagesHashed->begin()) {
-            leftIt = std::prev(leftIt, 1);
-            cv::imshow("left", (*it).second);
-            cv::waitKey(-1);
-            //std::advance(leftIt, -k);
-        }
-        double rightDist = _imageRetrieval.getDistance(targetHash, rightIt->first);
-        double leftDist = _imageRetrieval.getDistance(targetHash, leftIt->first);
-        (rightDist < leftDist) ? res->push_front(rightIt->second) : res->push_front(leftIt->second);
-        ++k;
-    }
-    res->push_front(targetImage);
-    return res;*/
 
 void MainWindow::onAddFilter() {
     ui->widget_createFilters->setVisible(true);
