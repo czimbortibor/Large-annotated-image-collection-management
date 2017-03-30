@@ -165,6 +165,7 @@ private slots:
 signals:
 	void clearLayout();
     void resizeImages(int newWidth, int newHeight);
+    void saveProgress(int value);
 };
 
 #endif // MAINWINDOW_H

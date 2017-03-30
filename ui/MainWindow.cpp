@@ -189,9 +189,7 @@ void MainWindow::onFinishedLoading() {
     logTime("display time:");
     */
 
-    // TODO: fix saving 100's
-    saveImages(100);
-    saveImages(10);
+    saveImages(ui->slider_imgSize->value());
 }
 
 void MainWindow::onHashImages() {
@@ -214,8 +212,12 @@ void MainWindow::onHashImages() {
 
 void MainWindow::imageSaving(int size) {
     for (int i = 0; i < _images->length(); ++i) {
+        cv::Mat image = _images->at(i);
+        cv::Mat resizedImg;
+        cv::resize(image, resizedImg, cv::Size(size, size));
         QString fileName = (_dirSmallImg->absolutePath() + QDir::separator() + _imageNames->at(i));
-        cv::imwrite(fileName.toStdString(), _images->at(i));
+        cv::imwrite(fileName.toStdString(), resizedImg);
+        emit saveProgress(i+1);
     }
 }
 
@@ -240,7 +242,7 @@ void MainWindow::saveImages(int size) {
         _timer.start();
 
         showProgressBar(_images->length(), "saving images");
-        connect(_progressBar.get(), &QProgressBar::valueChanged, this, &MainWindow::onSavingChange);
+        connect(this, &MainWindow::saveProgress, _progressBar.get(), &QProgressBar::setValue);
 
         auto saver_fun = std::bind(&MainWindow::imageSaving, this, size);
         _imageSaver = std::unique_ptr<QFuture<void>>(new QFuture<void>(
@@ -252,6 +254,7 @@ void MainWindow::saveImages(int size) {
 
 void MainWindow::onFinishedSaving() {
     logTime("saving time:");
+    _progressBar.reset();
     _progressBar.release();
 }
 
