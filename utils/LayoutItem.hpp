@@ -68,7 +68,9 @@ public:
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+    void mouseDoubleClickEvent(QGraphicsSceneHoverEvent* event);
 
 private:
     QPixmap _pix;
@@ -77,7 +79,10 @@ private:
 	qreal _height;
 
 signals:
-    void clicked(const LayoutItem& item);
+    void clicked(const QString& url);
+    void doubleClick(const QString& url);
+    void hoverEnter(const QString& url);
+    void hoverLeave(const QString& url);
 };
 
 #endif //LAYOUTITEM_HPP

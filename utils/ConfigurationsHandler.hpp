@@ -17,6 +17,7 @@ public:
 
     void init();
     void setConfigFile(const QString& fileName) { _fileName = fileName.toStdString(); }
+    bool collectionExists(const QString& name);
     void addNewCollection(const QString& name, const QString& URL);
 
 private:

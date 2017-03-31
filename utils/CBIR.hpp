@@ -38,11 +38,10 @@ public:
 	};
 
 	/** using OpenCV's img_hash library */
-    std::map<cv::Mat, cv::Mat, MatCompare>* computeHashes(const QList<cv::Mat>& images,
+    std::multimap<cv::Mat, cv::Mat, MatCompare>* computeHashes(const QList<cv::Mat>& images,
             cv::Ptr<cv::img_hash::ImgHashBase> hasher);
     //std::multimap<double, const cv::Mat>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
-    std::set<cv::Mat, MatCompare>* getHashes(const QList<cv::Mat>& images,
-                                             cv::Ptr<cv::img_hash::ImgHashBase> hasher);
+
 	/** using the pHash library */
     std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QList<cv::Mat>& images,
                                                                             const QString& dirname, QList<QString>& imageNames) const;

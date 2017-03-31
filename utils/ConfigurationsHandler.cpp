@@ -46,3 +46,13 @@ void ConfigurationsHandler::addNewCollection(const QString& name, const QString&
     _config->writeFile(_fileName.c_str());
 }
 
+bool ConfigurationsHandler::collectionExists(const QString& name) {
+    for (const auto& collection : *_collections.get()) {
+        std::string result;
+        collection.lookupValue("name", result);
+        if (name.toStdString().compare(result) == 0) {
+            return true;
+        }
+    }
+    return false;
+}

@@ -135,18 +135,27 @@ void MainWindow::onLoadImagesClick() {
 		showAlertDialog();
 		return;
 	}
-    _imageNames = std::unique_ptr<QStringList>(new QStringList);
-    *_imageNames.get() = _dir.entryList();
-	_nrOfImages = _imageNames->length();
+
+    _nrOfImages = _dir.entryList().length();
     _images = std::unique_ptr<QList<cv::Mat>>(new QList<cv::Mat>);
 
     _iconSize = ui->slider_imgSize->value();
     _imgWidth = _iconSize;
     _imgHeight = _iconSize;
 
-	int len = _imageNames->length();
-	qDebug() << "image size =" << _imgWidth << "x" << _imgHeight;
+    int len = _nrOfImages;
+    qDebug() << "image size =" << _imgWidth << "x" << _imgHeight;
 	qDebug() << "image count =" << len;
+
+    /* check if the soon to be laoded image collection exists */
+    const QString collectionName = _dir.dirName() + "_" + QString::number(ui->slider_imgSize->value());
+    if (_configHandler->collectionExists(collectionName)) {
+        _dir.cd("collections");
+        _dir.cd(collectionName);
+        qInfo() << "image collection already exists, reading from that...";
+    }
+    _imageNames = std::unique_ptr<QStringList>(new QStringList);
+    *_imageNames.get() = _dir.entryList();
 
 	_timer.start();
 
@@ -170,6 +179,8 @@ void MainWindow::onLoadImagesClick() {
 void MainWindow::onImageReceived(int index, const QString& url) {
     LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(_images->at(index)), url);
     connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+    connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
+    connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
     _view->addItem(item);
     _progressBar->setValue(_progressBar->value() + 1);
 }
@@ -195,12 +206,10 @@ void MainWindow::onFinishedLoading() {
 void MainWindow::onHashImages() {
     const QString hasherName = ui->comboBox_hashes->currentText();
      _hashedImages.release();
-    std::map<cv::Mat, cv::Mat, CBIR::MatCompare> result = _imageCollection.getHashedImages(hasherName);
-    _hashedImages.reset(&result);
+    std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = _imageCollection.getHashedImages(hasherName);
+    _hashedImages.reset(result);
     _view->clear();
     displayImages(*_hashedImages.get(), *_imageNames.get());
-
-    //displayImages<std::multimap<const cv::Mat, const cv::Mat, CBIR::MatCompare>>(*_imagesHashed.get());
 
 
     // ------ pHash -------
@@ -228,10 +237,10 @@ void MainWindow::onSavingChange(int value) {
 void MainWindow::saveImages(int size) {
     const char dirSeparator = QDir::separator().toLatin1();
     QString currentDir(_dir.absolutePath());
-    QString collectionName(QString::number(_images->size()) + "_" + QString::number(size));
+    QString collectionName(_dir.dirName() + "_" + QString::number(size));
     QString collectionDir(dirSeparator + QString("collections") + dirSeparator + collectionName + dirSeparator);
     QString absPath = currentDir + collectionDir;
-    if (!QDir(absPath).exists()) {
+    if (_configHandler->collectionExists(collectionName) == false) {
         QDir().mkdir(currentDir + dirSeparator + "collections");
         QDir().mkdir(absPath);
         _dirSmallImg = new QDir(absPath);
@@ -272,6 +281,8 @@ void MainWindow::displayImages(const QList<cv::Mat>& images, const QStringList& 
         LayoutItem* item = new LayoutItem(res, urls.at(i));
         ++i;
         connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+        connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
+        connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
 		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
     // _view->setMinSceneSize(_view->size());
@@ -285,6 +296,8 @@ void MainWindow::displayImages(const T& images, const QStringList& urls) const {
         LayoutItem* item = new LayoutItem(image, urls.at(i));
         ++i;
         connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+        connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
+        connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
         _view->addItem(static_cast<QGraphicsLayoutItem*>(item));
     }
 }
@@ -305,7 +318,7 @@ void MainWindow::onRadiusChanged(double value) {
 		_view->clear();
         displayImages(*_hashedImages.get(), *_imageNames.get());
     } else {
-        _view->setNrOfPetals(value);
+        _view->setRadius(value);
         _view->clear();
         displayImages(*_images.get(), *_imageNames.get());
     }
@@ -371,8 +384,20 @@ void MainWindow::onImageSizeChanged(int size) {
     ui->lbl_size->setText(newText);
 }
 
-void MainWindow::onImageClicked(const LayoutItem& image) {
-    // TODO: on image clicked
+void MainWindow::onImageClicked(const QString& url) {
+    /*const QString hasherName = ui->comboBox_hashes->currentText();
+    _imageCollection.getImage(hasherName, url);*/
+    cv::Mat originalImage = cv::imread(url.toStdString());
+    cv::imshow("original", originalImage);
+    cv::waitKey(1);
+}
+
+void MainWindow::onImageDoubleClicked(const QString& url) {
+
+}
+
+void MainWindow::onImageHoverEnter(const QString& url) {
+
 }
 
 void MainWindow::onAddFilter() {

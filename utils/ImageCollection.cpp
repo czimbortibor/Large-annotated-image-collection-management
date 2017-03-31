@@ -1,6 +1,6 @@
 #include "ImageCollection.hpp"
 
-using ImageMap = std::map<const QString, ImageCollection::Collection*>;
+using ImageMap = std::map<QString*, ImageCollection::Collection>;
 
 ImageCollection::ImageCollection() {
     init();
@@ -30,9 +30,9 @@ void ImageCollection::insert(cv::Mat* image, QString* url) {
      * then insert the results into the map */
    for (const auto& hasher : _hashers) {
         /** calculate the hash */
-        cv::Mat hash = _cbir.getHash(*image, hasher.second);
+        cv::Mat* hash = new cv::Mat(_cbir.getHash(*image, hasher.second));
         /** insert the results into the hasher's map */
-        _collection_map.at(hasher.first).emplace(*url, new Collection(image, &hash));
+        _collection_map.at(hasher.first).emplace(url, Collection(image, hash));
     }
 }
 
@@ -40,18 +40,18 @@ QList<cv::Mat> ImageCollection::getHashes(const QString& hasherName) const {
     auto imageMap = _collection_map.at(hasherName);
     QList<cv::Mat>* result = new QList<cv::Mat>;
     for (const auto& image_struct : imageMap) {
-        result->push_front(image_struct.second->getHash());
+        result->push_front(image_struct.second.getHash());
     }
     return *result;
 }
 
-std::map<cv::Mat, cv::Mat, CBIR::MatCompare> ImageCollection::getHashedImages(
+std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* ImageCollection::getHashedImages(
         const QString &hasherName) {
-    std::map<cv::Mat, cv::Mat, CBIR::MatCompare>* result = new std::map<cv::Mat, cv::Mat, CBIR::MatCompare>;
+    std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = new std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
     auto imageMap = _collection_map.at(hasherName);
     _cbir.setHasher(_hashers.at(hasherName));
     for (const auto& image_struct : imageMap) {
-        result->emplace(image_struct.second->getHash(), image_struct.second->getImage());
+        result->emplace(image_struct.second.getHash(), image_struct.second.getImage());
     }
-    return *result;
+    return result;
 }

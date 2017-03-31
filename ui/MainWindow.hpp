@@ -120,7 +120,7 @@ private:
     std::unique_ptr<LoadingHandler> _loadingHandler;
 
     std::unique_ptr<QList<cv::Mat>> _images;
-    std::unique_ptr<std::map<cv::Mat, cv::Mat, CBIR::MatCompare>> _hashedImages;
+    std::unique_ptr<std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>> _hashedImages;
 
     ImageCollection _imageCollection;
 
@@ -156,7 +156,10 @@ private slots:
 
     void onAddFilter();
 
-    void onImageClicked(const LayoutItem& image);
+    void onImageClicked(const QString& url);
+    void onImageDoubleClicked(const QString& url);
+    void onImageHoverEnter(const QString& url);
+
     void onAddNewFilter(QListWidgetItem* item);
     void on_btn_applyFilters_clicked();
 

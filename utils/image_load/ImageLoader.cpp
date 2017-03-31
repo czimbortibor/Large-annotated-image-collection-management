@@ -15,17 +15,17 @@ void ImageLoader::run() {
     _running.testAndSetOrdered(0, 1);
     for (int i = 0; i < _imageNames->length(); ++i) {
         if (static_cast<int>(_running)) {
-            QString fullFileName = _dirName + "/" + _imageNames->at(i);
+            QString* fullFileName = new QString(_dirName + "/" + _imageNames->at(i));
             cv::Mat cvImage;
-            cvImage = cv::imread(fullFileName.toStdString());
+            cvImage = cv::imread(fullFileName->toStdString());
             if (cvImage.data == 0) {
                 continue;
             }
-            cv::Mat cvResizedImg;
-            cv::resize(cvImage, cvResizedImg, _size);
-            _results->append(cvResizedImg);
-            _imageCollection->insert(&cvResizedImg, &fullFileName);
-            emit resultReady(i, fullFileName);
+            cv::Mat* cvResizedImg = new cv::Mat;
+            cv::resize(cvImage, *cvResizedImg, _size);
+            _results->append(*cvResizedImg);
+            _imageCollection->insert(cvResizedImg, fullFileName);
+            emit resultReady(i, *fullFileName);
             }
         }
     _running.testAndSetOrdered(1, 0);

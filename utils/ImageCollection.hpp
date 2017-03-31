@@ -29,7 +29,7 @@ public:
     void insert(cv::Mat* image, QString* url);
 
     cv::Mat getHashValue(const QString& hasherName, QString& url) {
-        return _collection_map.at(hasherName).at(url)->getHash();
+        return _collection_map.at(hasherName).at(&url).getHash();
     }
 
     cv::Ptr<cv::img_hash::ImgHashBase> getHasher(const QString& hasherName) const {
@@ -37,7 +37,7 @@ public:
     }
 
     cv::Mat getImage(const QString& hasherName, QString& url) {
-        return _collection_map.at(hasherName).at(url)->getImage();
+        return _collection_map.at(hasherName).at(&url).getImage();
     }
 
     /**
@@ -50,28 +50,29 @@ public:
     /**
      * @brief getHashedImages returns all of the images in order of their hash values
      * @param hasherName hash algorithm
-     * @return a map containing the images as values and their hash as the key
+     * @return a multimap containing the images as values and their hash as the key
      */
-    std::map<cv::Mat, cv::Mat, CBIR::MatCompare> getHashedImages(const QString& hasherName);
+    std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* getHashedImages(const QString& hasherName);
 
 
     struct Collection {
     public:
         Collection(cv::Mat* image, cv::Mat* hash) {
-            _image = *image;
-            _hash = *hash;
+            _image = image;
+            _hash = hash;
         }
-        cv::Mat getImage() const { return _image; }
-        cv::Mat getHash() const { return _hash; }
+        const cv::Mat& getImage() const { return *_image; }
+        const cv::Mat& getHash() const { return *_hash; }
+
     private:
-        cv::Mat _image;
-        cv::Mat _hash;
+        const cv::Mat* _image;
+        const cv::Mat* _hash;
     };
 
 private:
     CBIR _cbir;
 
-    using ImageMap = std::map<QString, Collection*>;
+    using ImageMap = std::map<QString*, Collection>;
     std::map<QString, ImageMap> _collection_map;
 
     /**

@@ -15,21 +15,20 @@ bool CBIR::HashCompare::operator()(const ulong64& hashA, const ulong64& hashB) c
 	return ph_hamming_distance(hashA, hashB);
 }
 
-using ImageMap = std::map<cv::Mat, cv::Mat, CBIR::MatCompare>;
+using ImageMap = std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
 
 ImageMap* CBIR::computeHashes(const QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) {
 //std::multimap<double, const cv::Mat>& CBIR::computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const {
     //std::multimap<double, const cv::Mat>* resMap = new std::multimap<double, const cv::Mat>;
     ImageMap* resMap = new ImageMap;
     static_hasher = hasher;
-    _hasher = hasher;
 	// compute the hash from each image
     QList<cv::Mat>::const_iterator iter;
     for (iter = images.begin(); iter != images.end(); ++iter) {
         //double hashNorm;
         cv::Mat hashMat;
 
-        hasher->compute(*iter, hashMat);
+        static_hasher->compute(*iter, hashMat);
 
 		// get the norm for every hash
         //hashNorm = cv::norm(hashMat, cv::NORM_HAMMING);
@@ -40,19 +39,6 @@ ImageMap* CBIR::computeHashes(const QList<cv::Mat>& images, cv::Ptr<cv::img_hash
         //images.erase(iter);
 	}
     return resMap;
-}
-
-std::set<cv::Mat, CBIR::MatCompare>* CBIR::getHashes(const QList<cv::Mat>& images,
-                                                     cv::Ptr<cv::img_hash::ImgHashBase> hasher) {
-    std::set<cv::Mat, CBIR::MatCompare>* resSet = new std::set<cv::Mat, CBIR::MatCompare>;
-    static_hasher = hasher;
-    _hasher = hasher;
-    for (const auto& image : images) {
-        cv::Mat hashMat;
-        hasher->compute(image, hashMat);
-        resSet->emplace(image);
-    }
-    return resSet;
 }
 
 std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>& CBIR::computeHashes_pHash(QList<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const {
@@ -77,10 +63,10 @@ cv::Mat CBIR::getHash(const cv::Mat& image, cv::Ptr<cv::img_hash::ImgHashBase> h
 
 double CBIR::getHashValue(const cv::Mat& image) const {
     cv::Mat hashMat;
-    _hasher->compute(image, hashMat);
+    static_hasher->compute(image, hashMat);
     return cv::norm(hashMat, cv::NORM_HAMMING);
 }
 
 double CBIR::getDistance(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const {
-    return _hasher->compare(hashmatA, hashmatB);
+    return static_hasher->compare(hashmatA, hashmatB);
 }
