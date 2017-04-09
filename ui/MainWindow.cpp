@@ -395,6 +395,13 @@ void MainWindow::onImageDoubleClicked(const QString& url) {
 
 QImage MainWindow::loadImage(const QString& url) const {
     cv::Mat originalImage = cv::imread(url.toStdString());
+    cv::Size imgSize = originalImage.size.operator()();
+    QSize viewSize = _view->size();
+    if (imgSize.height > viewSize.height() || imgSize.width > viewSize.width()) {
+        cv::Mat resizedImg;
+        cv::resize(originalImage, resizedImg, cv::Size(viewSize.width() - Qt::Horizontal, viewSize.height() - Qt::Vertical));
+        return ImageConverter::Mat2QImage(resizedImg);
+    }
     return ImageConverter::Mat2QImage(originalImage);
 }
 
