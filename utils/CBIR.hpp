@@ -20,7 +20,7 @@
 
 class CBIR {
 public:
-	explicit CBIR();
+    explicit CBIR();
 
     struct MatKey : cv::Mat {
         double operator<(const MatKey& other) {

@@ -1,6 +1,6 @@
 #include "ImageCollection.hpp"
 
-using ImageMap = std::map<QString*, ImageCollection::Collection>;
+using ImageMap = std::map<QString, ImageCollection::Collection>;
 
 ImageCollection::ImageCollection() {
     init();
@@ -25,14 +25,14 @@ void ImageCollection::init() {
     _collection_map.emplace("Color Moment hash", ImageMap());
 }
 
-void ImageCollection::insert(cv::Mat* image, QString* url) {
+void ImageCollection::insert(cv::Mat* image, QString* url, QString* originalUrl) {
     /** compute the image's hash value with every function,
      * then insert the results into the map */
    for (const auto& hasher : _hashers) {
         /** calculate the hash */
         cv::Mat* hash = new cv::Mat(_cbir.getHash(*image, hasher.second));
         /** insert the results into the hasher's map */
-        _collection_map.at(hasher.first).emplace(url, Collection(image, hash));
+        _collection_map.at(hasher.first).emplace(*url, Collection(image, hash, originalUrl));
     }
 }
 
@@ -54,4 +54,53 @@ std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* ImageCollection::getHashedIma
         result->emplace(image_struct.second.getHash(), image_struct.second.getImage());
     }
     return result;
+}
+
+QList<cv::Mat>* ImageCollection::getSimilarImages(const QString& url, const QString& hasherName) {
+    QList<cv::Mat>* results = new QList<cv::Mat>;
+    cv::Mat targetImage = getImage(hasherName, url);
+    cv::Ptr<cv::img_hash::ImgHashBase> hasher;
+    try {
+        hasher = _hashers.at(hasherName);
+    }
+    catch (std::out_of_range ex) {
+        qWarning() << ex.what();
+    }
+
+    _cbir.setHasher(hasher);
+    cv::Mat targetHash = _cbir.getHash(targetImage, hasher);
+
+    struct CustomCompare {
+        CustomCompare(ImageCollection* parent, cv::Mat targetHash) : _parent(parent) {
+            _targetHash = targetHash;
+        }
+        bool operator()(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const {
+            double dist1 = _parent->_cbir.getDistance(_targetHash, hashmatA);
+            double dist2 = _parent->_cbir.getDistance(_targetHash, hashmatB);
+            return dist1 < dist2;
+        }
+
+        ImageCollection* _parent;
+        cv::Mat _targetHash;
+    };
+
+    CustomCompare compareFunctor(this, targetHash);
+
+    std::multimap<cv::Mat, cv::Mat, CustomCompare> resMap(compareFunctor);
+    std::map<const QString, Collection> imageMap;
+    try {
+        imageMap = _collection_map.at(hasherName);
+    }
+    catch (std::out_of_range ex) {
+            qWarning() << ex.what();
+    }
+
+    for (const auto& image_struct : imageMap) {
+        resMap.emplace(image_struct.second.getHash(), image_struct.second.getImage());
+    }
+
+    for (const auto& images : resMap) {
+        results->push_back(images.second);
+    }
+    return results;
 }

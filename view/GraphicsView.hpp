@@ -15,6 +15,8 @@
 #include <QGraphicsWidget>
 #include <QLibrary>
 #include <QOpenGLWidget>
+#include <QLabel>
+#include <QGraphicsProxyWidget>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -36,10 +38,13 @@ public:
     void addItem(QGraphicsLayoutItem* item);
 	int itemCount() const { return _layout->count(); }
     void clear() { _layout->clearAll(); }
+    void addPopupImage(QLabel* label, LayoutItem* item);
 
     void resizeEvent(QResizeEvent* event) {
         fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
     }
+
+    void wheelEvent(QWheelEvent* event);
 
 	/** expose a reference to the scene to get it's signals; reference, so the ownership won't move */
 	QGraphicsScene& scene() { return *_scene; }
@@ -67,6 +72,8 @@ private:
 	QGraphicsWidget* _layoutWidget;
 	AbstractGraphicsLayout* _layout;
 
+    std::unique_ptr<QGraphicsProxyWidget> _proxyLabel;
+
 	std::unique_ptr<std::map<std::string, AbstractLayoutFactory*>> _layouts;
 
 signals:
@@ -75,6 +82,7 @@ signals:
 private slots:
     void onSceneRectChanged(const QRectF& rect);
     void onImageClicked(QGraphicsItem* image) { emit imageClick(image); }
+    void onRemovePopup();
 };
 
 #endif // GRAPHICSVIEW_HPP

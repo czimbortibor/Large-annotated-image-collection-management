@@ -3,7 +3,7 @@
 cv::Ptr<cv::img_hash::ImgHashBase> CBIR::static_hasher;
 
 CBIR::CBIR() {
-	// disable opencl acceleration, may(or may not) boost up speed of img_hash
+    // disable opencl acceleration, may(or may not) boost up speed of img_hash
     cv::ocl::setUseOpenCL(false);
 }
 

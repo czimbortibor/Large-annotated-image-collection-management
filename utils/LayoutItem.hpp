@@ -52,7 +52,10 @@ class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
     Q_INTERFACES(QGraphicsItem)
     Q_INTERFACES(QGraphicsLayoutItem)
 public:
-    explicit LayoutItem(const QImage& image, const QString& url = "");
+    LayoutItem() = default;
+    LayoutItem(const QImage& image, const QString& url, const QString& originalUrl);
+    LayoutItem(const QImage& image);
+    LayoutItem& operator=(const LayoutItem& other);
     ~LayoutItem() { QGraphicsLayoutItem::setGraphicsItem(0); }
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);
@@ -61,10 +64,12 @@ public:
     // Inherited from QGraphicsItem
     QRectF boundingRect() const;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
-    qreal getWidth() { return _width; }
-    qreal getHeight() { return _height; }
 
+    qreal getWidth() const { return _width; }
+    qreal getHeight() const { return _height; }
     QPixmap getPixmap() const { return _pix; }
+    QString getUrl() const { return _url; }
+    QString getOriginalUrl() const { return _originalUrl; }
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
@@ -75,14 +80,15 @@ protected:
 private:
     QPixmap _pix;
     QString _url;
+    QString _originalUrl;
 	qreal _width;
 	qreal _height;
 
 signals:
     void clicked(const QString& url);
     void doubleClick(const QString& url);
-    void hoverEnter(const QString& url);
-    void hoverLeave(const QString& url);
+    void hoverEnter(const QString& url, LayoutItem*);
+    void hoverLeave();
 };
 
 #endif //LAYOUTITEM_HPP

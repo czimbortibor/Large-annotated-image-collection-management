@@ -20,7 +20,8 @@ public:
     ImageLoader(const QString dirName, QStringList& imageNames,
                          QList<cv::Mat>& results,
                          const cv::Size& size,
-                         ImageCollection& imageCollection, QObject* parent = 0);
+                         ImageCollection& imageCollection, const QString& originalDirPath,
+                         QObject* parent = 0);
     void run();
 
     bool isRunning() const { return static_cast<int>(_running); }
@@ -29,6 +30,7 @@ public:
 private:
     ImageCollection* _imageCollection;
     QString _dirName;
+    QString _originalDirPath;
     QStringList* _imageNames;
     cv::Size _size;
     QList<cv::Mat>* _results;
@@ -36,7 +38,7 @@ private:
     QAtomicInt _running;
 
 signals:
-    void resultReady(int index, const QString& url);
+    void resultReady(int index, const QString& url, const QString& originalUrl);
     void finished();
 
 public slots:

@@ -40,17 +40,41 @@
 
 #include "LayoutItem.hpp"
 
-LayoutItem::LayoutItem(const QImage& image, const QString& url): QGraphicsObject(), QGraphicsLayoutItem() {
-    //_pix = new QPixmap(QPixmap::fromImage(image));
+LayoutItem::LayoutItem(const QImage& image, const QString& url, const QString& originalUrl): QGraphicsObject(), QGraphicsLayoutItem() {
     _pix = QPixmap::fromImage(image);
     _width = image.width();
     _height = image.height();
 	QGraphicsLayoutItem::setGraphicsItem(this);
     _url = url;
+    _originalUrl = originalUrl;
 
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemIsFocusable);
+}
+
+LayoutItem::LayoutItem(const QImage& image) : QGraphicsObject(), QGraphicsLayoutItem() {
+    _pix = QPixmap::fromImage(image);
+    _width = image.width();
+    _height = image.height();
+    QGraphicsLayoutItem::setGraphicsItem(this);
+
+    QGraphicsItem::setAcceptHoverEvents(true);
+    setFlag(QGraphicsItem::ItemIsSelectable);
+    setFlag(QGraphicsItem::ItemIsFocusable);
+}
+
+LayoutItem& LayoutItem::operator=(const LayoutItem& other) {
+    _pix = other.getPixmap();
+    _width = other.getWidth();
+    _height = other.getHeight();
+    _url = other.getUrl();
+    _originalUrl = other.getOriginalUrl();
+    QGraphicsLayoutItem::setGraphicsItem(this);
+    QGraphicsItem::setAcceptHoverEvents(true);
+    setFlag(QGraphicsItem::ItemIsSelectable);
+    setFlag(QGraphicsItem::ItemIsFocusable);
+    return *this;
 }
 
 void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
@@ -97,9 +121,9 @@ void LayoutItem::mouseDoubleClickEvent(QGraphicsSceneHoverEvent* event) {
 }
 
 void LayoutItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
-    emit hoverEnter(_url);
+    emit hoverEnter(_originalUrl, this);
 }
 
 void LayoutItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {
-    emit hoverLeave(_url);
+    emit hoverLeave();
 }

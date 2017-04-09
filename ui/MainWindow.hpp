@@ -85,9 +85,16 @@ private:
     void showProgressBar(const int maximumValue, const QString& taskName);
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-    void displayImages(const QList<cv::Mat>& images, const QStringList& urls) const;
+    void displayImages(const QList<cv::Mat>& images) const;
     /** opencv_img_hash & pHash display */
-    template<typename T> void displayImages(const T& images, const QStringList& urls) const;
+    template<typename T> void displayImages(const T& images) const;
+
+    /**
+     * @brief loads one image
+     * @param the image's absolute path
+     * @return the loaded image
+     */
+    QImage loadImage(const QString& url) const;
 
 	void logTime(QString message);
 
@@ -103,6 +110,7 @@ private:
 	QElapsedTimer _timer;
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
+    LayoutItem* _hoveredItem;
 
     std::unique_ptr<ConfigurationsHandler> _configHandler;
 
@@ -118,6 +126,9 @@ private:
      * @brief _loadingHandler handles the image loading, in single/multi-threaded ways
      */
     std::unique_ptr<LoadingHandler> _loadingHandler;
+
+    std::unique_ptr<QFuture<QImage>> _oneImageLoader;
+    QFutureWatcher<QImage> _oneImageWatcher;
 
     std::unique_ptr<QList<cv::Mat>> _images;
     std::unique_ptr<std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>> _hashedImages;
@@ -136,7 +147,7 @@ private:
 private slots:
 	void onClearLayout();
 
-    void onImageReceived(int index, const QString& url);
+    void onImageReceived(int index, const QString& url, const QString& originalUrl);
     void onFinishedLoading();
 
     void onSavingChange(int value);
@@ -158,7 +169,8 @@ private slots:
 
     void onImageClicked(const QString& url);
     void onImageDoubleClicked(const QString& url);
-    void onImageHoverEnter(const QString& url);
+    void onImageHoverEnter(const QString& url, LayoutItem* item);
+    void onFinishedOneImageLoad();
 
     void onAddNewFilter(QListWidgetItem* item);
     void on_btn_applyFilters_clicked();

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <map>
+#include <functional>
 
 #include <QMultiMap>
 
@@ -26,18 +27,18 @@ public:
 
     QStringList getHashingAlgorithms() const { return _hashingAlgorithms; }
 
-    void insert(cv::Mat* image, QString* url);
+    void insert(cv::Mat* image, QString* url, QString* originalUrl);
 
     cv::Mat getHashValue(const QString& hasherName, QString& url) {
-        return _collection_map.at(hasherName).at(&url).getHash();
+        return _collection_map.at(hasherName).at(url).getHash();
     }
 
     cv::Ptr<cv::img_hash::ImgHashBase> getHasher(const QString& hasherName) const {
         return _hashers.at(hasherName);
     }
 
-    cv::Mat getImage(const QString& hasherName, QString& url) {
-        return _collection_map.at(hasherName).at(&url).getImage();
+    cv::Mat getImage(const QString& hasherName, const QString& url) {
+        return _collection_map.at(hasherName).at(url).getImage();
     }
 
     /**
@@ -54,25 +55,35 @@ public:
      */
     std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* getHashedImages(const QString& hasherName);
 
+    /**
+     * @brief getSimilarImages returns the images in order of their similarity to the selected image
+     * @param url the selected image's url
+     * @param hasherName
+     * @return a list containing the images in a specific order
+     */
+    QList<cv::Mat>* getSimilarImages(const QString& url, const QString& hasherName);
 
     struct Collection {
     public:
-        Collection(cv::Mat* image, cv::Mat* hash) {
+        Collection(cv::Mat* image, cv::Mat* hash, QString* originalUrl) {
             _image = image;
             _hash = hash;
+            _originalUrl = originalUrl;
         }
         const cv::Mat& getImage() const { return *_image; }
         const cv::Mat& getHash() const { return *_hash; }
+        const QString& getOriginalUrl() const { return *_originalUrl; }
 
     private:
         const cv::Mat* _image;
         const cv::Mat* _hash;
+        const QString* _originalUrl;
     };
 
 private:
     CBIR _cbir;
 
-    using ImageMap = std::map<QString*, Collection>;
+    using ImageMap = std::map<const QString, Collection>;
     std::map<QString, ImageMap> _collection_map;
 
     /**

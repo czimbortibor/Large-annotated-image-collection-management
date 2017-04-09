@@ -38,7 +38,7 @@ public:
      * of available results
      * @return the loaded images
      */
-    QList<cv::Mat>* loadImages_st(const QString& path, QStringList* imageNames);
+    QList<cv::Mat>* loadImages_st(const QString& path, QStringList* imageNames, const QString& originalDirPath);
 
     cv::Mat loadImage(const QString& fileName) const;
 
@@ -68,12 +68,12 @@ private:
 
 
 signals:
-    void imageReady(int index, const QString& url);
+    void imageReady(int index, const QString& url, const QString& originalUrl);
     //void imageReadyMT(const cv::Mat& image);
     void finishedLoading();
 
 public slots:
-    void onImageReady(int index, const QString& url);
+    void onImageReady(int index, const QString& url, const QString& originalUrl);
     //void onImageReadyMT(const cv::Mat& result);
     void onFinishedLoading();
     void onCancel();

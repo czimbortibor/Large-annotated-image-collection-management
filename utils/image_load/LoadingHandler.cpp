@@ -21,19 +21,19 @@ void LoadingHandler::loadImages_mt(const QString& path, const QStringList& image
     connect(_loaderWatcherMT.get(), &mt_Watcher::finished, this, &LoadingHandler::onFinishedLoading);
 }
 
-QList<cv::Mat>* LoadingHandler::loadImages_st(const QString& path, QStringList* imageNames) {
+QList<cv::Mat>* LoadingHandler::loadImages_st(const QString& path, QStringList* imageNames, const QString& originalDirPath) {
     QList<cv::Mat>* results = new QList<cv::Mat>;
     cv::Size size(_width, _height);
     _loaderST = std::unique_ptr<ImageLoader>(new ImageLoader(path, *imageNames,
-                                                                *results, size, *_imageCollection));
+                                                                *results, size, *_imageCollection, originalDirPath));
     connect(_loaderST.get(), &ImageLoader::resultReady, this, &LoadingHandler::onImageReady);
     connect(_loaderST.get(), &ImageLoader::finished, this, &LoadingHandler::onFinishedLoading);
     QThreadPool::globalInstance()->start(_loaderST.get());
     return results;
 }
 
-void LoadingHandler::onImageReady(int index, const QString& url) {
-    emit imageReady(index, url);
+void LoadingHandler::onImageReady(int index, const QString& url, const QString& originalUrl) {
+    emit imageReady(index, url, originalUrl);
 }
 
 void LoadingHandler::onFinishedLoading() {

@@ -3,9 +3,11 @@
 ImageLoader::ImageLoader(const QString dirName, QStringList& imageNames,
                          QList<cv::Mat>& results,
                          const cv::Size& size,
-                         ImageCollection& imageCollection, QObject* parent) : QObject(parent) {
+                         ImageCollection& imageCollection,
+                         const QString& originalDirPath, QObject* parent) : QObject(parent) {
     _imageNames = &imageNames;
     _dirName = dirName;
+    _originalDirPath = originalDirPath;
     _results = &results;
     _size = size;
     _imageCollection = &imageCollection;
@@ -16,6 +18,7 @@ void ImageLoader::run() {
     for (int i = 0; i < _imageNames->length(); ++i) {
         if (static_cast<int>(_running)) {
             QString* fullFileName = new QString(_dirName + "/" + _imageNames->at(i));
+            QString* originalFileName = new QString(_originalDirPath + "/" + _imageNames->at(i));
             cv::Mat cvImage;
             cvImage = cv::imread(fullFileName->toStdString());
             if (cvImage.data == 0) {
@@ -24,8 +27,8 @@ void ImageLoader::run() {
             cv::Mat* cvResizedImg = new cv::Mat;
             cv::resize(cvImage, *cvResizedImg, _size);
             _results->append(*cvResizedImg);
-            _imageCollection->insert(cvResizedImg, fullFileName);
-            emit resultReady(i, *fullFileName);
+            _imageCollection->insert(cvResizedImg, fullFileName, originalFileName);
+            emit resultReady(i, *fullFileName, *originalFileName);
             }
         }
     _running.testAndSetOrdered(1, 0);

@@ -41,6 +41,8 @@ void GraphicsView::onSceneRectChanged(const QRectF& rect) {
 
 void GraphicsView::addItem(QGraphicsLayoutItem* item) {
     _layout->addItem(item);
+    LayoutItem* layoutItem = static_cast<LayoutItem*>(item);
+    connect(layoutItem, &LayoutItem::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
 }
 
 void GraphicsView::setLayout(const QString& value) {
@@ -49,7 +51,8 @@ void GraphicsView::setLayout(const QString& value) {
 	// TODO: overload operator=
 
 	for (const auto& item : _layout->items()) {
-        //connect(item, &LayoutItem::clicked, this, &GraphicsView::onImageClicked);
+        LayoutItem* layoutItem = static_cast<LayoutItem*>(item);
+        connect(layoutItem, &LayoutItem::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
 		tmp->addItem(item);
 	}
 	_layout->clearAll();
@@ -84,6 +87,42 @@ void GraphicsView::setSpiralTurn(int value) {
     const auto layoutPtr = static_cast<SpiralLayout*>(_layout);
     if (layoutPtr != nullptr) {
         layoutPtr->setTurn(value);
+    }
+}
+
+void GraphicsView::addPopupImage(QLabel* label, LayoutItem* item) {
+    _proxyLabel.reset(_scene->addWidget(label));
+    _proxyLabel->setAcceptHoverEvents(false);
+    QPointF pos = item->pos();
+    QPointF newPos;
+    QRectF labelSize = _proxyLabel->geometry();
+    if (pos.y() - labelSize.height() > 0) {
+        newPos = QPointF(pos.x(), pos.y() - labelSize.height());
+    }
+    else {
+        if (pos.y() + labelSize.height() < _scene->height()) {
+            newPos = QPointF(pos.x(), labelSize.height());
+        }
+    }
+    _proxyLabel->setPos(newPos);
+    //_proxyLabel->setWindowFlags(Qt::Popup);
+}
+
+void GraphicsView::onRemovePopup() {
+    /*_scene->removeItem(_proxyLabel.get());
+    _proxyLabel.release();*/
+}
+
+void GraphicsView::wheelEvent(QWheelEvent* event) {
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    double scaleFactor = 1.15;
+    /* wheel goes forward -> zoom in */
+    if (event->delta() > 0) {
+        scale(scaleFactor, scaleFactor);
+    }
+    /* zoom out */
+    else {
+        scale(1/scaleFactor, 1/scaleFactor);
     }
 }
 
