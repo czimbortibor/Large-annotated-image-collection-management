@@ -49,9 +49,10 @@ public:
 	/** expose a reference to the scene to get it's signals; reference, so the ownership won't move */
 	QGraphicsScene& scene() { return *_scene; }
 
-	template<typename L> void displayImages(const QVector<cv::Mat>& images, const L& layout) const;
+    //template<typename L> void displayImages(const QVector<cv::Mat>& images, const L& layout) const;
 	/** opencv img_hash & pHash display */
-	template<typename T, typename L> void displayImages(const T& images, const L& layout) const;
+    //template<typename T, typename L> void displayImages(const T& images, const L& layout) const;
+
 
 	void setNrOfPetals(int value);
 	void setRadius(double value);

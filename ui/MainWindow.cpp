@@ -284,7 +284,6 @@ void MainWindow::displayImages(const QList<cv::Mat>& images) const {
         connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
 		_view->addItem(static_cast<QGraphicsLayoutItem*>(item));
 	}
-    // _view->setMinSceneSize(_view->size());
 }
 
 template<typename T>

@@ -40,7 +40,6 @@ SOURCES +=\
     utils/image_load/LoadingHandler.cpp \
     utils/ImageCollection.cpp
 
-
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
     layouts/FlowLayout.hpp \
@@ -69,12 +68,32 @@ HEADERS  +=\
 FORMS    +=\
     ui/MainWindow.ui
 
-INCLUDEPATH += /usr/local/include \
-    /usr/local/include/opencv \
-    /usr/local/include/mongocxx/v_noabi \
-    /usr/local/include/bsoncxx/v_noabi
+RESOURCES += \
+    resources.qrc
 
-LIBS += -L/usr/local/lib \
+DISTFILES +=
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/release/ \
+    -lopencv_core \
+    -lopencv_imgproc \
+    -lopencv_highgui \
+    -lopencv_imgcodecs \
+    -lopencv_img_hash \
+    -lpHash \
+    -lmongocxx \
+    -lbsoncxx \
+    -lconfig++
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/debug/ \
+    -lopencv_core \
+    -lopencv_imgproc \
+    -lopencv_highgui \
+    -lopencv_imgcodecs \
+    -lopencv_img_hash \
+    -lpHash \
+    -lmongocxx \
+    -lbsoncxx \
+    -lconfig++
+else:unix: LIBS += -L$$PWD/../../../../usr/local/lib/ \
     -lopencv_core \
     -lopencv_imgproc \
     -lopencv_highgui \
@@ -85,7 +104,12 @@ LIBS += -L/usr/local/lib \
     -lbsoncxx \
     -lconfig++
 
-RESOURCES += \
-    resources.qrc
+INCLUDEPATH += $$PWD/../../../../usr/local/include \
+               $$PWD/../../../../usr/local/include/opencv \
+               $$PWD/../../../../usr/local/include/mongocxx/v_noabi \
+               $$PWD/../../../../usr/local/include/bsoncxx/v_noabi
 
-DISTFILES +=
+DEPENDPATH += $$PWD/../../../../usr/local/include \
+              $$PWD/../../../../usr/local/include/opencv \
+              $$PWD/../../../../usr/local/include/mongocxx/v_noabi \
+              $$PWD/../../../../usr/local/include/bsoncxx/v_noabi
