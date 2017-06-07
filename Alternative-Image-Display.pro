@@ -30,7 +30,6 @@ SOURCES +=\
     layouts/SpiralLayout.cpp \
     ui/MainWindow.cpp \
     view/GraphicsView.cpp \
-    db/MongoAccess.cpp \
     filters/DateFilter.cpp \
     utils/CBIR.cpp \
     utils/LayoutItem.cpp \
@@ -38,7 +37,8 @@ SOURCES +=\
     utils/ImageConverter.cpp \
     utils/image_load/ImageLoader.cpp \
     utils/image_load/LoadingHandler.cpp \
-    utils/ImageCollection.cpp
+    utils/ImageCollection.cpp \
+    db/DbContext.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -47,7 +47,6 @@ HEADERS  +=\
     layouts/SpiralLayout.hpp \
     ui/MainWindow.hpp \
     view/GraphicsView.hpp \
-    db/MongoAccess.hpp \
     filters/DateFilter.hpp \
     filters/AbstractFilter.hpp \
     utils/AbstractFilter.hpp \
@@ -63,7 +62,8 @@ HEADERS  +=\
     utils/image_load/Reducer.hpp \
     utils/image_load/LoadingHandler.hpp \
     utils/ImageCollection.hpp \
-    utils/SpiralLayoutFactory.hpp
+    utils/SpiralLayoutFactory.hpp \
+    db/DbContext.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

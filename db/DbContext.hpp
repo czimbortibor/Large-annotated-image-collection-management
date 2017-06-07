@@ -3,6 +3,11 @@
 
 #include <QString>
 #include <QStringList>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QDebug>
 
 #include <string>
 #include <iostream>
@@ -18,23 +23,27 @@
 #include <mongocxx/options/client.hpp>
 #include <mongocxx/exception/operation_exception.hpp>
 
-class MongoAccess {
+class DbContext {
 public:
-	explicit MongoAccess(const std::string& hostName, const std::string& databaseName, const std::string& collectionName);
+	explicit DbContext();
 	bool init();
 
-    QStringList* test(const std::string& date1, const std::string& date2);
+	QStringList* test();
 
 private:
-	std::string _hostName;
+	std::string _URI;
 	std::string _databaseName;
-	std::string _collectionName;
+	std::string _feedsNameCollection_name;
+	std::string _feedsCollection_name;
+	std::string _imageCollection_name;
 	/** connection to a running MongoDB instance */
 	mongocxx::client _client;
 	/** instance to a database */
 	mongocxx::database _db;
 	/** instance to a collection in the database */
-	mongocxx::collection _collection;
+	mongocxx::collection _feedsNameCollection;
+	mongocxx::collection _feedsCollection;
+	mongocxx::collection _imageCollection;
 };
 
 #endif // DB_HPP

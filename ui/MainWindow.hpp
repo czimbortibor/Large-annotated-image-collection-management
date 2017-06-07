@@ -31,7 +31,7 @@
 #include "utils/ImageCollection.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
-#include "db/MongoAccess.hpp"
+#include "db/DbContext.hpp"
 #include "filters/DateFilter.hpp"
 
 
@@ -139,7 +139,7 @@ private:
 
     std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
 
-	std::unique_ptr<MongoAccess> _mongoAccess;
+	std::unique_ptr<DbContext> _dbContext;
 
     QMap<QString, AbstractFilter*> _filters;
     QListWidget* _filterList;

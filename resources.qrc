@@ -8,4 +8,7 @@
     <qresource prefix="/stylesheet">
         <file>resources/stylesheet/stylesheet.qss</file>
     </qresource>
+    <qresource prefix="/config">
+        <file>db/db_config.json</file>
+    </qresource>
 </RCC>

@@ -71,13 +71,12 @@ void MainWindow::initWindow() {
 }
 
 void MainWindow::initDb() {
-    std::string host = "mongodb://localhost:27017";
-    std::string database = "local";
-    std::string collection = "TwitterFDL2015";
-    _mongoAccess = std::unique_ptr<MongoAccess>(new MongoAccess(host, database, collection));
-    if (_mongoAccess->init()) {
-        qInfo() << "succesful database connection";
-    }
+	_dbContext = std::unique_ptr<DbContext>(new DbContext());
+	if (_dbContext->init()) {
+		qInfo() << "succesful database connection";
+	}
+
+	_dbContext->test();
 }
 
 void MainWindow::initHashes() {
@@ -457,7 +456,7 @@ void MainWindow::on_btn_applyFilters_clicked() {
 }
 
 void MainWindow::testMongo(const std::string& date1, const std::string& date2) {
-    QStringList* results = _mongoAccess->test(date1, date2);
+	//QStringList* results = _dbContext->test(date1, date2);
 
     cv::Size size(_imgWidth, _imgHeight);
     _notifyRate = 10;
