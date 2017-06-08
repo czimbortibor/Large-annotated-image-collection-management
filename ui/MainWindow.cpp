@@ -46,7 +46,7 @@ void MainWindow::initWindow() {
 
 	// filter fields
 	connect(ui->comboBox_layout, static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this, &MainWindow::onLayoutChanged);
-    connect(ui->btn_addFilter, &QPushButton::clicked, this, &MainWindow::onAddFilter);
+	connect(ui->btn_addFilter, &QPushButton::clicked, this, &MainWindow::onAddFilter);
     ui->tabWidget->hide();
 
     QString text = "size: " + QString::number(ui->slider_imgSize->value());
@@ -59,12 +59,13 @@ void MainWindow::initWindow() {
 
     // ---------- filters -----------
     ui->widget_createFilters->hide();
-    _filters.insert("date range", new DateFilter);
+	_filters.insert("date range", new DateFilter());
+	_filters.insert("text filters", new TextFilter());
     _filterList = new QListWidget(ui->widget_createFilters);
-    for (const auto& filter : _filters.keys()) {
-        _filterList->addItem(filter);
+	for (const auto& filterName : _filters.keys()) {
+		_filterList->addItem(filterName);
     }
-    ui->widget_createFilters->setMinimumSize(_filterList->size());
+	//ui->widget_createFilters->setMinimumSize(_filterList->size());
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 
     ui->btn_applyFilters->hide();
@@ -72,11 +73,13 @@ void MainWindow::initWindow() {
 
 void MainWindow::initDb() {
 	_dbContext = std::unique_ptr<DbContext>(new DbContext());
-	if (_dbContext->init()) {
+	std::string res = _dbContext->init();
+	if (res == "") {
 		qInfo() << "succesful database connection";
 	}
-
-	_dbContext->test();
+	else {
+		QMessageBox::warning(this, "Database connection error", QString::fromStdString(res));
+	}
 }
 
 void MainWindow::initHashes() {
@@ -422,9 +425,9 @@ void MainWindow::onImageHoverEnter(const QString& url, LayoutItem* item) {
 }
 
 void MainWindow::onAddFilter() {
-    ui->widget_createFilters->setVisible(true);
-    _filterList->show();
-    ui->btn_applyFilters->setVisible(true);
+	ui->widget_createFilters->setVisible(true);
+	_filterList->show();
+	ui->btn_applyFilters->setVisible(true);
 }
 
 void MainWindow::onAddNewFilter(QListWidgetItem* item) {
@@ -444,13 +447,14 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 
 void MainWindow::on_btn_applyFilters_clicked() {
     // 1449493211046 -> Mon Dec 07 13:00:11 +0000 2015
-    const QGroupBox* dateEdits = ui->widget_filters->findChild<QGroupBox*>();
+	/*const QGroupBox* dateEdits = ui->widget_filters->findChild<QGroupBox*>();
     DateFilter* dateFilter = static_cast<DateFilter*>(_filters.value("date range"));
     QList<std::string> selectedRanges = dateFilter->getDates();
     std::string date1 = selectedRanges[0];
     std::string date2 = selectedRanges[1];
     qInfo() << QString::fromStdString(date1);
     qInfo() << QString::fromStdString(date2);
+	*/
 
     //testMongo(date1, date2);
 }

@@ -24,9 +24,10 @@ public:
     DateFilter* makeFilter() { return new DateFilter; }
 
     /**
-     * @brief create a GroupBox containing 2 DateEdit widgets, which will serve as a
-     * range picker between two dates
-     * @return 2 QDateEdits inside a QGroupBox
+	 * @brief - create a GroupBox containing 2 DateEdit widgets, which will serve as a
+	 *			range picker between two dates
+	 *		  - create a remove button for the filter
+	 * @return 2 QDateEdits and a QPushButton inside a QGroupBox
      */
     QGroupBox* makeControl();
 
@@ -36,8 +37,11 @@ public:
      */
     QList<std::string> getDates();
 
+	QPushButton* removeButton() { return _btnRemove; }
+
 private:
     QGroupBox* _groupBox;
+	QPushButton* _btnRemove;
     QDateTimeEdit* _dateEdit1;
     QDateTimeEdit* _dateEdit2;
 };

@@ -33,6 +33,7 @@
 #include "layouts/PetalLayout.hpp"
 #include "db/DbContext.hpp"
 #include "filters/DateFilter.hpp"
+#include "filters/TextFilter.hpp"
 
 
 namespace Ui {

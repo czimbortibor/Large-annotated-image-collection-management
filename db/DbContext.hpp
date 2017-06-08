@@ -22,11 +22,12 @@
 #include <mongocxx/logger.hpp>
 #include <mongocxx/options/client.hpp>
 #include <mongocxx/exception/operation_exception.hpp>
+#include <mongocxx/v_noabi/mongocxx/exception/query_exception.hpp>
 
 class DbContext {
 public:
 	explicit DbContext();
-	bool init();
+	std::string init();
 
 	QStringList* test();
 

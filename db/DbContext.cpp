@@ -17,7 +17,7 @@ DbContext::DbContext() {
 	_imageCollection_name = data["image_collection"].toString().toStdString();
 }
 
-bool DbContext::init() {
+std::__cxx11::string DbContext::init() {
 	// specify the host
 	mongocxx::uri uri(_URI);
 	try {
@@ -35,14 +35,24 @@ bool DbContext::init() {
 		}
 		catch (const mongocxx::operation_exception& ex) {
             std::cerr << "database collection error:" << ex.what() << std::flush;
-			return false;
+			return ex.what();
 		}
 	}
 	catch (const mongocxx::exception& ex) {
         std::cerr << "database connection failed: " << ex.what() << std::flush;
-		return false;
+		return ex.what();
 	}
-	return true;
+
+	// test query
+	try {
+		_feedsNameCollection.count({});
+	}
+	catch (const mongocxx::exception& ex) {
+		std::cerr << "database query error:" << ex.what() << std::flush;
+		return ex.what();
+	}
+
+	return "";
 }
 
 QStringList* DbContext::test() {

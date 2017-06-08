@@ -1,15 +1,20 @@
 #include "DateFilter.hpp"
 
 QGroupBox* DateFilter::makeControl() {
-    _dateEdit1 = new QDateTimeEdit;
+	_dateEdit1 = new QDateTimeEdit();
     _dateEdit1->setMinimumDate(QDate(2006, 1, 1));
     _dateEdit1->setCalendarPopup(true);
-    _dateEdit2 = new QDateTimeEdit;
+	_dateEdit2 = new QDateTimeEdit();
     _dateEdit2->setMinimumDate(QDate(2006, 1, 1));
     _dateEdit2->setCalendarPopup(true);
 
-    _groupBox = new QGroupBox;
+	QIcon icon(":/icons/resources/icons/x_icon.png");
+	_btnRemove = new QPushButton(icon, "");
+	_btnRemove->setAutoFillBackground(false);
+	_btnRemove->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	_groupBox = new QGroupBox();
     _groupBox->setLayout(new QHBoxLayout);
+	_groupBox->layout()->addWidget(_btnRemove);
     _groupBox->layout()->addWidget(_dateEdit1);
     _groupBox->layout()->addWidget(_dateEdit2);
     return _groupBox;
