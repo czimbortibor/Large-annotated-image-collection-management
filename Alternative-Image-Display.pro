@@ -81,7 +81,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/
     -lopencv_highgui \
     -lopencv_imgcodecs \
     -lopencv_img_hash \
-    -lpHash \
     -lmongocxx \
     -lbsoncxx \
     -lconfig++
@@ -91,7 +90,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/l
     -lopencv_highgui \
     -lopencv_imgcodecs \
     -lopencv_img_hash \
-    -lpHash \
     -lmongocxx \
     -lbsoncxx \
     -lconfig++
@@ -101,7 +99,6 @@ else:unix: LIBS += -L$$PWD/../../../../usr/local/lib/ \
     -lopencv_highgui \
     -lopencv_imgcodecs \
     -lopencv_img_hash \
-    -lpHash \
     -lmongocxx \
     -lbsoncxx \
     -lconfig++

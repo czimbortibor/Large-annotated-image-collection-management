@@ -1,6 +1,7 @@
 #ifndef TEXTFILTER_HPP
 #define TEXTFILTER_HPP
 
+#include <QObject>
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -8,11 +9,16 @@
 #include "AbstractFilter.hpp"
 
 
-class TextFilter : public AbstractFilter {
+class TextFilter : public QObject, public AbstractFilter {
+	Q_OBJECT
 public:
-	TextFilter() {}
+	TextFilter(const DbContext& dbContext) {
+		_dbContext = dbContext;
+		_dbConnection = DbContext::MongoAccess::instance().get_connection();
+	}
+	~TextFilter() {}
 
-	TextFilter* makeFilter() { return new TextFilter(); }
+	TextFilter* makeFilter(const DbContext& dbContext) { return new TextFilter(dbContext); }
 
 	/**
 	 * @brief - creates 2 QLineEdits to filter by title and summary
@@ -23,7 +29,18 @@ public:
 
 	QPushButton* removeButton() { return _btnRemove; }
 
+	QString getTitle() { return _editTitle->text(); }
+	QString getSummary() { return _editSummary->text(); }
+
+signals:
+	void changed();
+
+public slots:
+	void on_text_changed(const QString& newText);
+
 private:
+	DbContext _dbContext;
+	mongocxx::pool::entry _dbConnection;
 	QGroupBox* _groupBox;
 	QPushButton* _btnRemove;
 	QLineEdit* _editTitle;

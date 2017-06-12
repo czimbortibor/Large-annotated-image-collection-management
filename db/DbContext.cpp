@@ -1,7 +1,11 @@
 #include "DbContext.hpp"
 
+using bsoncxx::builder::stream::document;
+using bsoncxx::builder::stream::open_document;
+using bsoncxx::builder::stream::close_document;
+using bsoncxx::builder::stream::finalize;
 
-DbContext::DbContext() {
+mongocxx::uri DbContext::loadUri() {
 	QFile config_file(":/config/db/db_config.json");
 	config_file.open(QIODevice::ReadOnly | QIODevice::Text);
 	QString contents = config_file.readAll();
@@ -10,73 +14,42 @@ DbContext::DbContext() {
 	QJsonDocument dbConfig = QJsonDocument::fromJson(contents.toUtf8());
 	QJsonObject data = dbConfig.object();
 
-	_URI = data["URI"].toString().toStdString();
-	_databaseName = data["db_name"].toString().toStdString();
-	_feedsNameCollection_name = data["feeds_name_collection"].toString().toStdString();
-	_feedsCollection_name = data["feeds_collection"].toString().toStdString();
-	_imageCollection_name = data["image_collection"].toString().toStdString();
+	uri = data["URI"].toString().toStdString();
+	databaseName = data["db_name"].toString().toStdString();
+	feedsNameCollection_name = data["feeds_name_collection"].toString().toStdString();
+	feedsCollection_name = data["feeds_collection"].toString().toStdString();
+	imageCollection_name = data["image_collection"].toString().toStdString();
+
+	return mongocxx::uri(uri + "/" + databaseName);
 }
 
-std::__cxx11::string DbContext::init() {
-	// specify the host
-	mongocxx::uri uri(_URI);
-	try {
-		// connect to the server
-		_client = mongocxx::client(uri);
-
-		// access the database
-		_db = mongocxx::database(_client[_databaseName]);
-
-		// get the collection
-		_feedsNameCollection = mongocxx::collection(_db[_feedsNameCollection_name]);
-		// check if the collection exists
-		try {
-			_feedsNameCollection.name();
+bool DbContext::init() {
+	class noop_logger : public mongocxx::logger {
+	   public:
+		virtual void operator()(mongocxx::log_level, mongocxx::stdx::string_view,
+								mongocxx::stdx::string_view) noexcept {
 		}
-		catch (const mongocxx::operation_exception& ex) {
-            std::cerr << "database collection error:" << ex.what() << std::flush;
-			return ex.what();
-		}
-	}
-	catch (const mongocxx::exception& ex) {
-        std::cerr << "database connection failed: " << ex.what() << std::flush;
-		return ex.what();
-	}
+	};
 
-	// test query
-	try {
-		_feedsNameCollection.count({});
-	}
-	catch (const mongocxx::exception& ex) {
-		std::cerr << "database query error:" << ex.what() << std::flush;
-		return ex.what();
-	}
+	auto instance = mongocxx::stdx::make_unique<mongocxx::instance>
+			(mongocxx::stdx::make_unique<noop_logger>());
 
-	return "";
+	mongocxx::uri uri = DbContext::loadUri();
+	MongoAccess::instance().configure(std::move(instance),
+									mongocxx::stdx::make_unique<mongocxx::pool>(std::move(uri)));
 }
 
-QStringList* DbContext::test() {
-    auto document = bsoncxx::builder::stream::document{} << "created_at" << "673849510750257152";
-//	mongocxx::cursor res = _collection.find(document << bsoncxx::builder::stream::finalize);
-//	for (auto&& doc : res) {
-//        std::cout << bsoncxx::to_json(doc) << std::flush;
- //   }
+QStringList& DbContext::filterTitle(const std::string& title) {
+	auto filter = document{} << "$text" << open_document << "$search" << title
+							 << close_document << finalize;
+	mongocxx::cursor cursor = feedsCollection.find(filter.view());
+	for (auto&& doc : cursor) {
+		std::cout << bsoncxx::to_json(doc) << std::flush;
+	}
+}
 
-	int feed_count = _feedsNameCollection.count({});
+QStringList& DbContext::filterTexts(const QMap<QString, QString>& textfields) {
+	std::string title = textfields["title"].toStdString();
+	std::string summary = textfields["summary"].toStdString();
 
-   // using bsoncxx::builder::stream::finalize;
-   // using bsoncxx::types::value;
-   // std::string regexpDate = "/.*" + testStr + ".*/i";
-	// with picture
-    //std::string regexpPic = "entities.media.0.display_url": { $exists: true }
-    /*auto regex = bsoncxx::types::b_regex(regexpDate, "");
-    bsoncxx::builder::stream::document filter;
-    filter << "created_at" << value{regex};
-    std::cout << bsoncxx::to_json(filter) << "\n" << std::flush;
-    mongocxx::cursor cursor = _collection.find(filter << finalize);*/
-
-    QStringList* results = new QStringList;
-    *results << "695609799455584258_1.jpg"
-            << "695609932029280256_1.jpg";
-    return results;
 }

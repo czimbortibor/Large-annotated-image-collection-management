@@ -11,10 +11,6 @@ double CBIR::MatCompare::operator()(const cv::Mat& hashmatA, const cv::Mat& hash
     return static_hasher->compare(hashmatA, hashmatB);
 }
 
-bool CBIR::HashCompare::operator()(const ulong64& hashA, const ulong64& hashB) const {
-	return ph_hamming_distance(hashA, hashB);
-}
-
 using ImageMap = std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
 
 ImageMap* CBIR::computeHashes(const QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) {
@@ -39,20 +35,6 @@ ImageMap* CBIR::computeHashes(const QList<cv::Mat>& images, cv::Ptr<cv::img_hash
         //images.erase(iter);
 	}
     return resMap;
-}
-
-std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>& CBIR::computeHashes_pHash(QList<cv::Mat>& images, const QString& dirname, QList<QString>& imageNames) const {
-    std::multimap<ulong64, const cv::Mat, HashCompare>* resMap = new std::multimap<ulong64, const cv::Mat, HashCompare>;
-
-	for (int i = 0; i < images.size(); ++i) {
-		std::string filename(QString(dirname + '/' + imageNames[i]).toStdString());
-		// compute hash
-		ulong64 hash;
-		ph_dct_imagehash(filename.c_str(), hash);
-        resMap->emplace(hash, images[i]);
-	}
-
-	return *resMap;
 }
 
 cv::Mat CBIR::getHash(const cv::Mat& image, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const {

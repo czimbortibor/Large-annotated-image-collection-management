@@ -138,9 +138,7 @@ private:
 
     CBIR _imageRetrieval;
 
-    std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>> _imagesHashed_pHash;
-
-	std::unique_ptr<DbContext> _dbContext;
+	DbContext _dbContext;
 
     QMap<QString, AbstractFilter*> _filters;
     QListWidget* _filterList;
@@ -174,9 +172,9 @@ private slots:
     void onFinishedOneImageLoad();
 
     void onAddNewFilter(QListWidgetItem* item);
-    void on_btn_applyFilters_clicked();
+	void on_btn_applyFilters_clicked();
 
-    void testMongo(const std::string& date1, const std::string& date2);
+	void onFilterActivated();
 
 signals:
 	void clearLayout();

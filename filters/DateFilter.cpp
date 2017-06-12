@@ -1,5 +1,6 @@
 #include "DateFilter.hpp"
 
+
 QGroupBox* DateFilter::makeControl() {
 	_dateEdit1 = new QDateTimeEdit();
     _dateEdit1->setMinimumDate(QDate(2006, 1, 1));

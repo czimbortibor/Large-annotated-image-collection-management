@@ -15,13 +15,14 @@
 
 class DateFilter : public AbstractFilter {
 public:
-    DateFilter() {}
+	DateFilter(const DbContext& dbContext) {}
+	~DateFilter() {}
 
     /**
      * @brief create a new DateFilter for filtering the images between 2 dates
      * @return DateFilter
      */
-    DateFilter* makeFilter() { return new DateFilter; }
+	DateFilter* makeFilter(const DbContext& dbContext) { return new DateFilter(dbContext); }
 
     /**
 	 * @brief - create a GroupBox containing 2 DateEdit widgets, which will serve as a
@@ -31,13 +32,13 @@ public:
      */
     QGroupBox* makeControl();
 
+	QPushButton* removeButton() { return _btnRemove; }
+
     /**
      * @brief calculate the 2 dates in milliseconds (since the epoch) represented in strings
      * @return
      */
     QList<std::string> getDates();
-
-	QPushButton* removeButton() { return _btnRemove; }
 
 private:
     QGroupBox* _groupBox;

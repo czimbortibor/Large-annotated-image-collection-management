@@ -8,8 +8,8 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 
+	initDb();
     initWindow();
-    initDb();
     initHashes();
     initView();
 }
@@ -21,6 +21,21 @@ MainWindow::~MainWindow() {
     _configHandler.release();
     _hashedImages.release();
     delete ui;
+}
+
+void MainWindow::initDb() {
+	_dbContext.init();
+	auto connection = DbContext::MongoAccess::instance().get_connection();
+	if (!connection) {
+		QMessageBox::warning(this, "Warning", "Database connection error!");
+	}
+	qInfo() << "succesful database connection";
+
+	// initialize the collections
+	auto db = connection->database(_dbContext.databaseName);
+	_dbContext.feedsCollection = db[_dbContext.feedsCollection_name];
+	_dbContext.feedsNameCollection = db[_dbContext.feedsNameCollection_name];
+	_dbContext.imageCollection = db[_dbContext.imageCollection_name];
 }
 
 void MainWindow::initWindow() {
@@ -59,8 +74,8 @@ void MainWindow::initWindow() {
 
     // ---------- filters -----------
     ui->widget_createFilters->hide();
-	_filters.insert("date range", new DateFilter());
-	_filters.insert("text filters", new TextFilter());
+	_filters.insert("date range", new DateFilter(_dbContext));
+	_filters.insert("text filters", new TextFilter(_dbContext));
     _filterList = new QListWidget(ui->widget_createFilters);
 	for (const auto& filterName : _filters.keys()) {
 		_filterList->addItem(filterName);
@@ -69,17 +84,6 @@ void MainWindow::initWindow() {
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 
     ui->btn_applyFilters->hide();
-}
-
-void MainWindow::initDb() {
-	_dbContext = std::unique_ptr<DbContext>(new DbContext());
-	std::string res = _dbContext->init();
-	if (res == "") {
-		qInfo() << "succesful database connection";
-	}
-	else {
-		QMessageBox::warning(this, "Database connection error", QString::fromStdString(res));
-	}
 }
 
 void MainWindow::initHashes() {
@@ -433,16 +437,34 @@ void MainWindow::onAddFilter() {
 void MainWindow::onAddNewFilter(QListWidgetItem* item) {
     ui->widget_createFilters->hide();
     // create the selected filter
-    AbstractFilter* filter = _filters.value(item->text())->makeFilter();
+	AbstractFilter* filter = _filters.value(item->text())->makeFilter(_dbContext);
     // put back the created filter
     _filters.insert(item->text(), filter);
+	// remove the selected filter from the available list
+	_filterList->takeItem(_filterList->row(item));
+
     QWidget* filterControl = filter->makeControl();
-    ui->widget_filters->layout()->addWidget(new QLabel(item->text()));
+	QLabel* filterLabel = new QLabel(item->text());
+	ui->widget_filters->layout()->addWidget(filterLabel);
     ui->widget_filters->layout()->addWidget(filterControl);
 
-    QGroupBox* datePicker = static_cast<QGroupBox*>(filterControl);
+	QPushButton* removeButton = filter->removeButton();
+	connect(removeButton, &QPushButton::clicked, [&]() {
+		ui->widget_filters->layout()->removeWidget(filterLabel);
+		ui->widget_filters->layout()->removeWidget(filterControl);
+		_filterList->addItem(item->text());
+		_filters.remove(item->text());
+	});
 
-    //connect(datePicker, &QDateEdit::dateChanged, this, &MainWindow::testMongo);
+	TextFilter* textFilter = static_cast<TextFilter*>(filter);
+	connect(textFilter, &TextFilter::changed, [&]() {
+		qInfo() << "asdsadasd";
+	});
+	//connect(static_cast<TextFilter*>(filter), &TextFilter::activated, this, &MainWindow::onFilterActivated);
+}
+
+void MainWindow::onFilterActivated() {
+qInfo() << "wooorks!";
 }
 
 void MainWindow::on_btn_applyFilters_clicked() {
@@ -458,12 +480,3 @@ void MainWindow::on_btn_applyFilters_clicked() {
 
     //testMongo(date1, date2);
 }
-
-void MainWindow::testMongo(const std::string& date1, const std::string& date2) {
-	//QStringList* results = _dbContext->test(date1, date2);
-
-    cv::Size size(_imgWidth, _imgHeight);
-    _notifyRate = 10;
-    QString dir = "/home/czimbortibor/images/500";
-}
-

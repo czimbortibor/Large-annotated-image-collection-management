@@ -16,8 +16,6 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/img_hash.hpp>
 
-#include <pHash.h>
-
 class CBIR {
 public:
     explicit CBIR();
@@ -33,18 +31,10 @@ public:
         double operator()(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const;
 	};
 
-	struct HashCompare {
-		bool operator()(const ulong64& hashA, const ulong64& hashB) const;
-	};
-
 	/** using OpenCV's img_hash library */
     std::multimap<cv::Mat, cv::Mat, MatCompare>* computeHashes(const QList<cv::Mat>& images,
             cv::Ptr<cv::img_hash::ImgHashBase> hasher);
     //std::multimap<double, const cv::Mat>& computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
-
-	/** using the pHash library */
-    std::multimap<ulong64, const cv::Mat, HashCompare>& computeHashes_pHash(QList<cv::Mat>& images,
-                                                                            const QString& dirname, QList<QString>& imageNames) const;
 
     void setHasher(cv::Ptr<cv::img_hash::ImgHashBase> hasher) { static_hasher = hasher; }
     /** returns the image's hash value */
