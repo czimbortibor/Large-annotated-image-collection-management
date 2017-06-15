@@ -51,9 +51,9 @@ public:
     /**
      * @brief getHashedImages returns all of the images in order of their hash values
      * @param hasherName hash algorithm
-     * @return a multimap containing the images as values and their hash as the key
+	 * @return the hashed images
      */
-    std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* getHashedImages(const QString& hasherName);
+	QList<cv::Mat>* getHashedImages(const QString& hasherName);
 
     /**
      * @brief getSimilarImages returns the images in order of their similarity to the selected image
@@ -62,6 +62,8 @@ public:
      * @return a list containing the images in a specific order
      */
     QList<cv::Mat>* getSimilarImages(const QString& url, const QString& hasherName);
+
+	QList<cv::Mat>* getImagesByUrl(const QStringList& imgUrls) const;
 
     struct Collection {
     public:

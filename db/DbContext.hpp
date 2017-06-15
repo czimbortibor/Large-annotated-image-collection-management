@@ -7,16 +7,25 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QJsonArray>
 #include <QDebug>
 
 #include <string>
 #include <iostream>
 
-#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/array/view.hpp>
+#include <bsoncxx/array/view.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/builder/stream/helpers.hpp>
+#include <bsoncxx/builder/stream/array.hpp>
+#include <bsoncxx/document/value.hpp>
+#include <bsoncxx/document/view.hpp>
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/stdx/make_unique.hpp>
 #include <bsoncxx/stdx/optional.hpp>
+#include <bsoncxx/types.hpp>
+#include <bsoncxx/types/value.hpp>
 #include <bsoncxx/stdx/string_view.hpp>
 #include <mongocxx/uri.hpp>
 #include <mongocxx/client.hpp>
@@ -31,9 +40,6 @@ class DbContext {
 public:
 	mongocxx::uri loadUri();
 	bool init();
-
-	QStringList& filterTitle(const std::string& title);
-	QStringList& filterTexts(const QMap<QString, QString>& textfields);
 
 	/* instances to collections in the database */
 	mongocxx::collection feedsNameCollection;

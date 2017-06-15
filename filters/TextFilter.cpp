@@ -3,10 +3,13 @@
 
 QGroupBox* TextFilter::makeControl() {
 	_editTitle = new QLineEdit();
-	_editTitle->setPlaceholderText("search by title");
-	_editSummary = new QLineEdit();
-	_editSummary->setPlaceholderText("search by summary");
+	_editTitle->setPlaceholderText("search in title and summary");
+	_editTitle->setMinimumWidth(175);
+	/*_editSummary = new QLineEdit();
+	_editSummary->setPlaceholderText("search by summary");*/
+
 	connect(_editTitle, &QLineEdit::textChanged, this, &TextFilter::on_text_changed);
+	//connect(_editSummary, &QLineEdit::textChanged, this, &TextFilter::on_text_changed);
 
 	_groupBox = new QGroupBox();
 	_groupBox->setLayout(new QVBoxLayout());
@@ -16,14 +19,38 @@ QGroupBox* TextFilter::makeControl() {
 	_btnRemove->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	_groupBox->layout()->addWidget(_btnRemove);
 	_groupBox->layout()->addWidget(_editTitle);
-	_groupBox->layout()->addWidget(_editSummary);
+	//_groupBox->layout()->addWidget(_editSummary);
 	return _groupBox;
 }
 
-void TextFilter::on_text_changed(const QString& newText) {
-	/*auto res = _dbConnection->list_databases();
-	for (auto&& doc : res) {
-		std::cout << bsoncxx::to_json(doc) << std::flush;
-	}*/
-	_dbContext.filterTitle(newText.toStdString());
+using bsoncxx::builder::stream::document;
+using bsoncxx::document::element;
+using bsoncxx::builder::stream::open_document;
+using bsoncxx::builder::stream::close_document;
+using bsoncxx::builder::stream::finalize;
+
+void TextFilter::on_text_changed(const QString& text) {
+	auto query = document{} << "$text" << open_document << "$search" << text.toStdString()
+							 << close_document << finalize;
+	mongocxx::cursor cursor = _dbContext.feedsCollection.find(query.view());
+
+	QJsonArray results;
+	for (const auto& doc : cursor) {
+		std::vector<std::string> doc_keys;
+		std::transform(std::begin(doc), std::end(doc), std::back_inserter(doc_keys), [](element ele) {
+			// key() returns a string_view
+			return ele.key().to_string();
+		});
+		QJsonObject json_obj;
+		for (const auto& key : doc_keys) {
+			if (doc[key].type() == bsoncxx::type::k_utf8) {
+				auto value = doc[key].get_utf8().value.to_string();
+				json_obj.insert(QString::fromStdString(key), QString::fromStdString(value));
+			}
+		results.append(QJsonValue(json_obj));
+		}
+	}
+
+	emit changed(results);
 }
+

@@ -19,7 +19,8 @@ MainWindow::~MainWindow() {
         _loadingHandler->onCancel();
     }
     _configHandler.release();
-    _hashedImages.release();
+	_images.reset();
+	//_hashedImages.release();
     delete ui;
 }
 
@@ -212,11 +213,12 @@ void MainWindow::onFinishedLoading() {
 
 void MainWindow::onHashImages() {
     const QString hasherName = ui->comboBox_hashes->currentText();
-     _hashedImages.release();
-    std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = _imageCollection.getHashedImages(hasherName);
-    _hashedImages.reset(result);
+	 //_hashedImages.release();
+	 _images.reset(_imageCollection.getHashedImages(hasherName));
+	//std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = _imageCollection.getHashedImages(hasherName);
+	//_hashedImages.reset(result);
     _view->clear();
-    displayImages(*_hashedImages.get());
+	displayImages(*_images.get());
 
 
     // ------ pHash -------
@@ -315,51 +317,39 @@ void MainWindow::logTime(QString message) {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-    if (_hashedImages != nullptr) {
+	/*if (_hashedImages != nullptr) {
         _view->setRadius(value);
 		_view->clear();
         displayImages(*_hashedImages.get());
     } else {
+	*/
         _view->setRadius(value);
         _view->clear();
         displayImages(*_images.get());
-    }
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-    if (_hashedImages != nullptr) {
+	/*if (_hashedImages != nullptr) {
         _view->setNrOfPetals(value);
 		_view->clear();
         displayImages(*_hashedImages.get());
     } else {
+	*/
         _view->setNrOfPetals(value);
         _view->clear();
         displayImages(*_images.get());
-    }
 }
 
 void MainWindow::onSpiralDistanceChanged(int value) {
-    if (_hashedImages != nullptr) {
-        _view->setSpiralDistance(value);
-        _view->clear();
-        displayImages(*_hashedImages);
-    } else {
-        _view->setSpiralDistance(value);
-        _view->clear();
-        displayImages(*_images.get());
-    }
+	_view->setSpiralDistance(value);
+	_view->clear();
+	displayImages(*_images.get());
 }
 
 void MainWindow::onSpiralTurnChanged(int value) {
-    if (_hashedImages != nullptr) {
-        _view->setSpiralTurn(value);
-        _view->clear();
-        displayImages(*_hashedImages.get());
-    } else {
-        _view->setSpiralTurn(value);
-        _view->clear();
-        displayImages(*_images.get());
-    }
+	_view->setSpiralTurn(value);
+	_view->clear();
+	displayImages(*_images.get());
 }
 
 void MainWindow::onLayoutChanged(const QString& text) {
@@ -452,19 +442,25 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 	connect(removeButton, &QPushButton::clicked, [&]() {
 		ui->widget_filters->layout()->removeWidget(filterLabel);
 		ui->widget_filters->layout()->removeWidget(filterControl);
-		_filterList->addItem(item->text());
-		_filters.remove(item->text());
+		//_filterList->addItem(item->text());
+		//_filters.take(item->text());
 	});
 
 	TextFilter* textFilter = static_cast<TextFilter*>(filter);
-	connect(textFilter, &TextFilter::changed, [&]() {
-		qInfo() << "asdsadasd";
+	connect(textFilter, &TextFilter::changed, [&](const QJsonArray& results) {
+		if (results.size()) {
+			QList<cv::Mat> filtered_images = MetadataParser::getImages(results, _imageCollection);
+			_view->clear();
+			displayImages(filtered_images);
+		}
+		else {
+			displayImages(*_images.get());
+		}
 	});
-	//connect(static_cast<TextFilter*>(filter), &TextFilter::activated, this, &MainWindow::onFilterActivated);
 }
 
 void MainWindow::onFilterActivated() {
-qInfo() << "wooorks!";
+
 }
 
 void MainWindow::on_btn_applyFilters_clicked() {

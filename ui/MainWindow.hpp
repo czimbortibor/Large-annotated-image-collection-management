@@ -29,6 +29,7 @@
 #include "utils/image_load/LoadingHandler.hpp"
 #include "utils/image_load/ImageLoader.hpp"
 #include "utils/ImageCollection.hpp"
+#include "utils/MetadataParser.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 #include "db/DbContext.hpp"

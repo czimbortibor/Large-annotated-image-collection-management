@@ -29,14 +29,16 @@ public:
 
 	QPushButton* removeButton() { return _btnRemove; }
 
+	QJsonObject filterTitle(const std::string& text);
+
 	QString getTitle() { return _editTitle->text(); }
 	QString getSummary() { return _editSummary->text(); }
 
 signals:
-	void changed();
+	void changed(const QJsonArray& results);
 
-public slots:
-	void on_text_changed(const QString& newText);
+private slots:
+	void on_text_changed(const QString& text);
 
 private:
 	DbContext _dbContext;

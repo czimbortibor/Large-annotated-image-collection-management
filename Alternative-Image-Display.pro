@@ -39,7 +39,8 @@ SOURCES +=\
     utils/image_load/LoadingHandler.cpp \
     utils/ImageCollection.cpp \
     db/DbContext.cpp \
-    filters/TextFilter.cpp
+    filters/TextFilter.cpp \
+    utils/MetadataParser.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -65,7 +66,8 @@ HEADERS  +=\
     utils/ImageCollection.hpp \
     utils/SpiralLayoutFactory.hpp \
     db/DbContext.hpp \
-    filters/TextFilter.hpp
+    filters/TextFilter.hpp \
+    utils/MetadataParser.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

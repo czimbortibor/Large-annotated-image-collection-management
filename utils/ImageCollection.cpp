@@ -45,15 +45,20 @@ QList<cv::Mat> ImageCollection::getHashes(const QString& hasherName) const {
     return *result;
 }
 
-std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* ImageCollection::getHashedImages(
-        const QString &hasherName) {
-    std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = new std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
-    auto imageMap = _collection_map.at(hasherName);
+QList<cv::Mat>* ImageCollection::getHashedImages(const QString& hasherName) {
+	//std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = new std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
+	std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare> res;
+	auto imageMap = _collection_map.at(hasherName);
     _cbir.setHasher(_hashers.at(hasherName));
     for (const auto& image_struct : imageMap) {
-        result->emplace(image_struct.second.getHash(), image_struct.second.getImage());
+		res.emplace(image_struct.second.getHash(), image_struct.second.getImage());
     }
-    return result;
+
+	QList<cv::Mat>* results = new QList<cv::Mat>();
+	for (const auto& hashed : res) {
+		results->append(hashed.second);
+	}
+	return results;
 }
 
 QList<cv::Mat>* ImageCollection::getSimilarImages(const QString& url, const QString& hasherName) {
@@ -103,4 +108,22 @@ QList<cv::Mat>* ImageCollection::getSimilarImages(const QString& url, const QStr
         results->push_back(images.second);
     }
     return results;
+}
+
+QList<cv::Mat>* ImageCollection::getImagesByUrl(const QStringList& imgUrls) const {
+	QList<cv::Mat>* results = new QList<cv::Mat>();
+	ImageMap imageMap = _collection_map.at("Average hash");
+	QHash<QString, QString> keys;
+	for (const auto& image_struct : imageMap) {
+		QStringList parts = image_struct.first.split("/");
+		keys[parts[parts.length()-1]] = image_struct.first;
+	}
+	for (const QString& url : imgUrls) {
+		QStringList parts = url.split("/");
+		QString fileName = parts[parts.length() - 1];
+		if (keys.contains(fileName)) {
+			results->append(imageMap.at(keys.value(fileName)).getImage());
+		}
+	}
+	return results;
 }
