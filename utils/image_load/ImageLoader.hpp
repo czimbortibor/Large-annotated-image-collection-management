@@ -14,6 +14,9 @@
 #include "../ImageCollection.hpp"
 
 
+/**
+ * @brief handles image loading in a single-threaded asyncronous way
+ */
 class ImageLoader : public QObject, public QRunnable {
     Q_OBJECT
 public:

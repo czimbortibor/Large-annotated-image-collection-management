@@ -25,11 +25,11 @@
 #include "view/GraphicsView.hpp"
 #include "utils/LayoutItem.hpp"
 #include "utils/CBIR.hpp"
-#include "utils/ConfigurationsHandler.hpp"
 #include "utils/image_load/LoadingHandler.hpp"
 #include "utils/image_load/ImageLoader.hpp"
 #include "utils/ImageCollection.hpp"
 #include "utils/MetadataParser.hpp"
+#include "utils/Logger.hpp"
 #include "layouts/FlowLayout.hpp"
 #include "layouts/PetalLayout.hpp"
 #include "db/DbContext.hpp"
@@ -113,8 +113,6 @@ private:
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
     LayoutItem* _hoveredItem;
-
-    std::unique_ptr<ConfigurationsHandler> _configHandler;
 
     /**
      * @brief _imageSaver saves the images to the disk

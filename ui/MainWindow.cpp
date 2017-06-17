@@ -4,9 +4,13 @@
 
 using CollectionMap = std::map<cv::Mat, cv::Mat, CBIR::MatCompare>;
 
+std::string Logger::file_name = "log_file.txt";
+
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
+
+	Logger::log("\t ------------ Application started ------------- ");
 
 	initDb();
     initWindow();
@@ -15,12 +19,11 @@ MainWindow::MainWindow(QWidget* parent) :
 }
 
 MainWindow::~MainWindow() {
+	Logger::log("\t ----------- Application closed -------------- ");
     if (_loadingHandler) {
         _loadingHandler->onCancel();
     }
-    _configHandler.release();
 	_images.reset();
-	//_hashedImages.release();
     delete ui;
 }
 
@@ -69,9 +72,6 @@ void MainWindow::initWindow() {
     ui->lbl_size->setText(text);
 
     ui->btn_cancelLoad->hide();
-
-    // ------- configurations -----------
-    _configHandler = std::unique_ptr<ConfigurationsHandler>(new ConfigurationsHandler("configurations.cfg"));
 
     // ---------- filters -----------
     ui->widget_createFilters->hide();
@@ -155,13 +155,22 @@ void MainWindow::onLoadImagesClick() {
 	qDebug() << "image count =" << len;
 
     const QString originalDirPath = _dir.absolutePath();
-    /* check if the image collection exists */
-    const QString collectionName = _dir.dirName() + "_" + QString::number(ui->slider_imgSize->value());
-    if (_configHandler->collectionExists(collectionName)) {
-        _dir.cd("collections");
-        _dir.cd(collectionName);
-        qInfo() << "image collection already exists, reading from that...";
-    }
+	// check if the collection directory exists /
+	if (!QDir("collections").exists()) {
+		QDir().mkdir("collections");
+	}
+	_dir.cd("collections");
+
+	const QString collectionName = _dir.dirName() + "_" + QString::number(ui->slider_imgSize->value());
+	// check if the collection exists
+	if (QDir(collectionName).exists()) {
+		Logger::log("image collection already exists, reading from that...");
+	}
+	else {
+		QDir().mkdir(collectionName);
+	}
+	_dir.cd(collectionName);
+
     _imageNames = std::unique_ptr<QStringList>(new QStringList);
     *_imageNames.get() = _dir.entryList();
 
@@ -249,12 +258,10 @@ void MainWindow::saveImages(int size) {
     QString collectionName(_dir.dirName() + "_" + QString::number(size));
     QString collectionDir(dirSeparator + QString("collections") + dirSeparator + collectionName + dirSeparator);
     QString absPath = currentDir + collectionDir;
-    if (_configHandler->collectionExists(collectionName) == false) {
+	if (!QDir(collectionName).exists()) {
         QDir().mkdir(currentDir + dirSeparator + "collections");
         QDir().mkdir(absPath);
         _dirSmallImg = new QDir(absPath);
-
-        _configHandler->addNewCollection(collectionName, absPath);
 
         qInfo() << "saving the " << size << "x" << size << "icons to: " + _dirSmallImg->absolutePath() << "...";
         _timer.start();
@@ -308,12 +315,8 @@ void MainWindow::displayImages(const T& images) const {
 
 void MainWindow::logTime(QString message) {
 	double time = _timer.nsecsElapsed() / 1000000000.0;
-	std::ofstream logFile;
-	logFile.open("log.txt", std::ios::out | std::ios::app);
-	qDebug() << message << time << " seconds";
-	logFile << "number of images: " << _nrOfImages << "\n";
-	logFile << message.toStdString() << _nrOfImages << "\n";
-	logFile.close();
+	message = message + "\n" + "number of images: " + QString::number(_nrOfImages);
+	Logger::log_elapsed_time(message.toStdString(), time);
 }
 
 void MainWindow::onRadiusChanged(double value) {
@@ -419,9 +422,9 @@ void MainWindow::onImageHoverEnter(const QString& url, LayoutItem* item) {
 }
 
 void MainWindow::onAddFilter() {
-	ui->widget_createFilters->setVisible(true);
+	ui->widget_createFilters->setVisible(!ui->widget_createFilters->isVisible());
 	_filterList->show();
-	ui->btn_applyFilters->setVisible(true);
+	ui->btn_applyFilters->setVisible(!ui->btn_applyFilters->isVisible());
 }
 
 void MainWindow::onAddNewFilter(QListWidgetItem* item) {
@@ -446,17 +449,22 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 		//_filters.take(item->text());
 	});
 
-	TextFilter* textFilter = static_cast<TextFilter*>(filter);
-	connect(textFilter, &TextFilter::changed, [&](const QJsonArray& results) {
-		if (results.size()) {
-			QList<cv::Mat> filtered_images = MetadataParser::getImages(results, _imageCollection);
-			_view->clear();
-			displayImages(filtered_images);
-		}
-		else {
-			displayImages(*_images.get());
-		}
-	});
+	TextFilter* textFilter = dynamic_cast<TextFilter*>(filter);
+	if (textFilter) {
+		connect(textFilter, &TextFilter::changed, [&](const QJsonArray& results) {
+			if (results.size()) {
+				QList<cv::Mat> filtered_images = MetadataParser::getImages(results, _imageCollection);
+				_view->clear();
+				displayImages(filtered_images);
+			}
+			else {
+				displayImages(*_images.get());
+			}
+		});
+	}
+	else {
+		DateFilter* dateFilter = dynamic_cast<DateFilter*>(filter);
+	}
 }
 
 void MainWindow::onFilterActivated() {

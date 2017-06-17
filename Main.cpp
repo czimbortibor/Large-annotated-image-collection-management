@@ -1,4 +1,5 @@
 #include "ui/MainWindow.hpp"
+#include "ui/ConnectionManager.hpp"
 #include <QApplication>
 
 int main(int argc, char* argv[]) {
@@ -11,6 +12,8 @@ int main(int argc, char* argv[]) {
         file.close();
     }*/
 
+	ConnectionManager cm;
+	cm.show();
     MainWindow w;
     w.setStyleSheet("QPushButton { background-color: yellow }");
     w.showMaximized();

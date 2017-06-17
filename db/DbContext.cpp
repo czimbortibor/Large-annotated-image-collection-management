@@ -1,13 +1,27 @@
 #include "DbContext.hpp"
 
 mongocxx::uri DbContext::loadUri() {
-	QFile config_file(":/config/db/db_config.json");
-	config_file.open(QIODevice::ReadOnly | QIODevice::Text);
-	QString contents = config_file.readAll();
-	config_file.close();
+	QFile config_file;
+	config_file.setFileName("config.json");
+	QJsonDocument dbConfig;
+	QJsonObject data;
+	if (config_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		QString contents = config_file.readAll();
+		config_file.close();
 
-	QJsonDocument dbConfig = QJsonDocument::fromJson(contents.toUtf8());
-	QJsonObject data = dbConfig.object();
+		dbConfig = QJsonDocument::fromJson(contents.toUtf8());
+		data = dbConfig.object().value("database").toObject();
+	}
+	else {
+		// default database connection URI found in the resources
+		config_file.setFileName(":/config/db/db_config.json");
+		config_file.open(QIODevice::ReadOnly | QIODevice::Text);
+		QString contents = config_file.readAll();
+		config_file.close();
+
+		dbConfig = QJsonDocument::fromJson(contents.toUtf8());
+		data = dbConfig.object();
+	}
 
 	uri = data["URI"].toString().toStdString();
 	databaseName = data["db_name"].toString().toStdString();

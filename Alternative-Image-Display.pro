@@ -33,14 +33,14 @@ SOURCES +=\
     filters/DateFilter.cpp \
     utils/CBIR.cpp \
     utils/LayoutItem.cpp \
-    utils/ConfigurationsHandler.cpp \
     utils/ImageConverter.cpp \
     utils/image_load/ImageLoader.cpp \
     utils/image_load/LoadingHandler.cpp \
     utils/ImageCollection.cpp \
     db/DbContext.cpp \
     filters/TextFilter.cpp \
-    utils/MetadataParser.cpp
+    utils/MetadataParser.cpp \
+    ui/ConnectionManager.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -58,7 +58,6 @@ HEADERS  +=\
     utils/CBIR.hpp \
     utils/LayoutItem.hpp \
     utils/ImageConverter.hpp \
-    utils/ConfigurationsHandler.hpp \
     utils/image_load/ImageLoader.hpp \
     utils/image_load/Mapper.hpp \
     utils/image_load/Reducer.hpp \
@@ -67,10 +66,13 @@ HEADERS  +=\
     utils/SpiralLayoutFactory.hpp \
     db/DbContext.hpp \
     filters/TextFilter.hpp \
-    utils/MetadataParser.hpp
+    utils/MetadataParser.hpp \
+    ui/ConnectionManager.hpp \
+    utils/Logger.hpp
 
 FORMS    +=\
-    ui/MainWindow.ui
+    ui/MainWindow.ui \
+    ui/ConnectionManager.ui
 
 RESOURCES += \
     resources.qrc
@@ -84,8 +86,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/
     -lopencv_imgcodecs \
     -lopencv_img_hash \
     -lmongocxx \
-    -lbsoncxx \
-    -lconfig++
+    -lbsoncxx
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/lib/debug/ \
     -lopencv_core \
     -lopencv_imgproc \
@@ -93,8 +94,7 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/l
     -lopencv_imgcodecs \
     -lopencv_img_hash \
     -lmongocxx \
-    -lbsoncxx \
-    -lconfig++
+    -lbsoncxx
 else:unix: LIBS += -L$$PWD/../../../../usr/local/lib/ \
     -lopencv_core \
     -lopencv_imgproc \
@@ -102,8 +102,7 @@ else:unix: LIBS += -L$$PWD/../../../../usr/local/lib/ \
     -lopencv_imgcodecs \
     -lopencv_img_hash \
     -lmongocxx \
-    -lbsoncxx \
-    -lconfig++
+    -lbsoncxx
 
 INCLUDEPATH += $$PWD/../../../../usr/local/include \
                $$PWD/../../../../usr/local/include/opencv \
