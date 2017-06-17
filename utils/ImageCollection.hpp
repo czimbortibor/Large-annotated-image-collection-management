@@ -13,6 +13,7 @@
 #include <opencv2/img_hash.hpp>
 
 #include "CBIR.hpp"
+#include "Logger.hpp"
 
 
 class ImageCollection {

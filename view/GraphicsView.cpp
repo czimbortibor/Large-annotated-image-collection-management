@@ -10,7 +10,7 @@ void GraphicsView::init() {
 	QLibrary lib("GL");
 	// if OpenGL is present on the machine then enable hardware accelerated graphics on the scene
 	if (lib.load()) {
-		qDebug() << "OpenGL loaded";
+		Logger::log("OpenGL loaded");
 		_glWidget = new QOpenGLWidget;
 		setViewport(_glWidget);
 	}

@@ -26,6 +26,7 @@
 #include "utils/FlowLayoutFactory.hpp"
 #include "utils/PetalLayoutFactory.hpp"
 #include "utils/SpiralLayoutFactory.hpp"
+#include "utils/Logger.hpp"
 
 
 class GraphicsView : public QGraphicsView {

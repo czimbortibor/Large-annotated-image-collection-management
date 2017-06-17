@@ -69,7 +69,7 @@ QList<cv::Mat>* ImageCollection::getSimilarImages(const QString& url, const QStr
         hasher = _hashers.at(hasherName);
     }
     catch (std::out_of_range ex) {
-        qWarning() << ex.what();
+		Logger::log(ex.what());
     }
 
     _cbir.setHasher(hasher);
@@ -97,7 +97,7 @@ QList<cv::Mat>* ImageCollection::getSimilarImages(const QString& url, const QStr
         imageMap = _collection_map.at(hasherName);
     }
     catch (std::out_of_range ex) {
-            qWarning() << ex.what();
+			Logger::log(ex.what());
     }
 
     for (const auto& image_struct : imageMap) {

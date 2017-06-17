@@ -7,6 +7,8 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include "Logger.hpp"
+
 
 class ImageConverter {
 public:

@@ -27,7 +27,7 @@ QImage ImageConverter::Mat2QImage(const cv::Mat& cvimage) {
          }
 
          default: {
-            qWarning() << "cv::Mat type not handled:" << cvimage.type();
+			Logger::log("cv::Mat type not handled:" + std::to_string(cvimage.type()));
             return QImage();
          }
       }
@@ -66,7 +66,7 @@ cv::Mat ImageConverter::QImage2Mat(const QImage& qimage) {
          }
 
          default: {
-            qWarning() << "QImage format not handled:" << qimage.format();
+			Logger::log("QImage format not handled:" + std::to_string(qimage.format()));
             return cv::Mat();
          }
     }

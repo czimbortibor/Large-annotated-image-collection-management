@@ -33,7 +33,7 @@ void MainWindow::initDb() {
 	if (!connection) {
 		QMessageBox::warning(this, "Warning", "Database connection error!");
 	}
-	qInfo() << "succesful database connection";
+	Logger::log("succesful database connection");
 
 	// initialize the collections
 	auto db = connection->database(_dbContext.databaseName);
@@ -151,8 +151,8 @@ void MainWindow::onLoadImagesClick() {
     _imgHeight = _iconSize;
 
     int len = _nrOfImages;
-    qDebug() << "image size =" << _imgWidth << "x" << _imgHeight;
-	qDebug() << "image count =" << len;
+	Logger::log("image size = " + std::to_string(_imgWidth) + "x" + std::to_string(_imgHeight));
+	Logger::log("image count = " + len);
 
     const QString originalDirPath = _dir.absolutePath();
 	// check if the collection directory exists /
@@ -263,7 +263,7 @@ void MainWindow::saveImages(int size) {
         QDir().mkdir(absPath);
         _dirSmallImg = new QDir(absPath);
 
-        qInfo() << "saving the " << size << "x" << size << "icons to: " + _dirSmallImg->absolutePath() << "...";
+		Logger::log("saving the " + std::to_string(size) + "icons to: " + _dirSmallImg->absolutePath().toStdString() + "...");
         _timer.start();
 
         showProgressBar(_images->length(), "saving images");
