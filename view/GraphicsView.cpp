@@ -109,8 +109,10 @@ void GraphicsView::addPopupImage(QLabel* label, LayoutItem* item) {
 }
 
 void GraphicsView::onRemovePopup() {
-    _scene->removeItem(_proxyLabel.get());
-    _proxyLabel.release();
+	if (_proxyLabel) {
+		_scene->removeItem(_proxyLabel.get());
+		_proxyLabel.release();
+	}
 }
 
 void GraphicsView::wheelEvent(QWheelEvent* event) {

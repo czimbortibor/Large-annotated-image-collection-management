@@ -12,9 +12,11 @@ int main(int argc, char* argv[]) {
         file.close();
     }*/
 
+	qRegisterMetaType<cv::Mat>();
+
 	ConnectionManager cm;
-	cm.show();
-    MainWindow w;
+	//cm.show();
+	MainWindow w;
     w.setStyleSheet("QPushButton { background-color: yellow }");
     w.showMaximized();
 

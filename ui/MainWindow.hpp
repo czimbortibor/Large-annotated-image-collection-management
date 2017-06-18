@@ -104,7 +104,7 @@ private:
 	int _iconSize;
 	int _nrOfImages;
 	QDir _dir;
-    QDir* _dirSmallImg;
+	QDir _dirSmallImg;
 	QStringList _supportedImgFormats;
     std::unique_ptr<QStringList> _imageNames;
 	int _imgWidth;
@@ -146,6 +146,7 @@ private slots:
 	void onClearLayout();
 
     void onImageReceived(int index, const QString& url, const QString& originalUrl);
+	void onImageReceivedMT(const cv::Mat& image, const QString& url);
     void onFinishedLoading();
 
     void onSavingChange(int value);
@@ -173,9 +174,8 @@ private slots:
     void onAddNewFilter(QListWidgetItem* item);
 	void on_btn_applyFilters_clicked();
 
-	void onFilterActivated();
-
 signals:
+	void addViewItem(QGraphicsLayoutItem* item);
 	void clearLayout();
     void resizeImages(int newWidth, int newHeight);
     void saveProgress(int value);

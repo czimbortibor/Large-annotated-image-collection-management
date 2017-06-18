@@ -81,6 +81,11 @@ private:
 signals:
     void imageClick(QGraphicsItem* image);
 
+public slots:
+	void onAddItem(QGraphicsLayoutItem* item) {
+		addItem(item);
+	}
+
 private slots:
     void onSceneRectChanged(const QRectF& rect);
     void onImageClicked(QGraphicsItem* image) { emit imageClick(image); }

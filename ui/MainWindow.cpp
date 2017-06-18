@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 
+
 	Logger::log("\t ------------ Application started ------------- ");
 
 	initDb();
@@ -96,6 +97,8 @@ void MainWindow::initView() {
 	_view = new GraphicsView;
 	ui->centralWidget->layout()->addWidget(_view);
 	_view->show();
+
+	connect(this, &MainWindow::addViewItem, _view, &GraphicsView::onAddItem);
 }
 
 void MainWindow::showAlertDialog() const {
@@ -152,45 +155,74 @@ void MainWindow::onLoadImagesClick() {
 
     int len = _nrOfImages;
 	Logger::log("image size = " + std::to_string(_imgWidth) + "x" + std::to_string(_imgHeight));
-	Logger::log("image count = " + len);
+	Logger::log("image count = " + std::to_string(len));
 
-    const QString originalDirPath = _dir.absolutePath();
+	// TODO: recursive dir read http://doc.qt.io/qt-5/qdiriterator.html
+	/*_dirSmallImg = _dir;
+	_dirSmallImg.cdUp();
+	const QString dirName = _dirSmallImg.dirName();
+	const QString originalDir = _dirSmallImg.absolutePath() + "/collections";
 	// check if the collection directory exists /
-	if (!QDir("collections").exists()) {
-		QDir().mkdir("collections");
+	if (!QDir(originalDir).exists()) {
+		_dirSmallImg.mkdir("collections");
 	}
-	_dir.cd("collections");
-
-	const QString collectionName = _dir.dirName() + "_" + QString::number(ui->slider_imgSize->value());
+	_dirSmallImg.cd("collections");
+	const QString collectionDir = _dir.dirName() + "_" + QString::number(ui->slider_imgSize->value());
 	// check if the collection exists
-	if (QDir(collectionName).exists()) {
+	if (QDir(collectionDir).exists()) {
 		Logger::log("image collection already exists, reading from that...");
+		_dirSmallImg.cd(collectionDir);
 	}
 	else {
-		QDir().mkdir(collectionName);
+		_dirSmallImg.mkdir(collectionDir);
+		_dirSmallImg = _dir;
 	}
-	_dir.cd(collectionName);
 
+	_dir = _dirSmallImg;*/
     _imageNames = std::unique_ptr<QStringList>(new QStringList);
-    *_imageNames.get() = _dir.entryList();
+	*_imageNames.get() = _dir.entryList();
 
 	_timer.start();
 
     _loadingHandler = std::unique_ptr<LoadingHandler>(new LoadingHandler(_imageCollection));
     _loadingHandler->setWidth(_imgWidth);
     _loadingHandler->setHeight(_imgHeight);
-    connect(_loadingHandler.get(), &LoadingHandler::imageReady, this, &MainWindow::onImageReceived);
+	connect(_loadingHandler.get(), &LoadingHandler::imageReady, this, &MainWindow::onImageReceived);
+
+	/*connect(_loadingHandler.get(), &LoadingHandler::mt_imageReady,
+			[this](const cv::Mat& image, const QString& url) {
+		_images->append(image);
+		LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(image), url, "");
+		connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+		connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
+		connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
+		emit addViewItem(item);
+		_progressBar->setValue(_progressBar->value() + 1);
+	});*/
+	//connect(_loadingHandler.get(), &LoadingHandler::mt_imageReady, this, &MainWindow::onImageReceivedMT);
+
     connect(_loadingHandler.get(), &LoadingHandler::finishedLoading, this, &MainWindow::onFinishedLoading);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
 
-    auto loaderPtr = _loadingHandler->loadImages_st(_dir.absolutePath(), _imageNames.get(), originalDirPath);
-    //auto loaderPtr = _loadingHandler->loadImages_mt(_dir.absolutePath(), *_imageNames.get());
-    _images.reset(loaderPtr);
+	const QString originalDirPath = _dir.absolutePath();
+	auto loaderPtr = _loadingHandler->loadImages_st(_dir.absolutePath(), _imageNames.get(), originalDirPath);
+	//_loadingHandler->loadImages_mt(_dir.absolutePath(), *_imageNames.get());
+	_images.reset(loaderPtr);
 
     ui->btn_cancelLoad->setVisible(true);
 
     showProgressBar(_imageNames->length(), "loading");
+}
+
+void MainWindow::onImageReceivedMT(const cv::Mat& image, const QString& url) {
+	_images->append(image);
+	LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(image), url, "");
+	connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
+	connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
+	connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
+	emit addViewItem(item);
+	_progressBar->setValue(_progressBar->value() + 1);
 }
 
 void MainWindow::onImageReceived(int index, const QString& url, const QString& originalUrl) {
@@ -209,14 +241,6 @@ void MainWindow::onFinishedLoading() {
     _progressBar.reset(nullptr);
     connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
 
-    // shuffle the images
-    /*
-    auto listPtr = *_images.get();
-    std::random_shuffle(listPtr.begin(), listPtr.end());
-    displayImages(listPtr);
-    logTime("display time:");
-    */
-
     saveImages(ui->slider_imgSize->value());
 }
 
@@ -228,13 +252,6 @@ void MainWindow::onHashImages() {
 	//_hashedImages.reset(result);
     _view->clear();
 	displayImages(*_images.get());
-
-
-    // ------ pHash -------
-    /*auto mapPtr = &imageRetrieval.computeHashes_pHash(*_images.get(), _dir.absolutePath(), *_imageNames.get());
-    _imagesHashed_pHash = std::unique_ptr<std::multimap<ulong64, const cv::Mat, CBIR::HashCompare>>(mapPtr);
-    displayImages(*_imagesHashed_pHash.get());
-    */
 }
 
 void MainWindow::imageSaving(int size) {
@@ -242,7 +259,7 @@ void MainWindow::imageSaving(int size) {
         cv::Mat image = _images->at(i);
         cv::Mat resizedImg;
         cv::resize(image, resizedImg, cv::Size(size, size));
-        QString fileName = (_dirSmallImg->absolutePath() + QDir::separator() + _imageNames->at(i));
+		QString fileName = (_dir.absolutePath() + QDir::separator() + _imageNames->at(i));
         cv::imwrite(fileName.toStdString(), resizedImg);
         emit saveProgress(i+1);
     }
@@ -253,17 +270,10 @@ void MainWindow::onSavingChange(int value) {
 }
 
 void MainWindow::saveImages(int size) {
-    const char dirSeparator = QDir::separator().toLatin1();
-    QString currentDir(_dir.absolutePath());
-    QString collectionName(_dir.dirName() + "_" + QString::number(size));
-    QString collectionDir(dirSeparator + QString("collections") + dirSeparator + collectionName + dirSeparator);
-    QString absPath = currentDir + collectionDir;
-	if (!QDir(collectionName).exists()) {
-        QDir().mkdir(currentDir + dirSeparator + "collections");
-        QDir().mkdir(absPath);
-        _dirSmallImg = new QDir(absPath);
-
-		Logger::log("saving the " + std::to_string(size) + "icons to: " + _dirSmallImg->absolutePath().toStdString() + "...");
+	QString currentDir(_dir.absolutePath());
+	int nr_of_images = QDir(currentDir).entryList().length();
+	if (!nr_of_images) {
+		Logger::log("saving the " + std::to_string(size) + " icons to: " + currentDir.toStdString() + "...");
         _timer.start();
 
         showProgressBar(_images->length(), "saving images");
@@ -278,7 +288,7 @@ void MainWindow::saveImages(int size) {
 }
 
 void MainWindow::onFinishedSaving() {
-    logTime("saving time:");
+	logTime("saving time: ");
     _progressBar.reset();
     _progressBar.release();
 }
@@ -315,32 +325,20 @@ void MainWindow::displayImages(const T& images) const {
 
 void MainWindow::logTime(QString message) {
 	double time = _timer.nsecsElapsed() / 1000000000.0;
-	message = message + "\n" + "number of images: " + QString::number(_nrOfImages);
-	Logger::log_elapsed_time(message.toStdString(), time);
+	message = message + QString::number(time) + " seconds \n" + "number of images: " + QString::number(_nrOfImages);
+	Logger::log(message.toStdString());
 }
 
 void MainWindow::onRadiusChanged(double value) {
-	/*if (_hashedImages != nullptr) {
-        _view->setRadius(value);
-		_view->clear();
-        displayImages(*_hashedImages.get());
-    } else {
-	*/
-        _view->setRadius(value);
-        _view->clear();
-        displayImages(*_images.get());
+	_view->setRadius(value);
+	_view->clear();
+	displayImages(*_images.get());
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-	/*if (_hashedImages != nullptr) {
-        _view->setNrOfPetals(value);
-		_view->clear();
-        displayImages(*_hashedImages.get());
-    } else {
-	*/
-        _view->setNrOfPetals(value);
-        _view->clear();
-        displayImages(*_images.get());
+	_view->setNrOfPetals(value);
+	_view->clear();
+	displayImages(*_images.get());
 }
 
 void MainWindow::onSpiralDistanceChanged(int value) {
@@ -464,23 +462,12 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 	}
 	else {
 		DateFilter* dateFilter = dynamic_cast<DateFilter*>(filter);
+		connect(dateFilter, &DateFilter::changed, [&](const QJsonArray& results) {
+
+		});
 	}
 }
 
-void MainWindow::onFilterActivated() {
-
-}
-
 void MainWindow::on_btn_applyFilters_clicked() {
-    // 1449493211046 -> Mon Dec 07 13:00:11 +0000 2015
-	/*const QGroupBox* dateEdits = ui->widget_filters->findChild<QGroupBox*>();
-    DateFilter* dateFilter = static_cast<DateFilter*>(_filters.value("date range"));
-    QList<std::string> selectedRanges = dateFilter->getDates();
-    std::string date1 = selectedRanges[0];
-    std::string date2 = selectedRanges[1];
-    qInfo() << QString::fromStdString(date1);
-    qInfo() << QString::fromStdString(date2);
-	*/
 
-    //testMongo(date1, date2);
 }

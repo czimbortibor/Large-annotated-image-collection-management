@@ -27,7 +27,7 @@ public:
      * @param path a directory containing image files
      * @param imageNames the file names
      */
-    void loadImages_mt(const QString& path, const QStringList& imageNames);
+	void loadImages_mt(const QString& path, const QStringList& imageNames);
 
     /**
      * @brief loadImages_st loads the images located at the chosen path
@@ -58,8 +58,8 @@ private:
     int _height = 100;
 
     // ----------- multi-threaded image load ---------------
-    std::unique_ptr<QFuture<QList<cv::Mat>>> _loaderMT;
-    std::unique_ptr<QFutureWatcher<QList<cv::Mat>>> _loaderWatcherMT;
+	std::unique_ptr<QFuture<QList<cv::Mat>>> _loaderMT;
+	std::unique_ptr<QFutureWatcher<QList<cv::Mat>>> _loaderWatcherMT;
     Mapper _mapper;
     Reducer _reducer;
 
@@ -69,7 +69,7 @@ private:
 
 signals:
     void imageReady(int index, const QString& url, const QString& originalUrl);
-    //void imageReadyMT(const cv::Mat& image);
+	void mt_imageReady(const cv::Mat& image, const QString& url);
     void finishedLoading();
 
 public slots:
