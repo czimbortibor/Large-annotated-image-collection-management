@@ -14,6 +14,8 @@
 
 #include "CBIR.hpp"
 #include "Logger.hpp"
+#include "LayoutItem.hpp"
+#include "ImageConverter.hpp"
 
 
 class ImageCollection {
@@ -38,7 +40,7 @@ public:
         return _hashers.at(hasherName);
     }
 
-    cv::Mat getImage(const QString& hasherName, const QString& url) {
+	LayoutItem getImage(const QString& hasherName, const QString& url) {
         return _collection_map.at(hasherName).at(url).getImage();
     }
 
@@ -54,7 +56,7 @@ public:
      * @param hasherName hash algorithm
 	 * @return the hashed images
      */
-	QList<cv::Mat>* getHashedImages(const QString& hasherName);
+	QList<LayoutItem>* getHashedImages(const QString& hasherName);
 
     /**
      * @brief getSimilarImages returns the images in order of their similarity to the selected image
@@ -62,23 +64,23 @@ public:
      * @param hasherName
      * @return a list containing the images in a specific order
      */
-    QList<cv::Mat>* getSimilarImages(const QString& url, const QString& hasherName);
+	QList<LayoutItem>* getSimilarImages(const QString& url, const QString& hasherName);
 
-	QList<cv::Mat>* getImagesByUrl(const QStringList& imgUrls) const;
+	QList<LayoutItem>* getImagesByUrl(const QStringList& imgUrls) const;
 
     struct Collection {
     public:
-        Collection(cv::Mat* image, cv::Mat* hash, QString* originalUrl) {
+		Collection(LayoutItem* image, cv::Mat* hash, QString* originalUrl) {
             _image = image;
             _hash = hash;
             _originalUrl = originalUrl;
-        }
-        const cv::Mat& getImage() const { return *_image; }
+		}
+		const LayoutItem& getImage() const { return *_image; }
         const cv::Mat& getHash() const { return *_hash; }
         const QString& getOriginalUrl() const { return *_originalUrl; }
 
     private:
-        const cv::Mat* _image;
+		const LayoutItem* _image;
         const cv::Mat* _hash;
         const QString* _originalUrl;
     };

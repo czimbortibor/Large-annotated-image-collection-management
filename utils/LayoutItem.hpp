@@ -47,6 +47,9 @@
 #include <QGraphicsObject>
 #include <QDebug>
 
+#include <opencv2/core.hpp>
+
+
 class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -55,6 +58,8 @@ public:
     LayoutItem() = default;
     LayoutItem(const QImage& image, const QString& url, const QString& originalUrl);
     LayoutItem(const QImage& image);
+
+	LayoutItem(const LayoutItem& other) { *this = other; }
     LayoutItem& operator=(const LayoutItem& other);
     ~LayoutItem() { QGraphicsLayoutItem::setGraphicsItem(0); }
     // Inherited from QGraphicsLayoutItem
@@ -70,6 +75,8 @@ public:
     QPixmap getPixmap() const { return _pix; }
     QString getUrl() const { return _url; }
     QString getOriginalUrl() const { return _originalUrl; }
+
+	cv::Mat* mat;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);

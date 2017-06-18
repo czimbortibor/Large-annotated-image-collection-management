@@ -121,7 +121,10 @@ void LayoutItem::mouseDoubleClickEvent(QGraphicsSceneHoverEvent* event) {
 }
 
 void LayoutItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
-    emit hoverEnter(_originalUrl, this);
+	Qt::KeyboardModifiers pressedKeys = QGuiApplication::keyboardModifiers();
+	if (pressedKeys == Qt::ShiftModifier) {
+		emit hoverEnter(_originalUrl, this);
+	}
 }
 
 void LayoutItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {

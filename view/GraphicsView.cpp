@@ -39,10 +39,11 @@ void GraphicsView::onSceneRectChanged(const QRectF& rect) {
     this->setMinSceneSize(this->size());
 }
 
-void GraphicsView::addItem(QGraphicsLayoutItem* item) {
-    _layout->addItem(item);
-    LayoutItem* layoutItem = static_cast<LayoutItem*>(item);
-    connect(layoutItem, &LayoutItem::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
+void GraphicsView::addItem(const QGraphicsLayoutItem* item) {
+	//QGraphicsLayoutItem* tmp = item;
+	_layout->addItem(const_cast<QGraphicsLayoutItem*>(item));
+	const LayoutItem* layoutItem = static_cast<const LayoutItem*>(item);
+	connect(layoutItem, &LayoutItem::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
 }
 
 void GraphicsView::setLayout(const QString& value) {
@@ -109,21 +110,29 @@ void GraphicsView::addPopupImage(QLabel* label, LayoutItem* item) {
 }
 
 void GraphicsView::onRemovePopup() {
-    _scene->removeItem(_proxyLabel.get());
-    _proxyLabel.release();
+	if (_proxyLabel) {
+		_scene->removeItem(_proxyLabel.get());
+		_proxyLabel.release();
+	}
 }
 
 void GraphicsView::wheelEvent(QWheelEvent* event) {
-    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    double scaleFactor = 1.15;
-    /* wheel goes forward -> zoom in */
-    if (event->delta() > 0) {
-        scale(scaleFactor, scaleFactor);
-    }
-    /* zoom out */
-    else {
-        scale(1/scaleFactor, 1/scaleFactor);
-    }
+	Qt::KeyboardModifiers pressedKeys = QGuiApplication::keyboardModifiers();
+	if (pressedKeys == Qt::ControlModifier) {
+		setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+		double scaleFactor = 1.5;
+		/* wheel goes forward -> zoom in */
+		if (event->delta() > 0) {
+			scale(scaleFactor, scaleFactor);
+		}
+		/* zoom out */
+		else {
+			scale(1/scaleFactor, 1/scaleFactor);
+		}
+	}
+	else {
+		QGraphicsView::wheelEvent(event);
+	}
 }
 
 

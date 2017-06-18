@@ -87,7 +87,7 @@ private:
     void showProgressBar(const int maximumValue, const QString& taskName);
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-    void displayImages(const QList<cv::Mat>& images) const;
+	void displayImages(const QList<LayoutItem>& images) const;
     /** opencv_img_hash & pHash display */
     template<typename T> void displayImages(const T& images) const;
 
@@ -104,7 +104,7 @@ private:
 	int _iconSize;
 	int _nrOfImages;
 	QDir _dir;
-    QDir* _dirSmallImg;
+	QDir _dirSmallImg;
 	QStringList _supportedImgFormats;
     std::unique_ptr<QStringList> _imageNames;
 	int _imgWidth;
@@ -130,8 +130,8 @@ private:
     std::unique_ptr<QFuture<QImage>> _oneImageLoader;
     QFutureWatcher<QImage> _oneImageWatcher;
 
-    std::unique_ptr<QList<cv::Mat>> _images;
-    std::unique_ptr<std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>> _hashedImages;
+	std::unique_ptr<QList<LayoutItem>> _images;
+	std::unique_ptr<std::multimap<LayoutItem, cv::Mat, CBIR::MatCompare>> _hashedImages;
 
     ImageCollection _imageCollection;
 
@@ -146,6 +146,7 @@ private slots:
 	void onClearLayout();
 
     void onImageReceived(int index, const QString& url, const QString& originalUrl);
+	void onImageReceivedMT(const LayoutItem& image, const QString& url);
     void onFinishedLoading();
 
     void onSavingChange(int value);
@@ -173,9 +174,8 @@ private slots:
     void onAddNewFilter(QListWidgetItem* item);
 	void on_btn_applyFilters_clicked();
 
-	void onFilterActivated();
-
 signals:
+	void addViewItem(const QGraphicsLayoutItem* item);
 	void clearLayout();
     void resizeImages(int newWidth, int newHeight);
     void saveProgress(int value);

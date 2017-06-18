@@ -36,7 +36,7 @@ public:
 	/** makes a new layout from the available factories and sets it onto the scene */
 	void setLayout(const QString& value);
 	void setMinSceneSize(const QSizeF value) { _layoutWidget->setMinimumSize(value); _layout->invalidate();}
-    void addItem(QGraphicsLayoutItem* item);
+	void addItem(const QGraphicsLayoutItem* item);
 	int itemCount() const { return _layout->count(); }
     void clear() { _layout->clearAll(); }
     void addPopupImage(QLabel* label, LayoutItem* item);
@@ -80,6 +80,11 @@ private:
 
 signals:
     void imageClick(QGraphicsItem* image);
+
+public slots:
+	void onAddItem(const QGraphicsLayoutItem* item) {
+		addItem(item);
+	}
 
 private slots:
     void onSceneRectChanged(const QRectF& rect);

@@ -4,18 +4,22 @@
 #include <chrono>
 #include <string>
 
+#include <QObject>
 #include <QDateEdit>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QList>
-#include <QDebug>
 
 #include "AbstractFilter.hpp"
 
 
-class DateFilter : public AbstractFilter {
+class DateFilter : public QObject, public AbstractFilter {
+	Q_OBJECT
 public:
-	DateFilter(const DbContext& dbContext) {}
+	DateFilter(const DbContext& dbContext) {
+		_dbContext = dbContext;
+		_dbConnection = DbContext::MongoAccess::instance().get_connection();
+	}
 	~DateFilter() {}
 
     /**
@@ -38,9 +42,17 @@ public:
      * @brief calculate the 2 dates in milliseconds (since the epoch) represented in strings
      * @return
      */
-    QList<std::string> getDates();
+	QStringList getDates();
+
+signals:
+	void changed(const QJsonArray& results);
+
+private slots:
+	void on_date_changed(const QDateTime& datetime);
 
 private:
+	DbContext _dbContext;
+	mongocxx::pool::entry _dbConnection;
     QGroupBox* _groupBox;
 	QPushButton* _btnRemove;
     QDateTimeEdit* _dateEdit1;

@@ -9,27 +9,34 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "../ImageCollection.hpp"
+
 
 class Mapper {
 public:
     Mapper() = default;
-    Mapper(const QString& path, const int& width, const int& height) {
-        _width = width; _height = height;
+	Mapper(const QString& path, const int& width, const int& height, ImageCollection& imageCollection) {
+		_path = path;
+		_width = width;
+		_height = height;
+		_imageCollection = &imageCollection;
     }
     ~Mapper() = default;
 
-    using result_type = cv::Mat;
+	using result_type = LayoutItem;
 
-    cv::Mat operator()(const QString& imageName) {
-        QString fileName = _path + QDir::separator() + imageName;
-        cv::Mat cvImage = cv::imread(fileName.toStdString());
+	LayoutItem operator()(const QString& imageName) {
+		QString* fileName = new QString(_path + QDir::separator() + imageName);
+		cv::Mat cvImage = cv::imread(fileName->toStdString());
         if (cvImage.data == 0) {
             cv::Mat empty;
-            return empty;
+			return LayoutItem(ImageConverter::Mat2QImage(empty), "", "");
         }
-        cv::Mat cvResizedImg;
-        cv::resize(cvImage, cvResizedImg, cv::Size(_width, _height));
-        return cvResizedImg;
+		cv::Mat* cvResizedImg = new cv::Mat();
+		cv::resize(cvImage, *cvResizedImg, cv::Size(_width, _height));
+		LayoutItem* image = new LayoutItem(ImageConverter::Mat2QImage(*cvResizedImg), *fileName, *fileName);
+		_imageCollection->insert(cvResizedImg, fileName, fileName);
+		return *image;
     }
 
     Mapper& setPath(const QString& path) {
@@ -48,6 +55,7 @@ public:
     }
 
 private:
+	ImageCollection* _imageCollection;
     QString _path;
     int _width;
     int _height;

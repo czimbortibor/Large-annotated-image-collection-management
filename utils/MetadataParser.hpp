@@ -17,7 +17,7 @@ public:
 	MetadataParser() {}
 	~MetadataParser() {}
 
-	static QList<cv::Mat>& getImages(const QJsonArray& metadata,
+	static QList<LayoutItem>& getImages(const QJsonArray& metadata,
 											const ImageCollection& imageCollection);
 };
 
