@@ -14,7 +14,7 @@ class Reducer : public QObject {
 public:
 	Reducer() = default;
     ~Reducer() = default;
-	void operator()(QList<cv::Mat>& images, const cv::Mat& image) {
+	void operator()(QList<LayoutItem>& images, const LayoutItem& image) {
 		//images.append(image);
         // TODO: pass URL
 		//imageCollection.insert(&image);
@@ -22,9 +22,9 @@ public:
     }
 
 signals:
-	void imageReady(const cv::Mat& image, const QString& url);
+	void imageReady(const LayoutItem& image, const QString& url);
 };
 
-Q_DECLARE_METATYPE(cv::Mat)
+Q_DECLARE_METATYPE(LayoutItem)
 
 #endif // REDUCER_HPP

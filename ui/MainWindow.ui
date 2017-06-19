@@ -393,6 +393,16 @@
    <widget class="QWidget" name="dockWidgetContents_filters">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
+      <widget class="QPushButton" name="btn_selectedImages">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Selected images</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_addFilter">
        <item>
         <widget class="QLabel" name="label_filter">

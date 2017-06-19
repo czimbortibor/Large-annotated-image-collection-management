@@ -20,11 +20,11 @@
 class ImageLoader : public QObject, public QRunnable {
     Q_OBJECT
 public:
-    ImageLoader(const QString dirName, QStringList& imageNames,
-                         QList<cv::Mat>& results,
-                         const cv::Size& size,
-                         ImageCollection& imageCollection, const QString& originalDirPath,
-                         QObject* parent = 0);
+	ImageLoader(const QString dirName, QStringList& imageNames,
+						 QList<LayoutItem>& results,
+						 const cv::Size& size,
+						 ImageCollection& imageCollection, const QString& originalDirPath,
+						 QObject* parent = 0);
     void run();
 
     bool isRunning() const { return static_cast<int>(_running); }
@@ -36,7 +36,8 @@ private:
     QString _originalDirPath;
     QStringList* _imageNames;
     cv::Size _size;
-    QList<cv::Mat>* _results;
+	QList<LayoutItem>* _results;
+	int _index = 0;
 
     QAtomicInt _running;
 

@@ -38,7 +38,7 @@ public:
      * of available results
      * @return the loaded images
      */
-    QList<cv::Mat>* loadImages_st(const QString& path, QStringList* imageNames, const QString& originalDirPath);
+	QList<LayoutItem>* loadImages_st(const QString& path, QStringList* imageNames, const QString& originalDirPath);
 
     cv::Mat loadImage(const QString& fileName) const;
 
@@ -47,7 +47,7 @@ public:
 
 private:
     ImageCollection* _imageCollection;
-    std::unique_ptr<QList<cv::Mat>> _images;
+	std::unique_ptr<QList<LayoutItem>> _images;
     /**
      * @brief the given width of the image to be loaded
      */
@@ -58,8 +58,8 @@ private:
     int _height = 100;
 
     // ----------- multi-threaded image load ---------------
-	std::unique_ptr<QFuture<QList<cv::Mat>>> _loaderMT;
-	std::unique_ptr<QFutureWatcher<QList<cv::Mat>>> _loaderWatcherMT;
+	std::unique_ptr<QFuture<QList<LayoutItem>>> _loaderMT;
+	std::unique_ptr<QFutureWatcher<QList<LayoutItem>>> _loaderWatcherMT;
     Mapper _mapper;
     Reducer _reducer;
 
@@ -69,7 +69,7 @@ private:
 
 signals:
     void imageReady(int index, const QString& url, const QString& originalUrl);
-	void mt_imageReady(const cv::Mat& image, const QString& url);
+	void mt_imageReady(const LayoutItem& image, const QString& url);
     void finishedLoading();
 
 public slots:

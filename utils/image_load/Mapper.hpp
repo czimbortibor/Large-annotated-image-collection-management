@@ -23,19 +23,24 @@ public:
     }
     ~Mapper() = default;
 
-    using result_type = cv::Mat;
+	using result_type = LayoutItem;
 
-    cv::Mat operator()(const QString& imageName) {
+	LayoutItem operator()(const QString& imageName) {
 		QString* fileName = new QString(_path + QDir::separator() + imageName);
+		if (fileName->endsWith(".gif")) {
+			cv::Mat empty;
+			return LayoutItem(ImageConverter::Mat2QImage(empty), "", "");
+		}
 		cv::Mat cvImage = cv::imread(fileName->toStdString());
         if (cvImage.data == 0) {
             cv::Mat empty;
-            return empty;
+			return LayoutItem(ImageConverter::Mat2QImage(empty), "", "");
         }
 		cv::Mat* cvResizedImg = new cv::Mat();
 		cv::resize(cvImage, *cvResizedImg, cv::Size(_width, _height));
+		LayoutItem* image = new LayoutItem(ImageConverter::Mat2QImage(*cvResizedImg), *fileName, *fileName);
 		_imageCollection->insert(cvResizedImg, fileName, fileName);
-		return *cvResizedImg;
+		return *image;
     }
 
     Mapper& setPath(const QString& path) {

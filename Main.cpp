@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         file.close();
     }*/
 
-	qRegisterMetaType<cv::Mat>();
+	qRegisterMetaType<LayoutItem>();
 
 	ConnectionManager cm;
 	//cm.show();

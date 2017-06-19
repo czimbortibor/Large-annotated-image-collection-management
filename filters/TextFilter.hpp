@@ -31,8 +31,7 @@ public:
 
 	QJsonObject filterTitle(const std::string& text);
 
-	QString getTitle() { return _editTitle->text(); }
-	QString getSummary() { return _editSummary->text(); }
+	QString getText() { return _editField->text(); }
 
 signals:
 	void changed(const QJsonArray& results);
@@ -45,8 +44,7 @@ private:
 	mongocxx::pool::entry _dbConnection;
 	QGroupBox* _groupBox;
 	QPushButton* _btnRemove;
-	QLineEdit* _editTitle;
-	QLineEdit* _editSummary;
+	QLineEdit* _editField;
 };
 
 #endif // TEXTFILTER_HPP

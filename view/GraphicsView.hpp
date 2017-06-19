@@ -36,14 +36,14 @@ public:
 	/** makes a new layout from the available factories and sets it onto the scene */
 	void setLayout(const QString& value);
 	void setMinSceneSize(const QSizeF value) { _layoutWidget->setMinimumSize(value); _layout->invalidate();}
-    void addItem(QGraphicsLayoutItem* item);
+	void addItem(const QGraphicsLayoutItem* item);
 	int itemCount() const { return _layout->count(); }
     void clear() { _layout->clearAll(); }
     void addPopupImage(QLabel* label, LayoutItem* item);
 
-    void resizeEvent(QResizeEvent* event) {
-        fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
-    }
+	/*void resizeEvent(QResizeEvent* event) {
+		fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
+	}*/
 
     void wheelEvent(QWheelEvent* event);
 
@@ -61,10 +61,10 @@ public:
     void setSpiralDistance(int value);
     void setSpiralTurn(int value);
 
+	QList<LayoutItem> getSelectedImages();
+
 protected:
-    /*void mousePressEvent(QMouseEvent* event) {
-        QGraphicsView::mousePressEvent(event);
-    }*/
+	void mouseReleaseEvent(QMouseEvent* event);
 
 private:
 	QImage Mat2QImage(const cv::Mat& cvImage) const;
@@ -82,7 +82,7 @@ signals:
     void imageClick(QGraphicsItem* image);
 
 public slots:
-	void onAddItem(QGraphicsLayoutItem* item) {
+	void onAddItem(const QGraphicsLayoutItem* item) {
 		addItem(item);
 	}
 

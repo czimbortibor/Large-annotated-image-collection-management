@@ -47,6 +47,11 @@
 #include <QGraphicsObject>
 #include <QDebug>
 
+#include <opencv2/core.hpp>
+
+#include "graphics/SelectEffect.hpp"
+
+
 class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
@@ -55,8 +60,16 @@ public:
     LayoutItem() = default;
     LayoutItem(const QImage& image, const QString& url, const QString& originalUrl);
     LayoutItem(const QImage& image);
+
+	LayoutItem(const LayoutItem& other) : QGraphicsObject(), QGraphicsLayoutItem() {
+		*this = other;
+		this->mat = other.mat;
+	}
     LayoutItem& operator=(const LayoutItem& other);
-    ~LayoutItem() { QGraphicsLayoutItem::setGraphicsItem(0); }
+	~LayoutItem() {
+		setGraphicsEffect(nullptr);
+		QGraphicsLayoutItem::setGraphicsItem(0);
+	}
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const;
@@ -71,11 +84,13 @@ public:
     QString getUrl() const { return _url; }
     QString getOriginalUrl() const { return _originalUrl; }
 
+	cv::Mat* mat;
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
     void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
-    void mouseDoubleClickEvent(QGraphicsSceneHoverEvent* event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 
 private:
     QPixmap _pix;

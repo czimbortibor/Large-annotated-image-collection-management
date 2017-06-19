@@ -1,6 +1,6 @@
 #include "MetadataParser.hpp"
 
-QList<cv::Mat>& MetadataParser::getImages(const QJsonArray& metadata,
+QList<LayoutItem>& MetadataParser::getImages(const QJsonArray& metadata,
 												 const ImageCollection& imageCollection) {
 	QStringList* imgPaths = new QStringList();
 	for (const auto& json : metadata) {
@@ -11,6 +11,6 @@ QList<cv::Mat>& MetadataParser::getImages(const QJsonArray& metadata,
 		}
 	}
 
-	QList<cv::Mat>* results = imageCollection.getImagesByUrl(*imgPaths);
+	QList<LayoutItem>* results = imageCollection.getImagesByUrl(*imgPaths);
 	return *results;
 }

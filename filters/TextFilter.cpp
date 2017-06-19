@@ -2,14 +2,11 @@
 
 
 QGroupBox* TextFilter::makeControl() {
-	_editTitle = new QLineEdit();
-	_editTitle->setPlaceholderText("search in title and summary");
-	_editTitle->setMinimumWidth(175);
-	/*_editSummary = new QLineEdit();
-	_editSummary->setPlaceholderText("search by summary");*/
+	_editField = new QLineEdit();
+	_editField->setPlaceholderText("search in title and summary");
+	_editField->setMinimumWidth(175);
 
-	connect(_editTitle, &QLineEdit::textChanged, this, &TextFilter::on_text_changed);
-	//connect(_editSummary, &QLineEdit::textChanged, this, &TextFilter::on_text_changed);
+	connect(_editField, &QLineEdit::textChanged, this, &TextFilter::on_text_changed);
 
 	_groupBox = new QGroupBox();
 	_groupBox->setLayout(new QVBoxLayout());
@@ -18,8 +15,7 @@ QGroupBox* TextFilter::makeControl() {
 	_btnRemove->setAutoFillBackground(false);
 	_btnRemove->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	_groupBox->layout()->addWidget(_btnRemove);
-	_groupBox->layout()->addWidget(_editTitle);
-	//_groupBox->layout()->addWidget(_editSummary);
+	_groupBox->layout()->addWidget(_editField);
 	return _groupBox;
 }
 
