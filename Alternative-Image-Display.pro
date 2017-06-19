@@ -68,7 +68,8 @@ HEADERS  +=\
     filters/TextFilter.hpp \
     utils/MetadataParser.hpp \
     ui/ConnectionManager.hpp \
-    utils/Logger.hpp
+    utils/Logger.hpp \
+    utils/graphics/SelectEffect.hpp
 
 FORMS    +=\
     ui/MainWindow.ui \

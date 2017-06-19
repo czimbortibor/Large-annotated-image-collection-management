@@ -49,6 +49,8 @@
 
 #include <opencv2/core.hpp>
 
+#include "graphics/SelectEffect.hpp"
+
 
 class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
     Q_OBJECT
@@ -59,12 +61,15 @@ public:
     LayoutItem(const QImage& image, const QString& url, const QString& originalUrl);
     LayoutItem(const QImage& image);
 
-	LayoutItem(const LayoutItem& other) {
+	LayoutItem(const LayoutItem& other) : QGraphicsObject(), QGraphicsLayoutItem() {
 		*this = other;
 		this->mat = other.mat;
 	}
     LayoutItem& operator=(const LayoutItem& other);
-    ~LayoutItem() { QGraphicsLayoutItem::setGraphicsItem(0); }
+	~LayoutItem() {
+		setGraphicsEffect(nullptr);
+		QGraphicsLayoutItem::setGraphicsItem(0);
+	}
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const;

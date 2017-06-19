@@ -135,4 +135,16 @@ void GraphicsView::wheelEvent(QWheelEvent* event) {
 	}
 }
 
+void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
+
+}
+
+QList<LayoutItem> GraphicsView::getSelectedImages() {
+	QList<LayoutItem> results;
+	for (const auto& item : _scene->selectedItems()) {
+		results.append(*(static_cast<LayoutItem*>(item)));
+	}
+	return results;
+}
+
 

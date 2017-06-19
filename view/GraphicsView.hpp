@@ -61,10 +61,10 @@ public:
     void setSpiralDistance(int value);
     void setSpiralTurn(int value);
 
+	QList<LayoutItem> getSelectedImages();
+
 protected:
-    /*void mousePressEvent(QMouseEvent* event) {
-        QGraphicsView::mousePressEvent(event);
-    }*/
+	void mouseReleaseEvent(QMouseEvent* event);
 
 private:
 	QImage Mat2QImage(const cv::Mat& cvImage) const;

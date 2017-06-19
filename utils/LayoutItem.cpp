@@ -86,7 +86,7 @@ void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 }
 
 QRectF LayoutItem::boundingRect() const {
-    return QRectF(QPointF(0,0), geometry().size());
+	return QRectF(QPointF(0, 0), geometry().size());
 }
 
 void LayoutItem::setGeometry(const QRectF& geom) {
@@ -102,7 +102,7 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
             // Do not allow a size smaller than the pixmap with two frames around it
             return _pix.size() + QSize(1, 1);
         case Qt::MaximumSize:
-            return QSizeF(1000,1000);
+			return QSizeF(1000, 1000);
         default:
             break;
     }
@@ -111,7 +111,15 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
 
 void LayoutItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     emit clicked(_url);
-	setSelected(true);
+	if (isSelected()) {
+		setSelected(false);
+		setGraphicsEffect(nullptr);
+	}
+	else {
+		setSelected(true);
+		SelectEffect* effect = new SelectEffect(1.2);
+		setGraphicsEffect(effect);
+	}
 }
 
 void LayoutItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {

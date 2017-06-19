@@ -54,6 +54,7 @@ void MainWindow::initWindow() {
 	// buttons
 	connect(ui->btn_load, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
 	connect(ui->btn_clear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
+	connect(ui->btn_selectedImages, &QPushButton::clicked, this, &MainWindow::on_btn_selectedImages_clicked);
 
 	// spinboxes
 	connect(ui->spinBox_radius, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onRadiusChanged);
@@ -463,5 +464,10 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 }
 
 void MainWindow::on_btn_applyFilters_clicked() {
+
+}
+
+void MainWindow::on_btn_selectedImages_clicked() {
+	QList<LayoutItem> selectedImages = _view->getSelectedImages();
 
 }
