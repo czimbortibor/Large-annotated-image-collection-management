@@ -59,7 +59,10 @@ public:
     LayoutItem(const QImage& image, const QString& url, const QString& originalUrl);
     LayoutItem(const QImage& image);
 
-	LayoutItem(const LayoutItem& other) { *this = other; }
+	LayoutItem(const LayoutItem& other) {
+		*this = other;
+		this->mat = other.mat;
+	}
     LayoutItem& operator=(const LayoutItem& other);
     ~LayoutItem() { QGraphicsLayoutItem::setGraphicsItem(0); }
     // Inherited from QGraphicsLayoutItem
@@ -82,7 +85,7 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
     void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
-    void mouseDoubleClickEvent(QGraphicsSceneHoverEvent* event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 
 private:
     QPixmap _pix;

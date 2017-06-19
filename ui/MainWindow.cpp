@@ -368,15 +368,19 @@ void MainWindow::onImageSizeChanged(int size) {
 }
 
 void MainWindow::onImageClicked(const QString& url) {
-    /*const QString& hasherName = ui->comboBox_hashes->currentText();
-    QList<cv::Mat>* results = _imageCollection.getSimilarImages(url, hasherName);
-    _images.reset(results);
-    _view->clear();
-    displayImages(*_images.get());*/
+
 }
 
 void MainWindow::onImageDoubleClicked(const QString& url) {
-
+	// if the images are still loading
+	if (_progressBar) {
+		return;
+	}
+	const QString& hasherName = ui->comboBox_hashes->currentText();
+	QList<LayoutItem>* results = _imageCollection.getSimilarImages(url, hasherName);
+	_images.reset(results);
+	_view->clear();
+	displayImages(*_images.get());
 }
 
 QImage MainWindow::loadImage(const QString& url) const {

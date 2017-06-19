@@ -111,12 +111,10 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
 
 void LayoutItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     emit clicked(_url);
-    /*setSelected(true);
-    QGraphicsItem::mousePressEvent(event);
-    */
+	setSelected(true);
 }
 
-void LayoutItem::mouseDoubleClickEvent(QGraphicsSceneHoverEvent* event) {
+void LayoutItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     emit doubleClick(_url);
 }
 
