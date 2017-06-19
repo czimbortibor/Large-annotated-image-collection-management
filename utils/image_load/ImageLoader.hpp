@@ -37,6 +37,7 @@ private:
     QStringList* _imageNames;
     cv::Size _size;
 	QList<LayoutItem>* _results;
+	int _index = 0;
 
     QAtomicInt _running;
 

@@ -302,27 +302,15 @@ void MainWindow::onClearLayout() {
    // _images->squeeze();
 }
 
-void MainWindow::displayImages(const QList<LayoutItem>& images) const {
-    for (const auto& image : images) {
+void MainWindow::displayImages(QList<LayoutItem>& images) {
+	for (auto& image : images) {
 		//QImage res = ImageConverter::Mat2QImage(image);
-		//LayoutItem* item = new LayoutItem(res);
 		connect(&image, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
-		connect(&image, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
 		connect(&image, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
+		connect(&image, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
 		_view->addItem(&image);
+		//emit addViewItem(&image);
 	}
-}
-
-template<typename T>
-void MainWindow::displayImages(const T& images) const {
-	/*for (const auto& entry : images) {
-		QImage image = ImageConverter::Mat2QImage(entry.second);
-		LayoutItem* item = new LayoutItem(image);
-		connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
-		connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
-		connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
-        _view->addItem(static_cast<QGraphicsLayoutItem*>(item));
-	}*/
 }
 
 void MainWindow::logTime(QString message) {

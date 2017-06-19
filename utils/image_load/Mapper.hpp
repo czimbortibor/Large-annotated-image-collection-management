@@ -27,6 +27,10 @@ public:
 
 	LayoutItem operator()(const QString& imageName) {
 		QString* fileName = new QString(_path + QDir::separator() + imageName);
+		if (fileName->endsWith(".gif")) {
+			cv::Mat empty;
+			return LayoutItem(ImageConverter::Mat2QImage(empty), "", "");
+		}
 		cv::Mat cvImage = cv::imread(fileName->toStdString());
         if (cvImage.data == 0) {
             cv::Mat empty;

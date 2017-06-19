@@ -41,9 +41,9 @@ public:
     void clear() { _layout->clearAll(); }
     void addPopupImage(QLabel* label, LayoutItem* item);
 
-    void resizeEvent(QResizeEvent* event) {
-        fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
-    }
+	/*void resizeEvent(QResizeEvent* event) {
+		fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
+	}*/
 
     void wheelEvent(QWheelEvent* event);
 

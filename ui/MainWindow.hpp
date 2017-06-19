@@ -87,9 +87,7 @@ private:
     void showProgressBar(const int maximumValue, const QString& taskName);
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-	void displayImages(const QList<LayoutItem>& images) const;
-    /** opencv_img_hash & pHash display */
-    template<typename T> void displayImages(const T& images) const;
+	void displayImages(QList<LayoutItem>& images);
 
     /**
      * @brief loads one image

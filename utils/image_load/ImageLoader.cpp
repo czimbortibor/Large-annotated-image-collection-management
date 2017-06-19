@@ -15,9 +15,13 @@ ImageLoader::ImageLoader(const QString dirName, QStringList& imageNames,
 
 void ImageLoader::run() {
     _running.testAndSetOrdered(0, 1);
+	_index;
     for (int i = 0; i < _imageNames->length(); ++i) {
         if (static_cast<int>(_running)) {
             QString* fullFileName = new QString(_dirName + "/" + _imageNames->at(i));
+			if (fullFileName->endsWith(".gif")) {
+				continue;
+			}
             QString* originalFileName = new QString(_originalDirPath + "/" + _imageNames->at(i));
 			cv::Mat cvImage;
             cvImage = cv::imread(fullFileName->toStdString());
@@ -31,7 +35,8 @@ void ImageLoader::run() {
 			image->mat = cvResizedImg;
 			_results->append(*image);
 			_imageCollection->insert(cvResizedImg, fullFileName, originalFileName);
-            emit resultReady(i, *fullFileName, *originalFileName);
+			emit resultReady(_index, *fullFileName, *originalFileName);
+			++_index;
             }
         }
     _running.testAndSetOrdered(1, 0);
