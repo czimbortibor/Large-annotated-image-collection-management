@@ -39,9 +39,7 @@ SOURCES +=\
     utils/ImageCollection.cpp \
     db/DbContext.cpp \
     filters/TextFilter.cpp \
-    utils/MetadataParser.cpp \
     ui/ConnectionManager.cpp \
-    utils/ConfigurationsHandler (copy).cpp \
     utils/db_queries/MetadataParser.cpp
 
 HEADERS  +=\
@@ -72,8 +70,8 @@ HEADERS  +=\
     ui/ConnectionManager.hpp \
     utils/Logger.hpp \
     utils/graphics/SelectEffect.hpp \
-    utils/ConfigurationsHandler (copy).hpp \
-    utils/db_queries/MetadataParser.hpp
+    utils/db_queries/MetadataParser.hpp \
+    utils/db_queries/Metadata.hpp
 
 FORMS    +=\
     ui/MainWindow.ui \

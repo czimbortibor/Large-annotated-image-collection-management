@@ -446,9 +446,10 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 	if (textFilter) {
 		connect(textFilter, &TextFilter::changed, [&](const QJsonArray& results) {
 			if (results.size()) {
-				QList<LayoutItem> filtered_images = MetadataParser::getImages(results, _imageCollection);
-				_view->clear();
-				displayImages(filtered_images);
+				QList<Metadata> metadata = MetadataParser::getMetadata(results);
+				QList<LayoutItem> filtered_images = MetadataParser::getImages(metadata, _imageCollection);
+				//_view->clear();
+				//displayImages(filtered_images);
 			}
 			else {
 				displayImages(*_images.get());

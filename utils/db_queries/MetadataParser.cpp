@@ -1,16 +1,32 @@
 #include "MetadataParser.hpp"
 
-QList<LayoutItem>& MetadataParser::getImages(const QJsonArray& metadata,
-												 const ImageCollection& imageCollection) {
-	QStringList* imgPaths = new QStringList();
+QList<Metadata>& MetadataParser::getMetadata(const QJsonArray& metadata) {
+	QList<Metadata>* results = new QList<Metadata>();
 	for (const auto& json : metadata) {
 		QJsonObject obj = json.toObject();
-		if (obj.contains("image_path")) {
-			QString imgPath = obj["image_path"].toString();
-			imgPaths->append(imgPath);
-		}
+
+		Metadata data;
+		data.link = obj["link"].toString().toStdString();
+		data.image_url = obj["image_url"].toString().toStdString();
+		data.rss = obj["rss"].toString().toStdString();
+		data.author = obj["author"].toString().toStdString();
+		data.title = obj["title"].toString().toStdString();
+		data.summary = obj["summary"].toString().toStdString();
+		data.published = obj["published"].toString().toStdString();
+		data.image_path = obj["image_path"].toString().toStdString();
+
+		results->append(data);
+	}
+	return *results;
+}
+
+QList<LayoutItem>& MetadataParser::getImages(const QList<Metadata>& metadata,
+												 const ImageCollection& imageCollection) {
+	QStringList imgPaths;
+	for (const auto& data : metadata) {
+		imgPaths.append(QString::fromStdString(data.image_path));
 	}
 
-	QList<LayoutItem>* results = imageCollection.getImagesByUrl(*imgPaths);
+	QList<LayoutItem>* results = imageCollection.getImagesByUrl(imgPaths);
 	return *results;
 }
