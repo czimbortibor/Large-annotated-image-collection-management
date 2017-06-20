@@ -87,6 +87,8 @@ void MainWindow::initWindow() {
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 
     ui->btn_applyFilters->hide();
+
+	ui->tableWidget_metadata->hide();
 }
 
 void MainWindow::initHashes() {
@@ -249,6 +251,24 @@ void MainWindow::onFinishedLoading() {
     connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
 
     saveImages(ui->slider_imgSize->value());
+
+	QJsonArray raw_data = _dbContext.queryAll();
+	_metadata.reset(&MetadataParser::getMetadata(raw_data));
+}
+
+void MainWindow::populateMetadataTable(const QList<Metadata>& metadata) {
+	int col;
+	int row = 0;
+	for (const auto& data : metadata) {
+		col = 0;
+		ui->tableWidget_metadata->insertRow(ui->tableWidget_metadata->rowCount());
+		for (const auto& header : data.keys()) {
+			QTableWidgetItem* cell = new QTableWidgetItem(tr("%1").arg(QString::fromStdString(data[header])));
+			ui->tableWidget_metadata->setItem(row, col, cell);
+			++col;
+		}
+		++row;
+	}
 }
 
 void MainWindow::onHashImages() {
@@ -370,7 +390,12 @@ void MainWindow::onImageSizeChanged(int size) {
 }
 
 void MainWindow::onImageClicked(const QString& url) {
+	ui->tableWidget_metadata->setVisible(ui->tableWidget_metadata->isVisible());
+	ui->tableWidget_metadata->clear();
 
+	QList<Metadata> data{_metadata->at(0)};
+	ui->tableWidget_metadata->setVisible(true);
+	populateMetadataTable(data);
 }
 
 void MainWindow::onImageDoubleClicked(const QString& url) {

@@ -41,6 +41,10 @@ public:
 	mongocxx::uri loadUri();
 	bool init();
 
+	QJsonArray queryAll();
+	QJsonArray filterText(const QString& text);
+
+
 	/* instances to collections in the database */
 	mongocxx::collection feedsNameCollection;
 	mongocxx::collection feedsCollection;

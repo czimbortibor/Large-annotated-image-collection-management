@@ -16,7 +16,7 @@ public:
 		_dbContext = dbContext;
 		_dbConnection = DbContext::MongoAccess::instance().get_connection();
 	}
-	~TextFilter() {}
+	~TextFilter() = default;
 
 	TextFilter* makeFilter(const DbContext& dbContext) { return new TextFilter(dbContext); }
 
@@ -28,8 +28,6 @@ public:
 	QGroupBox* makeControl();
 
 	QPushButton* removeButton() { return _btnRemove; }
-
-	QJsonObject filterTitle(const std::string& text);
 
 	QString getText() { return _editField->text(); }
 

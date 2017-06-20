@@ -98,6 +98,9 @@ private:
 
 	void logTime(QString message);
 
+	QJsonArray* getAllMetadata();
+	void populateMetadataTable(const QList<Metadata>& metadata);
+
 	Ui::MainWindow* ui;
 	int _iconSize;
 	int _nrOfImages;
@@ -141,6 +144,7 @@ private:
 
     QMap<QString, AbstractFilter*> _filters;
     QListWidget* _filterList;
+	std::unique_ptr<QList<Metadata>> _metadata;
 
 private slots:
 	void onClearLayout();

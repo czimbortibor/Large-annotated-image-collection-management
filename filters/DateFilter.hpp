@@ -20,7 +20,7 @@ public:
 		_dbContext = dbContext;
 		_dbConnection = DbContext::MongoAccess::instance().get_connection();
 	}
-	~DateFilter() {}
+	~DateFilter() = default;
 
     /**
      * @brief create a new DateFilter for filtering the images between 2 dates

@@ -391,19 +391,22 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_filters">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QPushButton" name="btn_selectedImages">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(115, 210, 22);</string>
-       </property>
-       <property name="text">
-        <string>Selected images</string>
-       </property>
-      </widget>
-     </item>
-     <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
       <layout class="QHBoxLayout" name="horizontalLayout_addFilter">
+       <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item>
         <widget class="QLabel" name="label_filter">
          <property name="text">
@@ -448,10 +451,7 @@
        </item>
       </layout>
      </item>
-     <item>
-      <widget class="QWidget" name="widget_createFilters" native="true"/>
-     </item>
-     <item>
+     <item row="2" column="0">
       <widget class="QPushButton" name="btn_applyFilters">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -473,9 +473,119 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="0">
+      <widget class="QWidget" name="widget_createFilters" native="true"/>
+     </item>
+     <item row="3" column="0">
       <widget class="QWidget" name="widget_filters" native="true">
        <layout class="QFormLayout" name="formLayout"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_metadata">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btn_selectedImages">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Selected images</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="1">
+      <widget class="QTableWidget" name="tableWidget_metadata">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="gridStyle">
+        <enum>Qt::SolidLine</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>false</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>link</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>image url</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>rss</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>author</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>title</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>published</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>summary</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>image path</string>
+        </property>
+       </column>
       </widget>
      </item>
     </layout>
@@ -484,6 +594,7 @@
   <zorder>dockWidget_mainControls</zorder>
   <zorder>dockWidget_filters</zorder>
   <zorder>dockWidget_layouts</zorder>
+  <zorder>dockWidget_metadata</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
