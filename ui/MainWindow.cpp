@@ -2,7 +2,7 @@
 #include "ui_MainWindow.h"
 
 
-using CollectionMap = std::map<LayoutItem, cv::Mat, CBIR::MatCompare>;
+using CollectionMap = std::map<GraphicsImage, cv::Mat, CBIR::MatCompare>;
 
 std::string Logger::file_name = "log_file.txt";
 
@@ -100,6 +100,10 @@ void MainWindow::initView() {
 	_view->show();
 
 	connect(this, &MainWindow::addViewItem, _view, &GraphicsView::onAddItem);
+	connect(this, &MainWindow::display, [&](const QList<GraphicsImage>& images) {
+		_imageDisplayer.reset(new QFuture<void>(
+								  QtConcurrent::run(this, &MainWindow::displayImages, images)));
+	});
 }
 
 void MainWindow::showAlertDialog() const {
@@ -148,7 +152,7 @@ void MainWindow::onLoadImagesClick() {
 	}
 
     _nrOfImages = _dir.entryList().length();
-	_images = std::unique_ptr<QList<LayoutItem>>(new QList<LayoutItem>());
+	_images = std::shared_ptr<QList<GraphicsImage>>(new QList<GraphicsImage>());
 
     _iconSize = ui->slider_imgSize->value();
     _imgWidth = _iconSize;
@@ -217,22 +221,22 @@ void MainWindow::onLoadImagesClick() {
     showProgressBar(_imageNames->length(), "loading");
 }
 
-void MainWindow::onImageReceivedMT(const LayoutItem& image, const QString& url) {
+void MainWindow::onImageReceivedMT(const GraphicsImage& image, const QString& url) {
 	_images->append(image);
 	//LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(image), url, "");
-	connect(&image, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
-	connect(&image, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
-	connect(&image, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
+	connect(&image, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
+	connect(&image, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
+	connect(&image, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
 	emit addViewItem(&image);
 	_progressBar->setValue(_progressBar->value() + 1);
 }
 
 void MainWindow::onImageReceived(int index, const QString& url, const QString& originalUrl) {
 	//LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(_images->at(index)), url, originalUrl);
-	const LayoutItem* item = &_images->at(index);
-    connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
-    connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
-    connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
+	const GraphicsImage* item = &_images->at(index);
+	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
+	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
+	connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
     _view->addItem(item);
     _progressBar->setValue(_progressBar->value() + 1);
 }
@@ -303,13 +307,14 @@ void MainWindow::onClearLayout() {
    // _images->squeeze();
 }
 
-void MainWindow::displayImages(QList<LayoutItem>& images) {
-	for (auto& image : images) {
-		//QImage res = ImageConverter::Mat2QImage(image);
-		connect(&image, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
-		connect(&image, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
-		connect(&image, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
-		_view->addItem(&image);
+void MainWindow::displayImages(const QList<GraphicsImage>& images) {
+	_view->clear();
+	for (const auto& image : images) {
+		const GraphicsImage* item = new GraphicsImage(image);
+		/*connect(&image, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
+		connect(&image, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
+		connect(&image, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);*/
+		_view->addItem(item);
 		//emit addViewItem(&image);
 	}
 }
@@ -322,25 +327,21 @@ void MainWindow::logTime(QString message) {
 
 void MainWindow::onRadiusChanged(double value) {
 	_view->setRadius(value);
-	_view->clear();
 	displayImages(*_images.get());
 }
 
 void MainWindow::onPetalNrChanged(int value) {
 	_view->setNrOfPetals(value);
-	_view->clear();
 	displayImages(*_images.get());
 }
 
 void MainWindow::onSpiralDistanceChanged(int value) {
 	_view->setSpiralDistance(value);
-	_view->clear();
 	displayImages(*_images.get());
 }
 
 void MainWindow::onSpiralTurnChanged(int value) {
 	_view->setSpiralTurn(value);
-	_view->clear();
 	displayImages(*_images.get());
 }
 
@@ -378,10 +379,8 @@ void MainWindow::onImageDoubleClicked(const QString& url) {
 		return;
 	}
 	const QString& hasherName = ui->comboBox_hashes->currentText();
-	QList<LayoutItem>* results = _imageCollection.getSimilarImages(url, hasherName);
-	_images.reset(results);
-	_view->clear();
-	displayImages(*_images.get());
+	QList<GraphicsImage>* results = _imageCollection.getSimilarImages(url, hasherName);
+	displayImages(*results);
 }
 
 QImage MainWindow::loadImage(const QString& url) const {
@@ -407,7 +406,7 @@ void MainWindow::onFinishedOneImageLoad() {
     _view->addPopupImage(imageLabel, _hoveredItem);
 }
 
-void MainWindow::onImageHoverEnter(const QString& url, LayoutItem* item) {
+void MainWindow::onImageHoverEnter(const QString& url, GraphicsImage* item) {
     _hoveredItem = item;
     _oneImageLoader.reset(new QFuture<QImage>(QtConcurrent::run(this, &MainWindow::loadImage, url)));
     _oneImageWatcher.setFuture(*_oneImageLoader.get());
@@ -447,13 +446,12 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 		connect(textFilter, &TextFilter::changed, [&](const QJsonArray& results) {
 			if (results.size()) {
 				QList<Metadata> metadata = MetadataParser::getMetadata(results);
-				QList<LayoutItem> filtered_images = MetadataParser::getImages(metadata, _imageCollection);
-				//_view->clear();
-				//displayImages(filtered_images);
+				QList<GraphicsImage> filtered_images = MetadataParser::getImages(metadata, _imageCollection);
+				displayImages(filtered_images);
 			}
-			else {
-				displayImages(*_images.get());
-			}
+			/*else {
+				emit displayImages(*_images.get());
+			}*/
 		});
 	}
 	else {
@@ -469,6 +467,6 @@ void MainWindow::on_btn_applyFilters_clicked() {
 }
 
 void MainWindow::on_btn_selectedImages_clicked() {
-	QList<LayoutItem> selectedImages = _view->getSelectedImages();
+	QList<GraphicsImage> selectedImages = _view->getSelectedImages();
 
 }

@@ -23,7 +23,7 @@
 #include <QProgressBar>
 
 #include "view/GraphicsView.hpp"
-#include "utils/LayoutItem.hpp"
+#include "utils/GraphicsImage.hpp"
 #include "utils/CBIR.hpp"
 #include "utils/image_load/LoadingHandler.hpp"
 #include "utils/image_load/ImageLoader.hpp"
@@ -87,7 +87,7 @@ private:
     void showProgressBar(const int maximumValue, const QString& taskName);
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
-	void displayImages(QList<LayoutItem>& images);
+	void displayImages(const QList<GraphicsImage>& images);
 
     /**
      * @brief loads one image
@@ -110,7 +110,7 @@ private:
 	QElapsedTimer _timer;
     int _notifyRate;
     std::unique_ptr<QProgressBar> _progressBar;
-    LayoutItem* _hoveredItem;
+	GraphicsImage* _hoveredItem;
 
     /**
      * @brief _imageSaver saves the images to the disk
@@ -128,8 +128,10 @@ private:
     std::unique_ptr<QFuture<QImage>> _oneImageLoader;
     QFutureWatcher<QImage> _oneImageWatcher;
 
-	std::unique_ptr<QList<LayoutItem>> _images;
-	std::unique_ptr<std::multimap<LayoutItem, cv::Mat, CBIR::MatCompare>> _hashedImages;
+	std::unique_ptr<QFuture<void>> _imageDisplayer;
+
+	std::shared_ptr<QList<GraphicsImage>> _images;
+	std::unique_ptr<std::multimap<GraphicsImage, cv::Mat, CBIR::MatCompare>> _hashedImages;
 
     ImageCollection _imageCollection;
 
@@ -144,7 +146,7 @@ private slots:
 	void onClearLayout();
 
     void onImageReceived(int index, const QString& url, const QString& originalUrl);
-	void onImageReceivedMT(const LayoutItem& image, const QString& url);
+	void onImageReceivedMT(const GraphicsImage& image, const QString& url);
     void onFinishedLoading();
 
     void onSavingChange(int value);
@@ -166,7 +168,7 @@ private slots:
 
     void onImageClicked(const QString& url);
     void onImageDoubleClicked(const QString& url);
-    void onImageHoverEnter(const QString& url, LayoutItem* item);
+	void onImageHoverEnter(const QString& url, GraphicsImage* item);
     void onFinishedOneImageLoad();
 
     void onAddNewFilter(QListWidgetItem* item);
@@ -178,6 +180,7 @@ signals:
 	void clearLayout();
     void resizeImages(int newWidth, int newHeight);
     void saveProgress(int value);
+	void display(const QList<GraphicsImage>& images);
 };
 
 #endif // MAINWINDOW_H

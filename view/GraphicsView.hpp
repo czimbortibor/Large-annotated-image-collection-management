@@ -22,7 +22,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "utils/LayoutItem.hpp"
+#include "utils/GraphicsImage.hpp"
 #include "utils/FlowLayoutFactory.hpp"
 #include "utils/PetalLayoutFactory.hpp"
 #include "utils/SpiralLayoutFactory.hpp"
@@ -39,7 +39,7 @@ public:
 	void addItem(const QGraphicsLayoutItem* item);
 	int itemCount() const { return _layout->count(); }
     void clear() { _layout->clearAll(); }
-    void addPopupImage(QLabel* label, LayoutItem* item);
+    void addPopupImage(QLabel* label, GraphicsImage* item);
 
 	/*void resizeEvent(QResizeEvent* event) {
 		fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
@@ -61,7 +61,7 @@ public:
     void setSpiralDistance(int value);
     void setSpiralTurn(int value);
 
-	QList<LayoutItem> getSelectedImages();
+	QList<GraphicsImage> getSelectedImages();
 
 protected:
 	void mouseReleaseEvent(QMouseEvent* event);

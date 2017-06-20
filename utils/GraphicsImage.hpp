@@ -38,8 +38,8 @@
 **
 ****************************************************************************/
 
-#ifndef LAYOUTITEM_HPP
-#define LAYOUTITEM_HPP
+#ifndef GRAPHICSIMAGE_HPP
+#define GRAPHICSIMAGE_HPP
 
 #include <QtGui>
 #include <QGraphicsLayout>
@@ -47,29 +47,32 @@
 #include <QGraphicsObject>
 #include <QDebug>
 
+#include <memory>
 #include <opencv2/core.hpp>
 
 #include "graphics/SelectEffect.hpp"
 
 
-class LayoutItem : public QGraphicsObject, public QGraphicsLayoutItem {
+class GraphicsImage : public QGraphicsObject, public QGraphicsLayoutItem {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)
     Q_INTERFACES(QGraphicsLayoutItem)
 public:
-    LayoutItem() = default;
-    LayoutItem(const QImage& image, const QString& url, const QString& originalUrl);
-    LayoutItem(const QImage& image);
+	GraphicsImage() = default;
+	GraphicsImage(const QImage& image, const QString& url, const QString& originalUrl);
+	GraphicsImage(const QImage& image);
 
-	LayoutItem(const LayoutItem& other) : QGraphicsObject(), QGraphicsLayoutItem() {
+	GraphicsImage(const GraphicsImage& other) : QGraphicsObject(), QGraphicsLayoutItem() {
 		*this = other;
 		this->mat = other.mat;
 	}
-    LayoutItem& operator=(const LayoutItem& other);
-	~LayoutItem() {
+	GraphicsImage& operator=(const GraphicsImage& other);
+	/*~GraphicsImage() {
 		setGraphicsEffect(nullptr);
 		QGraphicsLayoutItem::setGraphicsItem(0);
-	}
+	}*/
+	~GraphicsImage() = default;
+
     // Inherited from QGraphicsLayoutItem
 	void setGeometry(const QRectF& geom);
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const;
@@ -84,7 +87,7 @@ public:
     QString getUrl() const { return _url; }
     QString getOriginalUrl() const { return _originalUrl; }
 
-	cv::Mat* mat;
+	std::shared_ptr<cv::Mat> mat;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
@@ -102,8 +105,8 @@ private:
 signals:
     void clicked(const QString& url);
     void doubleClick(const QString& url);
-    void hoverEnter(const QString& url, LayoutItem*);
+	void hoverEnter(const QString& url, GraphicsImage*);
     void hoverLeave();
 };
 
-#endif //LAYOUTITEM_HPP
+#endif //GRAPHICSIMAGE_HPP

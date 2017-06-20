@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         file.close();
     }*/
 
-	qRegisterMetaType<LayoutItem>();
+	qRegisterMetaType<GraphicsImage>();
 
 	ConnectionManager cm;
 	//cm.show();

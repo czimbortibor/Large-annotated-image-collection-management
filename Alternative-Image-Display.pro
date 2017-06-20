@@ -32,7 +32,6 @@ SOURCES +=\
     view/GraphicsView.cpp \
     filters/DateFilter.cpp \
     utils/CBIR.cpp \
-    utils/LayoutItem.cpp \
     utils/ImageConverter.cpp \
     utils/image_load/ImageLoader.cpp \
     utils/image_load/LoadingHandler.cpp \
@@ -40,7 +39,8 @@ SOURCES +=\
     db/DbContext.cpp \
     filters/TextFilter.cpp \
     ui/ConnectionManager.cpp \
-    utils/db_queries/MetadataParser.cpp
+    utils/db_queries/MetadataParser.cpp \
+    utils/GraphicsImage.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -56,7 +56,6 @@ HEADERS  +=\
     utils/FlowLayoutFactory.hpp \
     utils/PetalLayoutFactory.hpp \
     utils/CBIR.hpp \
-    utils/LayoutItem.hpp \
     utils/ImageConverter.hpp \
     utils/image_load/ImageLoader.hpp \
     utils/image_load/Mapper.hpp \
@@ -71,7 +70,8 @@ HEADERS  +=\
     utils/Logger.hpp \
     utils/graphics/SelectEffect.hpp \
     utils/db_queries/MetadataParser.hpp \
-    utils/db_queries/Metadata.hpp
+    utils/db_queries/Metadata.hpp \
+    utils/GraphicsImage.hpp
 
 FORMS    +=\
     ui/MainWindow.ui \

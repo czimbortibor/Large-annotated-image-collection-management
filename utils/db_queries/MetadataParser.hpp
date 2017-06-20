@@ -26,7 +26,7 @@ public:
 	 * @param imageCollection
 	 * @return
 	 */
-	static QList<LayoutItem>& getImages(const QList<Metadata>& metadata,
+	static QList<GraphicsImage>& getImages(const QList<Metadata>& metadata,
 											const ImageCollection& imageCollection);
 
 };

@@ -14,7 +14,7 @@ class Reducer : public QObject {
 public:
 	Reducer() = default;
     ~Reducer() = default;
-	void operator()(QList<LayoutItem>& images, const LayoutItem& image) {
+	void operator()(QList<GraphicsImage>& images, const GraphicsImage& image) {
 		//images.append(image);
         // TODO: pass URL
 		//imageCollection.insert(&image);
@@ -22,9 +22,9 @@ public:
     }
 
 signals:
-	void imageReady(const LayoutItem& image, const QString& url);
+	void imageReady(const GraphicsImage& image, const QString& url);
 };
 
-Q_DECLARE_METATYPE(LayoutItem)
+Q_DECLARE_METATYPE(GraphicsImage)
 
 #endif // REDUCER_HPP

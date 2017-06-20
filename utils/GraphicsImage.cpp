@@ -38,22 +38,22 @@
 **
 ****************************************************************************/
 
-#include "LayoutItem.hpp"
+#include "GraphicsImage.hpp"
 
-LayoutItem::LayoutItem(const QImage& image, const QString& url, const QString& originalUrl): QGraphicsObject(), QGraphicsLayoutItem() {
+GraphicsImage::GraphicsImage(const QImage& image, const QString& url, const QString& originalUrl): QGraphicsObject(), QGraphicsLayoutItem() {
     _pix = QPixmap::fromImage(image);
     _width = image.width();
     _height = image.height();
 	QGraphicsLayoutItem::setGraphicsItem(this);
     _url = url;
     _originalUrl = originalUrl;
-
+	mat = std::make_shared<cv::Mat>();
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemIsFocusable);
 }
 
-LayoutItem::LayoutItem(const QImage& image) : QGraphicsObject(), QGraphicsLayoutItem() {
+GraphicsImage::GraphicsImage(const QImage& image) : QGraphicsObject(), QGraphicsLayoutItem() {
     _pix = QPixmap::fromImage(image);
     _width = image.width();
     _height = image.height();
@@ -64,12 +64,13 @@ LayoutItem::LayoutItem(const QImage& image) : QGraphicsObject(), QGraphicsLayout
     setFlag(QGraphicsItem::ItemIsFocusable);
 }
 
-LayoutItem& LayoutItem::operator=(const LayoutItem& other) {
+GraphicsImage& GraphicsImage::operator=(const GraphicsImage& other) {
     _pix = other.getPixmap();
     _width = other.getWidth();
     _height = other.getHeight();
     _url = other.getUrl();
     _originalUrl = other.getOriginalUrl();
+	mat = other.mat;
     QGraphicsLayoutItem::setGraphicsItem(this);
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
@@ -77,7 +78,7 @@ LayoutItem& LayoutItem::operator=(const LayoutItem& other) {
     return *this;
 }
 
-void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+void GraphicsImage::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 					   QWidget* widget /*= 0*/) {
     Q_UNUSED(widget);
     Q_UNUSED(option);
@@ -85,17 +86,17 @@ void LayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
     painter->drawPixmap(QPointF(), _pix);;
 }
 
-QRectF LayoutItem::boundingRect() const {
+QRectF GraphicsImage::boundingRect() const {
 	return QRectF(QPointF(0, 0), geometry().size());
 }
 
-void LayoutItem::setGeometry(const QRectF& geom) {
+void GraphicsImage::setGeometry(const QRectF& geom) {
 	QGraphicsItem::prepareGeometryChange();
     QGraphicsLayoutItem::setGeometry(geom);
 	QGraphicsItem::setPos(geom.topLeft());
 }
 
-QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const {
+QSizeF GraphicsImage::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const {
     switch (which) {
         case Qt::MinimumSize:
         case Qt::PreferredSize:
@@ -109,7 +110,7 @@ QSizeF LayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const 
     return constraint;
 }
 
-void LayoutItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+void GraphicsImage::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     emit clicked(_url);
 	if (isSelected()) {
 		setSelected(false);
@@ -122,17 +123,17 @@ void LayoutItem::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 	}
 }
 
-void LayoutItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
+void GraphicsImage::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     emit doubleClick(_url);
 }
 
-void LayoutItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
+void GraphicsImage::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
 	Qt::KeyboardModifiers pressedKeys = QGuiApplication::keyboardModifiers();
 	if (pressedKeys == Qt::ShiftModifier) {
 		emit hoverEnter(_originalUrl, this);
 	}
 }
 
-void LayoutItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {
+void GraphicsImage::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {
     emit hoverLeave();
 }

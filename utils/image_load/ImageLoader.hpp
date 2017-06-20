@@ -21,7 +21,7 @@ class ImageLoader : public QObject, public QRunnable {
     Q_OBJECT
 public:
 	ImageLoader(const QString dirName, QStringList& imageNames,
-						 QList<LayoutItem>& results,
+						 QList<GraphicsImage>& results,
 						 const cv::Size& size,
 						 ImageCollection& imageCollection, const QString& originalDirPath,
 						 QObject* parent = 0);
@@ -36,7 +36,7 @@ private:
     QString _originalDirPath;
     QStringList* _imageNames;
     cv::Size _size;
-	QList<LayoutItem>* _results;
+	QList<GraphicsImage>* _results;
 	int _index = 0;
 
     QAtomicInt _running;

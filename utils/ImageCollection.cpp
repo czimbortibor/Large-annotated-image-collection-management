@@ -32,8 +32,8 @@ void ImageCollection::insert(cv::Mat* image, QString* url, QString* originalUrl)
         /** calculate the hash */
         cv::Mat* hash = new cv::Mat(_cbir.getHash(*image, hasher.second));
         /** insert the results into the hasher's map */
-		LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(*image), *url, *originalUrl);
-		item->mat = image;
+		GraphicsImage* item = new GraphicsImage(ImageConverter::Mat2QImage(*image), *url, *originalUrl);
+		item->mat.reset(image);
 		_collection_map.at(hasher.first).emplace(*url, Collection(item, hash, originalUrl));
     }
 }
@@ -47,25 +47,25 @@ QList<cv::Mat> ImageCollection::getHashes(const QString& hasherName) const {
     return *result;
 }
 
-QList<LayoutItem>* ImageCollection::getHashedImages(const QString& hasherName) {
+QList<GraphicsImage>* ImageCollection::getHashedImages(const QString& hasherName) {
 	//std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = new std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
-	std::multimap<cv::Mat, LayoutItem, CBIR::MatCompare> res;
+	std::multimap<cv::Mat, GraphicsImage, CBIR::MatCompare> res;
 	auto imageMap = _collection_map.at(hasherName);
     _cbir.setHasher(_hashers.at(hasherName));
     for (const auto& image_struct : imageMap) {
 		res.emplace(image_struct.second.getHash(), image_struct.second.getImage());
     }
 
-	QList<LayoutItem>* results = new QList<LayoutItem>();
+	QList<GraphicsImage>* results = new QList<GraphicsImage>();
 	for (const auto& hashed : res) {
 		results->append(hashed.second);
 	}
 	return results;
 }
 
-QList<LayoutItem>* ImageCollection::getSimilarImages(const QString& url, const QString& hasherName) {
-	QList<LayoutItem>* results = new QList<LayoutItem>();
-	LayoutItem targetImage = getImage(hasherName, url);
+QList<GraphicsImage>* ImageCollection::getSimilarImages(const QString& url, const QString& hasherName) {
+	QList<GraphicsImage>* results = new QList<GraphicsImage>();
+	GraphicsImage targetImage = getImage(hasherName, url);
     cv::Ptr<cv::img_hash::ImgHashBase> hasher;
     try {
         hasher = _hashers.at(hasherName);
@@ -93,7 +93,7 @@ QList<LayoutItem>* ImageCollection::getSimilarImages(const QString& url, const Q
 
     CustomCompare compareFunctor(this, targetHash);
 
-	std::multimap<cv::Mat, LayoutItem, CustomCompare> resMap(compareFunctor);
+	std::multimap<cv::Mat, GraphicsImage, CustomCompare> resMap(compareFunctor);
     std::map<const QString, Collection> imageMap;
     try {
         imageMap = _collection_map.at(hasherName);
@@ -112,8 +112,8 @@ QList<LayoutItem>* ImageCollection::getSimilarImages(const QString& url, const Q
     return results;
 }
 
-QList<LayoutItem>* ImageCollection::getImagesByUrl(const QStringList& imgUrls) const {
-	QList<LayoutItem>* results = new QList<LayoutItem>();
+QList<GraphicsImage>* ImageCollection::getImagesByUrl(const QStringList& imgUrls) const {
+	QList<GraphicsImage>* results = new QList<GraphicsImage>();
 	ImageMap imageMap = _collection_map.at("Average hash");
 	QHash<QString, QString> keys;
 	for (const auto& image_struct : imageMap) {

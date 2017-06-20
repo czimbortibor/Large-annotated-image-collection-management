@@ -42,8 +42,8 @@ void GraphicsView::onSceneRectChanged(const QRectF& rect) {
 void GraphicsView::addItem(const QGraphicsLayoutItem* item) {
 	//QGraphicsLayoutItem* tmp = item;
 	_layout->addItem(const_cast<QGraphicsLayoutItem*>(item));
-	const LayoutItem* layoutItem = static_cast<const LayoutItem*>(item);
-	connect(layoutItem, &LayoutItem::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
+	const GraphicsImage* layoutItem = static_cast<const GraphicsImage*>(item);
+	connect(layoutItem, &GraphicsImage::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
 }
 
 void GraphicsView::setLayout(const QString& value) {
@@ -52,8 +52,8 @@ void GraphicsView::setLayout(const QString& value) {
 	// TODO: overload operator=
 
 	for (const auto& item : _layout->items()) {
-        LayoutItem* layoutItem = static_cast<LayoutItem*>(item);
-        connect(layoutItem, &LayoutItem::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
+        GraphicsImage* layoutItem = static_cast<GraphicsImage*>(item);
+        connect(layoutItem, &GraphicsImage::hoverLeave, this, &GraphicsView::onRemovePopup, Qt::DirectConnection);
 		tmp->addItem(item);
 	}
 	_layout->clearAll();
@@ -91,7 +91,7 @@ void GraphicsView::setSpiralTurn(int value) {
     }
 }
 
-void GraphicsView::addPopupImage(QLabel* label, LayoutItem* item) {
+void GraphicsView::addPopupImage(QLabel* label, GraphicsImage* item) {
     _proxyLabel.reset(_scene->addWidget(label));
     _proxyLabel->setAcceptHoverEvents(false);
     QPointF pos = item->pos();
@@ -139,10 +139,10 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
 
 }
 
-QList<LayoutItem> GraphicsView::getSelectedImages() {
-	QList<LayoutItem> results;
+QList<GraphicsImage> GraphicsView::getSelectedImages() {
+	QList<GraphicsImage> results;
 	for (const auto& item : _scene->selectedItems()) {
-		results.append(*(static_cast<LayoutItem*>(item)));
+		results.append(*(static_cast<GraphicsImage*>(item)));
 	}
 	return results;
 }

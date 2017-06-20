@@ -20,13 +20,13 @@ QList<Metadata>& MetadataParser::getMetadata(const QJsonArray& metadata) {
 	return *results;
 }
 
-QList<LayoutItem>& MetadataParser::getImages(const QList<Metadata>& metadata,
+QList<GraphicsImage>& MetadataParser::getImages(const QList<Metadata>& metadata,
 												 const ImageCollection& imageCollection) {
 	QStringList imgPaths;
 	for (const auto& data : metadata) {
 		imgPaths.append(QString::fromStdString(data.image_path));
 	}
 
-	QList<LayoutItem>* results = imageCollection.getImagesByUrl(imgPaths);
+	QList<GraphicsImage>* results = imageCollection.getImagesByUrl(imgPaths);
 	return *results;
 }

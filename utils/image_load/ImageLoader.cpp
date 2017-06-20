@@ -1,7 +1,7 @@
 #include "ImageLoader.hpp"
 
 ImageLoader::ImageLoader(const QString dirName, QStringList& imageNames,
-						 QList<LayoutItem>& results,
+						 QList<GraphicsImage>& results,
                          const cv::Size& size,
                          ImageCollection& imageCollection,
                          const QString& originalDirPath, QObject* parent) : QObject(parent) {
@@ -30,9 +30,9 @@ void ImageLoader::run() {
             }
 			cv::Mat* cvResizedImg = new cv::Mat();
             cv::resize(cvImage, *cvResizedImg, _size);
-			LayoutItem* image = new LayoutItem(ImageConverter::Mat2QImage(*cvResizedImg),
+			GraphicsImage* image = new GraphicsImage(ImageConverter::Mat2QImage(*cvResizedImg),
 											   *fullFileName, *originalFileName);
-			image->mat = cvResizedImg;
+			image->mat.reset(cvResizedImg);
 			_results->append(*image);
 			_imageCollection->insert(cvResizedImg, fullFileName, originalFileName);
 			emit resultReady(_index, *fullFileName, *originalFileName);
