@@ -111,6 +111,7 @@ QSizeF GraphicsImage::sizeHint(Qt::SizeHint which, const QSizeF& constraint) con
 }
 
 void GraphicsImage::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+	Q_UNUSED(event)
 	if (isSelected()) {
 		setSelected(false);
 		setGraphicsEffect(nullptr);
@@ -124,10 +125,12 @@ void GraphicsImage::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 }
 
 void GraphicsImage::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
+	Q_UNUSED(event)
     emit doubleClick(_url);
 }
 
 void GraphicsImage::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
+	Q_UNUSED(event)
 	Qt::KeyboardModifiers pressedKeys = QGuiApplication::keyboardModifiers();
 	if (pressedKeys == Qt::ShiftModifier) {
 		emit hoverEnter(_originalUrl, this);
@@ -135,5 +138,6 @@ void GraphicsImage::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
 }
 
 void GraphicsImage::hoverLeaveEvent(QGraphicsSceneHoverEvent* event) {
+	Q_UNUSED(event)
     emit hoverLeave();
 }

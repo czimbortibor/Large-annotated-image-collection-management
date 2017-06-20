@@ -36,6 +36,7 @@ void GraphicsView::init() {
 }
 
 void GraphicsView::onSceneRectChanged(const QRectF& rect) {
+	Q_UNUSED(rect)
     this->setMinSceneSize(this->size());
 }
 
@@ -136,6 +137,7 @@ void GraphicsView::wheelEvent(QWheelEvent* event) {
 }
 
 void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
+	Q_UNUSED(event)
 
 }
 

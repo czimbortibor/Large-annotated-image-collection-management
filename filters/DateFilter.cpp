@@ -28,6 +28,7 @@ QGroupBox* DateFilter::makeControl() {
 }
 
 void DateFilter::on_date_changed(const QDateTime& datetime) {
+	Q_UNUSED(datetime)
 	QStringList dates = getDates();
 
 	// emit

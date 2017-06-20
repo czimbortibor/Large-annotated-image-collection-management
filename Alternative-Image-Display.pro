@@ -39,8 +39,8 @@ SOURCES +=\
     db/DbContext.cpp \
     filters/TextFilter.cpp \
     ui/ConnectionManager.cpp \
-    utils/db_queries/MetadataParser.cpp \
-    utils/GraphicsImage.cpp
+    utils/GraphicsImage.cpp \
+    utils/metadata/MetadataParser.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -65,13 +65,12 @@ HEADERS  +=\
     utils/SpiralLayoutFactory.hpp \
     db/DbContext.hpp \
     filters/TextFilter.hpp \
-    utils/MetadataParser.hpp \
     ui/ConnectionManager.hpp \
     utils/Logger.hpp \
     utils/graphics/SelectEffect.hpp \
-    utils/db_queries/MetadataParser.hpp \
-    utils/db_queries/Metadata.hpp \
-    utils/GraphicsImage.hpp
+    utils/GraphicsImage.hpp \
+    utils/metadata/Metadata.hpp \
+    utils/metadata/MetadataParser.hpp
 
 FORMS    +=\
     ui/MainWindow.ui \

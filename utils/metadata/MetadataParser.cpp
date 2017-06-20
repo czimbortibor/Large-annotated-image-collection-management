@@ -22,11 +22,11 @@ QList<Metadata>& MetadataParser::getMetadata(const QJsonArray& metadata) {
 
 QList<GraphicsImage>& MetadataParser::getImages(const QList<Metadata>& metadata,
 												 const ImageCollection& imageCollection) {
-	QStringList imgPaths;
+	QStringList* imgPaths = new QStringList();
 	for (const auto& data : metadata) {
-		imgPaths.append(QString::fromStdString(data.image_path));
+		imgPaths->append(QString::fromStdString(data["image_path"]));
 	}
 
-	QList<GraphicsImage>* results = imageCollection.getImagesByUrl(imgPaths);
+	QList<GraphicsImage>* results = imageCollection.getImagesByUrl(*imgPaths);
 	return *results;
 }

@@ -15,7 +15,6 @@ ImageLoader::ImageLoader(const QString dirName, QStringList& imageNames,
 
 void ImageLoader::run() {
     _running.testAndSetOrdered(0, 1);
-	_index;
     for (int i = 0; i < _imageNames->length(); ++i) {
         if (static_cast<int>(_running)) {
             QString* fullFileName = new QString(_dirName + "/" + _imageNames->at(i));

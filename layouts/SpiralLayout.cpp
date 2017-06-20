@@ -53,8 +53,6 @@ qreal SpiralLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) cons
     qreal y0 = maxHeight / 2;
     qreal maxRowHeight = 0;
     QSizeF prefSize;
-    qreal dx;
-    qreal dy;
 
     /** Archimedean spiral : r = a + b(angle)
      * a - will turn the spiral
