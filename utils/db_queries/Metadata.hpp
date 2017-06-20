@@ -6,7 +6,7 @@
 #include <bsoncxx/types.hpp>
 
 #include <map>
-#include <set>
+#include <vector>
 
 
 class Metadata {
@@ -22,7 +22,7 @@ public:
 		return _data.at(key);
 	}
 
-	std::set<std::string> keys() const {
+	std::vector<std::string> keys() const {
 		return _keys;
 	}
 
@@ -36,7 +36,7 @@ public:
 	std::string image_path;
 
 private:
-	std::set<std::string> _keys = {"link", "image_url", "rss", "author", "title", "summary",
+	std::vector<std::string> _keys = {"link", "image_url", "rss", "author", "title", "summary",
 								  "published", "image_path"};
 	std::map<std::string, std::string> _data;
 };

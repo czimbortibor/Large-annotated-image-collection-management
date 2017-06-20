@@ -20,7 +20,7 @@ QGroupBox* TextFilter::makeControl() {
 }
 
 void TextFilter::on_text_changed(const QString& text) {
-	QJsonArray results = _dbContext.filterText(text);
+	QJsonArray results = _dbContext.queryText(text);
 	emit changed(results);
 }
 

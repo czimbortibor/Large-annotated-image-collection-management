@@ -26,13 +26,6 @@ public:
 	static QList<Metadata>& getMetadata(const QJsonArray& metadata);
 
 	/**
-	 * @brief return the metadata of the image
-	 * @param the image's url
-	 * @return
-	 */
-	static Metadata& getMetadata_url(const QString& url);
-
-	/**
 	 * @brief selects the images from the metadata
 	 * @param metadata
 	 * @param imageCollection

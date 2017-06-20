@@ -20,10 +20,6 @@ QList<Metadata>& MetadataParser::getMetadata(const QJsonArray& metadata) {
 	return *results;
 }
 
-Metadata& MetadataParser::getMetadata_url(const QString& url) {
-
-}
-
 QList<GraphicsImage>& MetadataParser::getImages(const QList<Metadata>& metadata,
 												 const ImageCollection& imageCollection) {
 	QStringList imgPaths;

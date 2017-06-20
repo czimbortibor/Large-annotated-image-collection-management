@@ -57,7 +57,7 @@ GraphicsImage::GraphicsImage(const QImage& image) : QGraphicsObject(), QGraphics
     _pix = QPixmap::fromImage(image);
     _width = image.width();
     _height = image.height();
-    QGraphicsLayoutItem::setGraphicsItem(this);
+	QGraphicsLayoutItem::setGraphicsItem(this);
 
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
@@ -111,7 +111,6 @@ QSizeF GraphicsImage::sizeHint(Qt::SizeHint which, const QSizeF& constraint) con
 }
 
 void GraphicsImage::mousePressEvent(QGraphicsSceneMouseEvent* event) {
-    emit clicked(_url);
 	if (isSelected()) {
 		setSelected(false);
 		setGraphicsEffect(nullptr);
@@ -121,6 +120,7 @@ void GraphicsImage::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 		SelectEffect* effect = new SelectEffect(1.2);
 		setGraphicsEffect(effect);
 	}
+	emit clicked(_url);
 }
 
 void GraphicsImage::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {

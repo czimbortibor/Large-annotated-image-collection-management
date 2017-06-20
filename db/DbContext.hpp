@@ -12,8 +12,10 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
+#include <chrono>
+#include <ctime>
 
-#include <bsoncxx/array/view.hpp>
 #include <bsoncxx/array/view.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
@@ -39,10 +41,19 @@
 class DbContext {
 public:
 	mongocxx::uri loadUri();
-	bool init();
+	void init();
 
 	QJsonArray queryAll();
-	QJsonArray filterText(const QString& text);
+	QJsonArray queryText(const QString& text);
+	QJsonArray queryImagePath(const QString& image_path);
+	QJsonArray queryImagePaths(const QStringList& image_paths);
+
+	static std::string bdate_to_string(const bsoncxx::document::element& bdate) {
+		std::chrono::system_clock::time_point tp = bdate.get_date();
+		std::time_t time = std::chrono::system_clock::to_time_t(tp);
+		std::string time_str = std::ctime(&time);
+		return time_str;
+	}
 
 
 	/* instances to collections in the database */
@@ -55,6 +66,9 @@ public:
 	std::string feedsNameCollection_name;
 	std::string feedsCollection_name;
 	std::string imageCollection_name;
+
+	std::vector<std::string> _keys = {"link", "image_url", "rss", "author", "title", "summary",
+								  "published", "image_path"};
 
 	class MongoAccess {
 	public:
@@ -81,6 +95,7 @@ public:
 
 	private:
 		MongoAccess() = default;
+		~MongoAccess() = default;
 
 		std::unique_ptr<mongocxx::instance> _instance = nullptr;
 		std::unique_ptr<mongocxx::pool> _pool = nullptr;

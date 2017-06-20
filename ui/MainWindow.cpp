@@ -30,10 +30,14 @@ MainWindow::~MainWindow() {
 
 void MainWindow::initDb() {
 	_dbContext.init();
-	auto connection = DbContext::MongoAccess::instance().get_connection();
-	if (!connection) {
+	auto try_connection = DbContext::MongoAccess::instance().try_get_connection();
+	if (!try_connection) {
+		Logger::log("database connection error");
 		QMessageBox::warning(this, "Warning", "Database connection error!");
+		this->close();
+		QApplication::exit();
 	}
+	auto connection = DbContext::MongoAccess::instance().get_connection();
 	Logger::log("succesful database connection");
 
 	// initialize the collections
@@ -390,12 +394,26 @@ void MainWindow::onImageSizeChanged(int size) {
 }
 
 void MainWindow::onImageClicked(const QString& url) {
-	ui->tableWidget_metadata->setVisible(ui->tableWidget_metadata->isVisible());
-	ui->tableWidget_metadata->clear();
-
-	QList<Metadata> data{_metadata->at(0)};
 	ui->tableWidget_metadata->setVisible(true);
-	populateMetadataTable(data);
+	// deletes all the rows
+	ui->tableWidget_metadata->setRowCount(0);
+
+	QList<GraphicsImage> selectedImages = _view->getSelectedImages();
+	QStringList selectedPaths;
+	for (const auto& image : selectedImages) {
+		selectedPaths.append(image.getUrl());
+	}
+	QJsonArray results;
+	if (selectedPaths.length()) {
+		if (selectedPaths.length() == 1) {
+			results = _dbContext.queryImagePath(selectedPaths[0]);
+		}
+		else {
+			results = _dbContext.queryImagePaths(selectedPaths);
+		}
+		QList<Metadata> metadata = MetadataParser::getMetadata(results);
+		populateMetadataTable(metadata);
+	}
 }
 
 void MainWindow::onImageDoubleClicked(const QString& url) {
