@@ -38,7 +38,6 @@ SOURCES +=\
     utils/ImageCollection.cpp \
     db/DbContext.cpp \
     filters/TextFilter.cpp \
-    ui/ConnectionManager.cpp \
     utils/GraphicsImage.cpp \
     utils/metadata/MetadataParser.cpp
 
@@ -65,7 +64,6 @@ HEADERS  +=\
     utils/SpiralLayoutFactory.hpp \
     db/DbContext.hpp \
     filters/TextFilter.hpp \
-    ui/ConnectionManager.hpp \
     utils/Logger.hpp \
     utils/graphics/SelectEffect.hpp \
     utils/GraphicsImage.hpp \
@@ -73,8 +71,7 @@ HEADERS  +=\
     utils/metadata/MetadataParser.hpp
 
 FORMS    +=\
-    ui/MainWindow.ui \
-    ui/ConnectionManager.ui
+    ui/MainWindow.ui
 
 RESOURCES += \
     resources.qrc

@@ -10,8 +10,8 @@ void LoadingHandler::loadImages_mt(const QString& path, const QStringList& image
 			_reducer(images, image);
     };
 
-	connect(&_reducer, &Reducer::imageReady, [&](const GraphicsImage& image, const QString& url) {
-		emit mt_imageReady(image, url);
+	connect(&_reducer, &Reducer::imageReady, [&](const GraphicsImage& image) {
+		emit mt_imageReady(image);
 	});
 	using mt_LoaderPtr = std::unique_ptr<QFuture<QList<GraphicsImage>>>;
 	using mt_Loader = QFuture<QList<GraphicsImage>>;

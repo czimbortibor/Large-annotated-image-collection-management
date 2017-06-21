@@ -1,5 +1,4 @@
 #include "ui/MainWindow.hpp"
-#include "ui/ConnectionManager.hpp"
 #include <QApplication>
 
 int main(int argc, char* argv[]) {
@@ -14,10 +13,9 @@ int main(int argc, char* argv[]) {
 
 	qRegisterMetaType<GraphicsImage>();
 
-	ConnectionManager cm;
-	//cm.show();
 	MainWindow w;
-    w.setStyleSheet("QPushButton { background-color: yellow }");
+	w.setStyleSheet("QPushButton { background-color: yellow }");
+	//qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
     w.showMaximized();
 
     return a->exec();

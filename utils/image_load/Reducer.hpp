@@ -18,11 +18,11 @@ public:
 		//images.append(image);
         // TODO: pass URL
 		//imageCollection.insert(&image);
-        emit imageReady(image, "");
+		emit imageReady(image);
     }
 
 signals:
-	void imageReady(const GraphicsImage& image, const QString& url);
+	void imageReady(const GraphicsImage& image);
 };
 
 Q_DECLARE_METATYPE(GraphicsImage)

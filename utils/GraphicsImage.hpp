@@ -61,11 +61,7 @@ public:
 	GraphicsImage() = default;
 	GraphicsImage(const QImage& image, const QString& url, const QString& originalUrl);
 	GraphicsImage(const QImage& image);
-
-	GraphicsImage(const GraphicsImage& other) : QGraphicsObject(), QGraphicsLayoutItem() {
-		*this = other;
-		this->mat = other.mat;
-	}
+	GraphicsImage(const GraphicsImage& other);
 	GraphicsImage& operator=(const GraphicsImage& other);
 	/*~GraphicsImage() {
 		setGraphicsEffect(nullptr);
@@ -83,11 +79,11 @@ public:
 
     qreal getWidth() const { return _width; }
     qreal getHeight() const { return _height; }
-    QPixmap getPixmap() const { return _pix; }
+	QPixmap getPixmap() const { return _pix; }
     QString getUrl() const { return _url; }
     QString getOriginalUrl() const { return _originalUrl; }
 
-	std::shared_ptr<cv::Mat> mat;
+	std::shared_ptr<cv::Mat> mat = nullptr;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
@@ -96,7 +92,7 @@ protected:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event);
 
 private:
-    QPixmap _pix;
+	QPixmap _pix;
     QString _url;
     QString _originalUrl;
 	qreal _width;

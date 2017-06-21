@@ -90,8 +90,6 @@ void MainWindow::initWindow() {
 	//ui->widget_createFilters->setMinimumSize(_filterList->size());
     connect(_filterList, &QListWidget::itemDoubleClicked, this, &MainWindow::onAddNewFilter);
 
-    ui->btn_applyFilters->hide();
-
 	ui->tableWidget_metadata->hide();
 }
 
@@ -227,18 +225,20 @@ void MainWindow::onLoadImagesClick() {
     showProgressBar(_imageNames->length(), "loading");
 }
 
-void MainWindow::onImageReceivedMT(const GraphicsImage& image, const QString& url) {
+void MainWindow::onImageReceivedMT(const GraphicsImage& image) {
 	_images->append(image);
-	//LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(image), url, "");
-	connect(&image, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
-	connect(&image, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
-	connect(&image, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
-	emit addViewItem(&image);
+	const GraphicsImage* item = new GraphicsImage(image);
+	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
+	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
+	connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
+	//emit addViewItem(item);
+	_view->addItem(item);
 	_progressBar->setValue(_progressBar->value() + 1);
 }
 
 void MainWindow::onImageReceived(int index, const QString& url, const QString& originalUrl) {
-	//LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(_images->at(index)), url, originalUrl);
+	Q_UNUSED(url)
+	Q_UNUSED(originalUrl)
 	const GraphicsImage* item = &_images->at(index);
 	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
@@ -260,12 +260,17 @@ void MainWindow::onFinishedLoading() {
 	_metadata.reset(&MetadataParser::getMetadata(raw_data));
 }
 
-void MainWindow::populateMetadataTable(const QList<Metadata>& metadata) {
+void MainWindow::populateMetadataTable(const QList<Metadata>& metadata, const QList<GraphicsImage>& images) {
 	int col;
 	int row = 0;
 	for (const auto& data : metadata) {
-		col = 0;
+		col = 1;
 		ui->tableWidget_metadata->insertRow(ui->tableWidget_metadata->rowCount());
+		QTableWidgetItem* icon_cell = new QTableWidgetItem();
+		const QString image_path = images[row].getUrl();
+		icon_cell->setIcon(QIcon(image_path));
+		icon_cell->setToolTip(image_path);
+		ui->tableWidget_metadata->setItem(row, 0, icon_cell);
 		for (const auto& header : data.keys()) {
 			QTableWidgetItem* cell = new QTableWidgetItem(tr("%1").arg(QString::fromStdString(data[header])));
 			ui->tableWidget_metadata->setItem(row, col, cell);
@@ -276,13 +281,11 @@ void MainWindow::populateMetadataTable(const QList<Metadata>& metadata) {
 }
 
 void MainWindow::onHashImages() {
-    const QString hasherName = ui->comboBox_hashes->currentText();
-	 //_hashedImages.release();
+	const QString hasherName = ui->comboBox_hashes->currentText();
 	 _images.reset(_imageCollection.getHashedImages(hasherName));
 	//std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = _imageCollection.getHashedImages(hasherName);
 	//_hashedImages.reset(result);
-    _view->clear();
-	displayImages(*_images.get());
+	displayOriginalImages(*_images.get());
 }
 
 void MainWindow::imageSaving(int size) {
@@ -335,11 +338,20 @@ void MainWindow::displayImages(const QList<GraphicsImage>& images) {
 	_view->clear();
 	for (const auto& image : images) {
 		const GraphicsImage* item = new GraphicsImage(image);
-		/*connect(&image, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
-		connect(&image, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
-		connect(&image, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);*/
+		connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
+		connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
+		connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
 		_view->addItem(item);
 		//emit addViewItem(&image);
+	}
+}
+
+void MainWindow::displayOriginalImages(const QList<GraphicsImage>& images) {
+	_view->clear();
+	for (const auto& image : images) {
+		const GraphicsImage* item = new GraphicsImage(image);
+		_view->addItem(item);
+		//emit addViewItem(item);
 	}
 }
 
@@ -351,22 +363,22 @@ void MainWindow::logTime(QString message) {
 
 void MainWindow::onRadiusChanged(double value) {
 	_view->setRadius(value);
-	displayImages(*_images.get());
+	displayOriginalImages(*_images.get());
 }
 
 void MainWindow::onPetalNrChanged(int value) {
 	_view->setNrOfPetals(value);
-	displayImages(*_images.get());
+	displayOriginalImages(*_images.get());
 }
 
 void MainWindow::onSpiralDistanceChanged(int value) {
 	_view->setSpiralDistance(value);
-	displayImages(*_images.get());
+	displayOriginalImages(*_images.get());
 }
 
 void MainWindow::onSpiralTurnChanged(int value) {
 	_view->setSpiralTurn(value);
-	displayImages(*_images.get());
+	displayOriginalImages(*_images.get());
 }
 
 void MainWindow::onLayoutChanged(const QString& text) {
@@ -412,7 +424,7 @@ void MainWindow::onImageClicked(const QString& url) {
 			results = _dbContext.queryImagePaths(selectedPaths);
 		}
 		QList<Metadata> metadata = MetadataParser::getMetadata(results);
-		populateMetadataTable(metadata);
+		populateMetadataTable(metadata, selectedImages);
 	}
 }
 
@@ -459,7 +471,6 @@ void MainWindow::onImageHoverEnter(const QString& url, GraphicsImage* item) {
 void MainWindow::onAddFilter() {
 	ui->widget_createFilters->setVisible(!ui->widget_createFilters->isVisible());
 	_filterList->show();
-	ui->btn_applyFilters->setVisible(!ui->btn_applyFilters->isVisible());
 }
 
 void MainWindow::onAddNewFilter(QListWidgetItem* item) {
@@ -492,9 +503,9 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 				QList<GraphicsImage> filtered_images = MetadataParser::getImages(metadata, _imageCollection);
 				displayImages(filtered_images);
 			}
-			/*else {
-				emit displayImages(*_images.get());
-			}*/
+			else {
+				displayOriginalImages(*_images.get());
+			}
 		});
 	}
 	else {
@@ -503,10 +514,6 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 
 		});
 	}
-}
-
-void MainWindow::on_btn_applyFilters_clicked() {
-
 }
 
 void MainWindow::on_btn_selectedImages_clicked() {

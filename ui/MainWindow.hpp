@@ -88,6 +88,7 @@ private:
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
 	void displayImages(const QList<GraphicsImage>& images);
+	void displayOriginalImages(const QList<GraphicsImage>& images);
 
     /**
      * @brief loads one image
@@ -99,7 +100,7 @@ private:
 	void logTime(QString message);
 
 	QJsonArray* getAllMetadata();
-	void populateMetadataTable(const QList<Metadata>& metadata);
+	void populateMetadataTable(const QList<Metadata>& metadata, const QList<GraphicsImage>& images);
 
 	Ui::MainWindow* ui;
 	int _iconSize;
@@ -150,7 +151,7 @@ private slots:
 	void onClearLayout();
 
     void onImageReceived(int index, const QString& url, const QString& originalUrl);
-	void onImageReceivedMT(const GraphicsImage& image, const QString& url);
+	void onImageReceivedMT(const GraphicsImage& image);
     void onFinishedLoading();
 
     void onSavingChange(int value);
@@ -175,8 +176,7 @@ private slots:
 	void onImageHoverEnter(const QString& url, GraphicsImage* item);
     void onFinishedOneImageLoad();
 
-    void onAddNewFilter(QListWidgetItem* item);
-	void on_btn_applyFilters_clicked();
+	void onAddNewFilter(QListWidgetItem* item);
 	void on_btn_selectedImages_clicked();
 
 signals:

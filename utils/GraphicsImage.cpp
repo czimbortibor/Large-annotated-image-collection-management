@@ -41,7 +41,7 @@
 #include "GraphicsImage.hpp"
 
 GraphicsImage::GraphicsImage(const QImage& image, const QString& url, const QString& originalUrl): QGraphicsObject(), QGraphicsLayoutItem() {
-    _pix = QPixmap::fromImage(image);
+	_pix = QPixmap::fromImage(image);
     _width = image.width();
     _height = image.height();
 	QGraphicsLayoutItem::setGraphicsItem(this);
@@ -54,18 +54,31 @@ GraphicsImage::GraphicsImage(const QImage& image, const QString& url, const QStr
 }
 
 GraphicsImage::GraphicsImage(const QImage& image) : QGraphicsObject(), QGraphicsLayoutItem() {
-    _pix = QPixmap::fromImage(image);
+	_pix = QPixmap::fromImage(image);
     _width = image.width();
     _height = image.height();
 	QGraphicsLayoutItem::setGraphicsItem(this);
-
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemIsFocusable);
 }
 
+GraphicsImage::GraphicsImage(const GraphicsImage& other)
+	: QGraphicsObject(), QGraphicsLayoutItem(), mat(other.mat) {
+	_height = other.getHeight();
+	_width = other.getWidth();
+	_pix = other.getPixmap();
+	_url = other.getUrl();
+	_originalUrl = other.getOriginalUrl();
+
+	QGraphicsLayoutItem::setGraphicsItem(this);
+	QGraphicsItem::setAcceptHoverEvents(true);
+	setFlag(QGraphicsItem::ItemIsSelectable);
+	setFlag(QGraphicsItem::ItemIsFocusable);
+}
+
 GraphicsImage& GraphicsImage::operator=(const GraphicsImage& other) {
-    _pix = other.getPixmap();
+	_pix = other.getPixmap();
     _width = other.getWidth();
     _height = other.getHeight();
     _url = other.getUrl();
@@ -83,7 +96,7 @@ void GraphicsImage::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
-    painter->drawPixmap(QPointF(), _pix);;
+	painter->drawPixmap(QPointF(), _pix);;
 }
 
 QRectF GraphicsImage::boundingRect() const {
@@ -101,7 +114,7 @@ QSizeF GraphicsImage::sizeHint(Qt::SizeHint which, const QSizeF& constraint) con
         case Qt::MinimumSize:
         case Qt::PreferredSize:
             // Do not allow a size smaller than the pixmap with two frames around it
-            return _pix.size() + QSize(1, 1);
+			return _pix.size() + QSize(1, 1);
         case Qt::MaximumSize:
 			return QSizeF(1000, 1000);
         default:

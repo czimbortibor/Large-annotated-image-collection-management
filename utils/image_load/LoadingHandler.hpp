@@ -69,12 +69,12 @@ private:
 
 signals:
     void imageReady(int index, const QString& url, const QString& originalUrl);
-	void mt_imageReady(const GraphicsImage& image, const QString& url);
+	void mt_imageReady(const GraphicsImage& image);
     void finishedLoading();
 
 public slots:
     void onImageReady(int index, const QString& url, const QString& originalUrl);
-    //void onImageReadyMT(const cv::Mat& result);
+	//void onImageReadyMT(const cv::Mat& result);
     void onFinishedLoading();
     void onCancel();
 };
