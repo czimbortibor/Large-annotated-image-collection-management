@@ -15,8 +15,7 @@
 class Mapper {
 public:
     Mapper() = default;
-	Mapper(const QString& path, const int& width, const int& height, ImageCollection& imageCollection) {
-		_path = path;
+	Mapper(const int& width, const int& height, ImageCollection& imageCollection) {
 		_width = width;
 		_height = height;
 		_imageCollection = &imageCollection;
@@ -26,7 +25,7 @@ public:
 	using result_type = GraphicsImage;
 
 	GraphicsImage operator()(const QString& imageName) {
-		QString* fileName = new QString(_path + QDir::separator() + imageName);
+		QString* fileName = new QString(imageName);
 		if (fileName->endsWith(".gif")) {
 			return GraphicsImage();
 		}
@@ -40,11 +39,6 @@ public:
 		image->mat.reset(cvResizedImg);
 		_imageCollection->insert(cvResizedImg, fileName, fileName);
 		return *image;
-    }
-
-    Mapper& setPath(const QString& path) {
-        _path = path;
-        return *this;
     }
 
     Mapper& setWidth(const int& width) {

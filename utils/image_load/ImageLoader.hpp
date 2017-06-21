@@ -20,10 +20,10 @@
 class ImageLoader : public QObject, public QRunnable {
     Q_OBJECT
 public:
-	ImageLoader(const QString dirName, QStringList& imageNames,
+	ImageLoader(QStringList& imageNames,
 						 QList<GraphicsImage>& results,
 						 const cv::Size& size,
-						 ImageCollection& imageCollection, const QString& originalDirPath,
+						 ImageCollection& imageCollection,
 						 QObject* parent = 0);
     void run();
 

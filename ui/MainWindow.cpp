@@ -150,49 +150,26 @@ void MainWindow::onLoadImagesClick() {
 	}
 
 	_dir = QDir(fileNames[0]);
-	_dir.setFilter(QDir::Files);
-	if (_dir.entryList().count() == 0) {
+	_imageNames = std::unique_ptr<QStringList>(new QStringList());
+	QDirIterator dirIterator(_dir.absolutePath(), _supportedImgFormats, QDir::Files, QDirIterator::Subdirectories);
+	while (dirIterator.hasNext()) {
+		_imageNames->append(dirIterator.next());
+	}
+	_nrOfImages = _imageNames->length();
+	if (_nrOfImages == 0) {
 		showAlertDialog();
 		return;
 	}
-
-    _nrOfImages = _dir.entryList().length();
-	_images = std::shared_ptr<QList<GraphicsImage>>(new QList<GraphicsImage>());
 
     _iconSize = ui->slider_imgSize->value();
     _imgWidth = _iconSize;
     _imgHeight = _iconSize;
 
-    int len = _nrOfImages;
-	Logger::log("image size = " + std::to_string(_imgWidth) + "x" + std::to_string(_imgHeight));
-	Logger::log("image count = " + std::to_string(len));
-
-	// TODO: recursive dir read http://doc.qt.io/qt-5/qdiriterator.html
-	/*_dirSmallImg = _dir;
-	_dirSmallImg.cdUp();
-	const QString dirName = _dirSmallImg.dirName();
-	const QString originalDir = _dirSmallImg.absolutePath() + "/collections";
-	// check if the collection directory exists /
-	if (!QDir(originalDir).exists()) {
-		_dirSmallImg.mkdir("collections");
-	}
-	_dirSmallImg.cd("collections");
-	const QString collectionDir = _dir.dirName() + "_" + QString::number(ui->slider_imgSize->value());
-	// check if the collection exists
-	if (QDir(collectionDir).exists()) {
-		Logger::log("image collection already exists, reading from that...");
-		_dirSmallImg.cd(collectionDir);
-	}
-	else {
-		_dirSmallImg.mkdir(collectionDir);
-		_dirSmallImg = _dir;
-	}
-
-	_dir = _dirSmallImg;*/
-    _imageNames = std::unique_ptr<QStringList>(new QStringList);
-	*_imageNames.get() = _dir.entryList();
+	Logger::log("icon size = " + std::to_string(_imgWidth) + "x" + std::to_string(_imgHeight));
+	Logger::log("file count = " + std::to_string(_nrOfImages));
 
 	_timer.start();
+	_images = std::shared_ptr<QList<GraphicsImage>>(new QList<GraphicsImage>());
 
     _loadingHandler = std::unique_ptr<LoadingHandler>(new LoadingHandler(_imageCollection));
     _loadingHandler->setWidth(_imgWidth);
@@ -216,9 +193,8 @@ void MainWindow::onLoadImagesClick() {
     connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
 
-	const QString originalDirPath = _dir.absolutePath();
-	auto loaderPtr = _loadingHandler->loadImages_st(_dir.absolutePath(), _imageNames.get(), originalDirPath);
-	//_loadingHandler->loadImages_mt(_dir.absolutePath(), *_imageNames.get());
+	auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
+	//_loadingHandler->loadImages_mt(*_imageNames.get());
 	_images.reset(loaderPtr);
 
     ui->btn_cancelLoad->setVisible(true);

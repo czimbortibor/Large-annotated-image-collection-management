@@ -27,7 +27,7 @@ public:
      * @param path a directory containing image files
      * @param imageNames the file names
      */
-	void loadImages_mt(const QString& path, const QStringList& imageNames);
+	void loadImages_mt(const QStringList& imageNames);
 
     /**
      * @brief loadImages_st loads the images located at the chosen path
@@ -38,7 +38,7 @@ public:
      * of available results
      * @return the loaded images
      */
-	QList<GraphicsImage>* loadImages_st(const QString& path, QStringList* imageNames, const QString& originalDirPath);
+	QList<GraphicsImage>* loadImages_st(QStringList* imageNames);
 
     cv::Mat loadImage(const QString& fileName) const;
 

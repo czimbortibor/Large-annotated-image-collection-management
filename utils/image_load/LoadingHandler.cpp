@@ -1,8 +1,8 @@
 #include "LoadingHandler.hpp"
 
-void LoadingHandler::loadImages_mt(const QString& path, const QStringList& imageNames) {
-	//_mapper.setPath(path).setWidth(_width).setHeight(_height);
-	_mapper = Mapper(path, _width, _height, *_imageCollection);
+void LoadingHandler::loadImages_mt(const QStringList& imageNames) {
+	//_mapper.setWidth(_width).setHeight(_height);
+	_mapper = Mapper(_width, _height, *_imageCollection);
 	std::function<GraphicsImage(const QString& imageName)> map_functor =
 				[&](const QString& imageName) { return _mapper(imageName); };
 
@@ -24,12 +24,10 @@ void LoadingHandler::loadImages_mt(const QString& path, const QStringList& image
     connect(_loaderWatcherMT.get(), &mt_Watcher::finished, this, &LoadingHandler::onFinishedLoading);
 }
 
-QList<GraphicsImage>* LoadingHandler::loadImages_st(const QString& path, QStringList* imageNames,
-												 const QString& originalDirPath) {
+QList<GraphicsImage>* LoadingHandler::loadImages_st(QStringList* imageNames) {
 	QList<GraphicsImage>* results = new QList<GraphicsImage>();
     cv::Size size(_width, _height);
-    _loaderST = std::unique_ptr<ImageLoader>(new ImageLoader(path, *imageNames,
-                                                                *results, size, *_imageCollection, originalDirPath));
+	_loaderST = std::unique_ptr<ImageLoader>(new ImageLoader(*imageNames, *results, size, *_imageCollection));
     connect(_loaderST.get(), &ImageLoader::resultReady, this, &LoadingHandler::onImageReady);
     connect(_loaderST.get(), &ImageLoader::finished, this, &LoadingHandler::onFinishedLoading);
     QThreadPool::globalInstance()->start(_loaderST.get());
