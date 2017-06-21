@@ -141,12 +141,12 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent* event) {
 
 }
 
-QList<GraphicsImage> GraphicsView::getSelectedImages() {
-	QList<GraphicsImage> results;
+QList<GraphicsImage>& GraphicsView::getSelectedImages() {
+	QList<GraphicsImage>* results = new QList<GraphicsImage>();
 	for (const auto& item : _scene->selectedItems()) {
-		results.append(*(static_cast<GraphicsImage*>(item)));
+		results->append(*(static_cast<GraphicsImage*>(item)));
 	}
-	return results;
+	return *results;
 }
 
 

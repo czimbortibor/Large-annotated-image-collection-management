@@ -61,7 +61,7 @@ public:
     void setSpiralDistance(int value);
     void setSpiralTurn(int value);
 
-	QList<GraphicsImage> getSelectedImages();
+	QList<GraphicsImage>& getSelectedImages();
 
 protected:
 	void mouseReleaseEvent(QMouseEvent* event);

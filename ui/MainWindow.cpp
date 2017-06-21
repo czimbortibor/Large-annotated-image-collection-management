@@ -59,6 +59,7 @@ void MainWindow::initWindow() {
 	connect(ui->btn_load, &QPushButton::clicked, this, &MainWindow::onLoadImagesClick);
 	connect(ui->btn_clear, &QPushButton::clicked, this, &MainWindow::onClearLayout);
 	connect(ui->btn_selectedImages, &QPushButton::clicked, this, &MainWindow::on_btn_selectedImages_clicked);
+	connect(ui->btn_clearSelections, &QPushButton::clicked, this, &MainWindow::on_btn_clearSelections_clicked);
 
 	// spinboxes
 	connect(ui->spinBox_radius, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &MainWindow::onRadiusChanged);
@@ -282,10 +283,8 @@ void MainWindow::populateMetadataTable(const QList<Metadata>& metadata, const QL
 
 void MainWindow::onHashImages() {
 	const QString hasherName = ui->comboBox_hashes->currentText();
-	 _images.reset(_imageCollection.getHashedImages(hasherName));
-	//std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = _imageCollection.getHashedImages(hasherName);
-	//_hashedImages.reset(result);
-	displayOriginalImages(*_images.get());
+	 QList<GraphicsImage>* results = _imageCollection.getHashedImages(hasherName);
+	displayImages(*results);
 }
 
 void MainWindow::imageSaving(int size) {
@@ -362,23 +361,31 @@ void MainWindow::logTime(QString message) {
 }
 
 void MainWindow::onRadiusChanged(double value) {
-	_view->setRadius(value);
-	displayOriginalImages(*_images.get());
+	if (_images) {
+		_view->setRadius(value);
+		displayImages(*_images.get());
+	}
 }
 
 void MainWindow::onPetalNrChanged(int value) {
-	_view->setNrOfPetals(value);
-	displayOriginalImages(*_images.get());
+	if (_images) {
+		_view->setNrOfPetals(value);
+		displayImages(*_images.get());
+	}
 }
 
 void MainWindow::onSpiralDistanceChanged(int value) {
-	_view->setSpiralDistance(value);
-	displayOriginalImages(*_images.get());
+	if (_images) {
+		_view->setSpiralDistance(value);
+		displayImages(*_images.get());
+	}
 }
 
 void MainWindow::onSpiralTurnChanged(int value) {
-	_view->setSpiralTurn(value);
-	displayOriginalImages(*_images.get());
+	if (_images) {
+		_view->setSpiralTurn(value);
+		displayImages(*_images.get());
+	}
 }
 
 void MainWindow::onLayoutChanged(const QString& text) {
@@ -435,6 +442,26 @@ void MainWindow::onImageDoubleClicked(const QString& url) {
 	}
 	const QString& hasherName = ui->comboBox_hashes->currentText();
 	QList<GraphicsImage>* results = _imageCollection.getSimilarImages(url, hasherName);
+
+	/* format the display
+	 *  grid: selected image goes to the first place (default list order)
+	 *  spiral: selected image goes to the center of the spiral (reversed list order)
+	 *  petal: selected image stays in place and the similar ones next to it
+	*/
+
+	const QString layout_type = ui->comboBox_layout->currentText();
+	if (layout_type == "spiral") {
+		std::reverse(results->begin(), results->end());
+	}
+	// TODO: selection in petal layout format
+	else if (layout_type == "petal") {
+		/*QList<GraphicsImage>* modifiedList = new QList<GraphicsImage>();
+		for (int i = 0; i < results->length() - 1; i += 2) {
+			modifiedList->append(results->at(i));
+			modifiedList->prepend(results->at(i+1));
+		}
+		results = modifiedList;*/
+	}
 	displayImages(*results);
 }
 
@@ -519,4 +546,13 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 void MainWindow::on_btn_selectedImages_clicked() {
 	QList<GraphicsImage> selectedImages = _view->getSelectedImages();
 
+}
+
+void MainWindow::on_btn_clearSelections_clicked() {
+	for (auto& image : _view->scene().selectedItems()) {
+		image->setSelected(false);
+		image->setGraphicsEffect(nullptr);
+	}
+	ui->tableWidget_metadata->clearContents();
+	ui->tableWidget_metadata->setRowCount(0);
 }

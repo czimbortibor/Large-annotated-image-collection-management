@@ -107,7 +107,7 @@ QList<GraphicsImage>* ImageCollection::getSimilarImages(const QString& url, cons
     }
 
     for (const auto& images : resMap) {
-        results->push_back(images.second);
+		results->append(images.second);
     }
     return results;
 }

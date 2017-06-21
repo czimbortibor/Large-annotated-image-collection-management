@@ -178,6 +178,7 @@ private slots:
 
 	void onAddNewFilter(QListWidgetItem* item);
 	void on_btn_selectedImages_clicked();
+	void on_btn_clearSelections_clicked();
 
 signals:
 	void addViewItem(const QGraphicsLayoutItem* item);
