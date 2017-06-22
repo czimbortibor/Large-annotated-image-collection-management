@@ -194,9 +194,14 @@ void MainWindow::onLoadImagesClick() {
     connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
 
-	//auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
+	/* // --------------- single-thread -------------
+	auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
+	_images.reset(loaderPtr);
+	// */
+
+	 // --------------- multi-thread -------------
 	_loadingHandler->loadImages_mt(_imageNames.get());
-	//_images.reset(loaderPtr);
+	// */
 
     ui->btn_cancelLoad->setVisible(true);
 
@@ -209,8 +214,8 @@ void MainWindow::onImageReceivedMT(const GraphicsImage& image) {
 	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
 	connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
-	//emit addViewItem(item);
-	_view->addItem(item);
+	emit addViewItem(item);
+	//_view->addItem(item);
 	_progressBar->setValue(_progressBar->value() + 1);
 }
 
