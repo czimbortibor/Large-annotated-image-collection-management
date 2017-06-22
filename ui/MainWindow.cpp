@@ -124,11 +124,13 @@ void MainWindow::showAlertDialog() const {
 }
 
 void MainWindow::showProgressBar(const int maximumValue, const QString& taskName) {
-    _progressBar = std::unique_ptr<QProgressBar>(new QProgressBar);
+	_progressBar = std::unique_ptr<QProgressBar>(new QProgressBar());
     _progressBar->setMaximum(maximumValue);
     QLabel* taskLabel = new QLabel(taskName);
-    ui->dockWidgetContents_mainControls->layout()->addWidget(taskLabel);
-    ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
+	//ui->dockWidgetContents_mainControls->layout()->addWidget(taskLabel);
+	//ui->dockWidgetContents_mainControls->layout()->addWidget(_progressBar.get());
+	ui->centralWidget->layout()->addWidget(taskLabel);
+	ui->centralWidget->layout()->addWidget(_progressBar.get());
     connect(_progressBar.get(), &QProgressBar::destroyed, taskLabel, &QLabel::deleteLater);
 }
 
@@ -164,6 +166,7 @@ void MainWindow::onLoadImagesClick() {
     _iconSize = ui->slider_imgSize->value();
     _imgWidth = _iconSize;
     _imgHeight = _iconSize;
+	ui->tableWidget_metadata->setIconSize(QSize(_imgWidth, _imgHeight));
 
 	Logger::log("icon size = " + std::to_string(_imgWidth) + "x" + std::to_string(_imgHeight));
 	Logger::log("file count = " + std::to_string(_nrOfImages));
@@ -194,14 +197,13 @@ void MainWindow::onLoadImagesClick() {
     connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
 
-	/* // --------------- single-thread -------------
-	auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
-	_images.reset(loaderPtr);
-	// */
-
-	 // --------------- multi-thread -------------
-	_loadingHandler->loadImages_mt(_imageNames.get());
-	// */
+	if (ui->comboBox_thread->currentText() == "single thread") {
+		auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
+		_images.reset(loaderPtr);
+	}
+	else {
+		_loadingHandler->loadImages_mt(_imageNames.get());
+	}
 
     ui->btn_cancelLoad->setVisible(true);
 
@@ -238,7 +240,7 @@ void MainWindow::onFinishedLoading() {
     saveImages(ui->slider_imgSize->value());
 
 	QJsonArray raw_data = _dbContext.queryAll();
-	_metadata.reset(&MetadataParser::getMetadata(raw_data));
+	//_metadata.reset(&MetadataParser::getMetadata(raw_data));
 }
 
 void MainWindow::populateMetadataTable(const QList<Metadata>& metadata, const QList<GraphicsImage>& images) {
@@ -259,6 +261,7 @@ void MainWindow::populateMetadataTable(const QList<Metadata>& metadata, const QL
 		}
 		++row;
 	}
+	ui->tableWidget_metadata->resizeRowsToContents();
 }
 
 void MainWindow::onHashImages() {

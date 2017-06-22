@@ -39,6 +39,35 @@
       </spacer>
      </item>
      <item>
+      <widget class="QComboBox" name="comboBox_thread">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(178, 253, 123);</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>single thread</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>multi thread</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btn_load">
        <property name="toolTip">
         <string/>
@@ -171,6 +200,7 @@
     <zorder>btn_cancelLoad</zorder>
     <zorder>horizontalSpacer</zorder>
     <zorder>comboBox_hashes</zorder>
+    <zorder>comboBox_thread</zorder>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_layouts">
@@ -463,34 +493,33 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_metadata">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="2">
-      <widget class="QPushButton" name="btn_selectedImages">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(115, 210, 22);</string>
-       </property>
-       <property name="text">
-        <string>Select images</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="4">
+     <item row="4" column="1" colspan="3">
       <widget class="QTableWidget" name="tableWidget_metadata">
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
        <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
@@ -498,14 +527,20 @@
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::NoDragDrop</enum>
+       </property>
        <property name="alternatingRowColors">
         <bool>false</bool>
        </property>
        <property name="iconSize">
         <size>
-         <width>50</width>
-         <height>50</height>
+         <width>100</width>
+         <height>100</height>
         </size>
+       </property>
+       <property name="textElideMode">
+        <enum>Qt::ElideRight</enum>
        </property>
        <property name="gridStyle">
         <enum>Qt::SolidLine</enum>
@@ -563,7 +598,7 @@
        </column>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="1" column="1">
       <widget class="QPushButton" name="btn_clearSelections">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -579,8 +614,37 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="1" column="2">
+      <widget class="QPushButton" name="btn_selectedImages">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(115, 210, 22);</string>
+       </property>
+       <property name="text">
+        <string>Select images</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
       <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="4">
+      <spacer name="horizontalSpacer_5">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>

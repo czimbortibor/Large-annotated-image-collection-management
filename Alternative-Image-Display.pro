@@ -51,7 +51,6 @@ HEADERS  +=\
     view/GraphicsView.hpp \
     filters/DateFilter.hpp \
     filters/AbstractFilter.hpp \
-    utils/AbstractFilter.hpp \
     utils/AbstractLayoutFactory.hpp \
     utils/FlowLayoutFactory.hpp \
     utils/PetalLayoutFactory.hpp \
