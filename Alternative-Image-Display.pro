@@ -33,13 +33,14 @@ SOURCES +=\
     filters/DateFilter.cpp \
     utils/CBIR.cpp \
     utils/ImageConverter.cpp \
-    utils/image_load/ImageLoader.cpp \
     utils/image_load/LoadingHandler.cpp \
     utils/ImageCollection.cpp \
     db/DbContext.cpp \
     filters/TextFilter.cpp \
     utils/GraphicsImage.cpp \
-    utils/metadata/MetadataParser.cpp
+    utils/metadata/MetadataParser.cpp \
+    utils/image_load/ImageLoaderST.cpp \
+    utils/image_load/ImageLoaderMT.cpp
 
 HEADERS  +=\
     layouts/AbstractGraphicsLayout.hpp \
@@ -56,7 +57,6 @@ HEADERS  +=\
     utils/PetalLayoutFactory.hpp \
     utils/CBIR.hpp \
     utils/ImageConverter.hpp \
-    utils/image_load/ImageLoader.hpp \
     utils/image_load/Mapper.hpp \
     utils/image_load/Reducer.hpp \
     utils/image_load/LoadingHandler.hpp \
@@ -68,7 +68,9 @@ HEADERS  +=\
     utils/graphics/SelectEffect.hpp \
     utils/GraphicsImage.hpp \
     utils/metadata/Metadata.hpp \
-    utils/metadata/MetadataParser.hpp
+    utils/metadata/MetadataParser.hpp \
+    utils/image_load/ImageLoaderST.hpp \
+    utils/image_load/ImageLoaderMT.hpp
 
 FORMS    +=\
     ui/MainWindow.ui

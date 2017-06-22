@@ -26,7 +26,7 @@
 #include "utils/GraphicsImage.hpp"
 #include "utils/CBIR.hpp"
 #include "utils/image_load/LoadingHandler.hpp"
-#include "utils/image_load/ImageLoader.hpp"
+#include "utils/image_load/ImageLoaderST.hpp"
 #include "utils/ImageCollection.hpp"
 #include "utils/metadata/MetadataParser.hpp"
 #include "utils/Logger.hpp"
@@ -150,7 +150,7 @@ private:
 private slots:
 	void onClearLayout();
 
-    void onImageReceived(int index, const QString& url, const QString& originalUrl);
+	void onImageReceivedST(int index);
 	void onImageReceivedMT(const GraphicsImage& image);
     void onFinishedLoading();
 

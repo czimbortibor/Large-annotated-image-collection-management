@@ -1,5 +1,5 @@
-#ifndef IMAGELOADER_HPP
-#define IMAGELOADER_HPP
+#ifndef IMAGELOADERST_HPP
+#define IMAGELOADERST_HPP
 
 #include <QObject>
 #include <QRunnable>
@@ -17,14 +17,16 @@
 /**
  * @brief handles image loading in a single-threaded asyncronous way
  */
-class ImageLoader : public QObject, public QRunnable {
+class ImageLoaderST : public QObject, public QRunnable {
     Q_OBJECT
 public:
-	ImageLoader(QStringList& imageNames,
+	ImageLoaderST(QStringList& imageNames,
 						 QList<GraphicsImage>& results,
 						 const cv::Size& size,
 						 ImageCollection& imageCollection,
 						 QObject* parent = 0);
+	~ImageLoaderST() = default;
+
     void run();
 
     bool isRunning() const { return static_cast<int>(_running); }
@@ -42,11 +44,11 @@ private:
     QAtomicInt _running;
 
 signals:
-    void resultReady(int index, const QString& url, const QString& originalUrl);
+	void resultReady(int index);
     void finished();
 
 public slots:
     void onCancel() { _running.testAndSetOrdered(1, 0); }
 };
 
-#endif // IMAGELOADER_HPP
+#endif // IMAGELOADERST_HPP
