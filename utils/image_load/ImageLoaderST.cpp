@@ -1,6 +1,6 @@
-#include "ImageLoader.hpp"
+#include "ImageLoaderST.hpp"
 
-ImageLoader::ImageLoader(QStringList& imageNames,
+ImageLoaderST::ImageLoaderST(QStringList& imageNames,
 						 QList<GraphicsImage>& results,
 						 const cv::Size& size,
 						 ImageCollection& imageCollection, QObject* parent) : QObject(parent) {
@@ -10,7 +10,7 @@ ImageLoader::ImageLoader(QStringList& imageNames,
     _imageCollection = &imageCollection;
 }
 
-void ImageLoader::run() {
+void ImageLoaderST::run() {
     _running.testAndSetOrdered(0, 1);
     for (int i = 0; i < _imageNames->length(); ++i) {
         if (static_cast<int>(_running)) {
@@ -32,7 +32,7 @@ void ImageLoader::run() {
 			image->mat.reset(cvResizedImg);
 			_results->append(*image);
 			_imageCollection->insert(cvResizedImg, fileName, fileName);
-			emit resultReady(_index, *fileName, *fileName);
+			emit resultReady(_index);
 			++_index;
             }
         }

@@ -4,13 +4,9 @@
 #include <memory>
 
 #include <QObject>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QtConcurrent>
 
-#include "utils/image_load/Mapper.hpp"
-#include "utils/image_load/Reducer.hpp"
-#include "utils/image_load/ImageLoader.hpp"
+#include "utils/image_load/ImageLoaderST.hpp"
+#include "utils/image_load/ImageLoaderMT.hpp"
 #include "utils/ImageConverter.hpp"
 
 
@@ -23,19 +19,15 @@ public:
 
     /**
      * @brief loadImages_mt loads the images located at the chosen path
-     * using multiple threads. The loaded images will be accessible via a signal
-     * @param path a directory containing image files
+	 * using multiple threads. The loaded images will be accessible via signals
      * @param imageNames the file names
      */
-	void loadImages_mt(const QStringList& imageNames);
+	void loadImages_mt(QStringList* imageNames);
 
     /**
      * @brief loadImages_st loads the images located at the chosen path
      * using a single thread
-     * @param path a directory containing image files
      * @param imageNames the file names
-     * @param notifyRate after how many loaded images should the observers be notified
-     * of available results
      * @return the loaded images
      */
 	QList<GraphicsImage>* loadImages_st(QStringList* imageNames);
@@ -57,25 +49,19 @@ private:
      */
     int _height = 100;
 
-    // ----------- multi-threaded image load ---------------
-	std::unique_ptr<QFuture<QList<GraphicsImage>>> _loaderMT;
-	std::unique_ptr<QFutureWatcher<QList<GraphicsImage>>> _loaderWatcherMT;
-    Mapper _mapper;
-    Reducer _reducer;
+	// ----------- multi-threaded image load -----------
+	std::unique_ptr<ImageLoaderMT> _loaderMT;
 
-    // ---------- custom single-threaded image load -----------
-    std::unique_ptr<ImageLoader> _loaderST;
-
+	// ---------- single-threaded image load -----------
+    std::unique_ptr<ImageLoaderST> _loaderST;
 
 signals:
-    void imageReady(int index, const QString& url, const QString& originalUrl);
-	void mt_imageReady(const GraphicsImage& image);
+	void imageReady_st(int index);
+	void imageReady_mt(const GraphicsImage& image);
     void finishedLoading();
 
 public slots:
-    void onImageReady(int index, const QString& url, const QString& originalUrl);
-	//void onImageReadyMT(const cv::Mat& result);
-    void onFinishedLoading();
+	void onFinishedLoading();
     void onCancel();
 };
 

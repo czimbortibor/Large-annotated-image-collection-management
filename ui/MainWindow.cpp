@@ -175,7 +175,7 @@ void MainWindow::onLoadImagesClick() {
     _loadingHandler->setWidth(_imgWidth);
 	_loadingHandler->setHeight(_imgHeight);
 
-	connect(_loadingHandler.get(), &LoadingHandler::imageReady, this, &MainWindow::onImageReceived);
+	connect(_loadingHandler.get(), &LoadingHandler::imageReady_st, this, &MainWindow::onImageReceivedST);
 
 	/*connect(_loadingHandler.get(), &LoadingHandler::mt_imageReady,
 			[this](const cv::Mat& image, const QString& url) {
@@ -187,15 +187,16 @@ void MainWindow::onLoadImagesClick() {
 		emit addViewItem(item);
 		_progressBar->setValue(_progressBar->value() + 1);
 	});*/
-	connect(_loadingHandler.get(), &LoadingHandler::mt_imageReady, this, &MainWindow::onImageReceivedMT);
+
+	connect(_loadingHandler.get(), &LoadingHandler::imageReady_mt, this, &MainWindow::onImageReceivedMT);
 
     connect(_loadingHandler.get(), &LoadingHandler::finishedLoading, this, &MainWindow::onFinishedLoading);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
 
-	auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
-	//_loadingHandler->loadImages_mt(*_imageNames.get());
-	_images.reset(loaderPtr);
+	//auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
+	_loadingHandler->loadImages_mt(_imageNames.get());
+	//_images.reset(loaderPtr);
 
     ui->btn_cancelLoad->setVisible(true);
 
@@ -213,9 +214,7 @@ void MainWindow::onImageReceivedMT(const GraphicsImage& image) {
 	_progressBar->setValue(_progressBar->value() + 1);
 }
 
-void MainWindow::onImageReceived(int index, const QString& url, const QString& originalUrl) {
-	Q_UNUSED(url)
-	Q_UNUSED(originalUrl)
+void MainWindow::onImageReceivedST(int index) {
 	const GraphicsImage* item = &_images->at(index);
 	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
