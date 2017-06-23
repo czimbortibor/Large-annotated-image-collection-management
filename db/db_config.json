@@ -1,0 +1,7 @@
+{
+  "URI":  "mongodb://localhost:27017",
+  "db_name":  "local",
+  "feeds_name_collection": "FeedList",
+  "feeds_collection": "RSSFeeds",
+  "image_collection": "ImageCollection"
+}

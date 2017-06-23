@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>resources/icons/grid_layout.png</file>
+        <file>resources/icons/plus_icon.png</file>
+        <file>resources/icons/flower_layout.png</file>
+        <file>resources/icons/spiral_layout.png</file>
+        <file>resources/icons/x_icon.png</file>
+    </qresource>
+    <qresource prefix="/config">
+        <file>db/db_config.json</file>
+    </qresource>
+</RCC>
