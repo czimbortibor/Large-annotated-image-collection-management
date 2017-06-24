@@ -169,25 +169,37 @@ QJsonArray DbContext::queryImagePaths(const QStringList& image_paths) {
 									QString::fromStdString(field.get_utf8().value.to_string()));
 				}
 			}
-			/*std::vector<std::string> doc_keys;
-			std::transform(std::begin(doc), std::end(doc), std::back_inserter(doc_keys), [](element ele) {
-				// key() returns a string_view
-				return ele.key().to_string();
-			});
-			for (const auto& key : doc_keys) {
-				if (doc[key].type() == bsoncxx::type::k_date) {
-					std::string time_str = bdate_to_string(doc[key]);
-					json_obj.insert(QString::fromStdString(key),
-									QString::fromStdString(time_str));
+		}
+		results.append(QJsonValue(json_obj));
+	}
+	return results;
+}
+
+QJsonArray DbContext::queryDateRange(const QStringList& dates) {
+	std::string start_date = dates[0].toStdString();
+	std::string end_date = dates[1].toStdString();
+	auto query = document{} << "published" << open_document << "$gte" << start_date
+							 << "$lte" << end_date << close_document << finalize;
+	mongocxx::cursor cursor = feedsCollection.find(query.view());
+	std::cout << bsoncxx::to_json(query.view());
+
+	QJsonArray results;
+	for (const auto& doc : cursor) {
+		QJsonObject json_obj;
+		for (const bsoncxx::document::element field : doc) {
+			if (field.type() == bsoncxx::type::k_date) {
+				std::string time_str = bdate_to_string(field);
+				json_obj.insert(QString::fromStdString(field.key().to_string()),
+								QString::fromStdString(time_str));
+			}
+			else {
+				if (field.type() == bsoncxx::type::k_utf8) {
+					json_obj.insert(QString::fromStdString(field.key().to_string()),
+									QString::fromStdString(field.get_utf8().value.to_string()));
 				}
-				else {
-					if (doc[key].type() == bsoncxx::type::k_utf8) {
-						json_obj.insert(QString::fromStdString(key),
-										QString::fromStdString(doc[key].get_utf8().value.to_string()));
-					}
-				}*/
 			}
 		results.append(QJsonValue(json_obj));
+		}
 	}
 	return results;
 }

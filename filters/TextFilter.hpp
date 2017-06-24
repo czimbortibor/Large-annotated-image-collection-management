@@ -27,7 +27,7 @@ public:
 	 */
 	QGroupBox* makeControl();
 
-	QPushButton* removeButton() { return _btnRemove; }
+	QPushButton& removeButton() { return *_btnRemove; }
 
 	QString getText() { return _editField->text(); }
 

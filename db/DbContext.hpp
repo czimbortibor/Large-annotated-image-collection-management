@@ -47,6 +47,7 @@ public:
 	QJsonArray queryText(const QString& text);
 	QJsonArray queryImagePath(const QString& image_path);
 	QJsonArray queryImagePaths(const QStringList& image_paths);
+	QJsonArray queryDateRange(const QStringList& dates);
 
 	static std::string bdate_to_string(const bsoncxx::document::element& bdate) {
 		std::chrono::system_clock::time_point tp = bdate.get_date();

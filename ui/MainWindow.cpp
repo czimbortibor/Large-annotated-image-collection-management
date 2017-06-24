@@ -497,7 +497,7 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 	ui->widget_filters->layout()->addWidget(filterLabel);
     ui->widget_filters->layout()->addWidget(filterControl);
 
-	QPushButton* removeButton = filter->removeButton();
+	QPushButton* removeButton = &filter->removeButton();
 	connect(removeButton, &QPushButton::clicked, [&]() {
 		ui->widget_filters->layout()->removeWidget(filterLabel);
 		ui->widget_filters->layout()->removeWidget(filterControl);
@@ -520,8 +520,10 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 	}
 	else {
 		DateFilter* dateFilter = dynamic_cast<DateFilter*>(filter);
-		connect(dateFilter, &DateFilter::changed, [&](const QJsonArray& results) {
-
+		connect(dateFilter, &DateFilter::datesChanged, [&](const QJsonArray& results) {
+			QList<Metadata> metadata = MetadataParser::getMetadata(results);
+			QList<GraphicsImage> filtered_images = MetadataParser::getImages(metadata, _imageCollection);
+			displayImages(filtered_images);
 		});
 	}
 }

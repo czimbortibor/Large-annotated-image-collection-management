@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QDateEdit>
 #include <QGroupBox>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QList>
 
 #include "AbstractFilter.hpp"
@@ -36,7 +36,9 @@ public:
      */
     QGroupBox* makeControl();
 
-	QPushButton* removeButton() { return _btnRemove; }
+	QPushButton& removeButton() { return *_btnRemove; }
+
+	QPushButton& applyButton() { return *_btnApply; }
 
     /**
      * @brief calculate the 2 dates in milliseconds (since the epoch) represented in strings
@@ -45,16 +47,17 @@ public:
 	QStringList getDates();
 
 signals:
-	void changed(const QJsonArray& results);
+	void datesChanged(const QJsonArray& results);
 
 private slots:
-	void on_date_changed(const QDateTime& datetime);
+	void on_query_dates();
 
 private:
 	DbContext _dbContext;
 	mongocxx::pool::entry _dbConnection;
     QGroupBox* _groupBox;
 	QPushButton* _btnRemove;
+	QPushButton* _btnApply;
     QDateTimeEdit* _dateEdit1;
     QDateTimeEdit* _dateEdit2;
 };
