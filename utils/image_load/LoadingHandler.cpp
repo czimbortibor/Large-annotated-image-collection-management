@@ -12,8 +12,8 @@ void LoadingHandler::loadImages_mt(QStringList* imageNames) {
 	_loaderMT->run();
 }
 
-QList<GraphicsImage>* LoadingHandler::loadImages_st(QStringList* imageNames) {
-	QList<GraphicsImage>* results = new QList<GraphicsImage>();
+QList<const GraphicsImage*>* LoadingHandler::loadImages_st(QStringList* imageNames) {
+	QList<const GraphicsImage*>* results = new QList<const GraphicsImage*>();
     cv::Size size(_width, _height);
 	_loaderST = std::unique_ptr<ImageLoaderST>(new ImageLoaderST(*imageNames, *results, size, *_imageCollection));
 	connect(_loaderST.get(), &ImageLoaderST::resultReady, [&](int index) {

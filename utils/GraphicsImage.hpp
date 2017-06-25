@@ -83,8 +83,6 @@ public:
     QString getUrl() const { return _url; }
     QString getOriginalUrl() const { return _originalUrl; }
 
-	std::shared_ptr<cv::Mat> mat = nullptr;
-
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event);

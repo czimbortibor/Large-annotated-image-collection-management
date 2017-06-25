@@ -32,7 +32,7 @@ public:
 
     void insert(cv::Mat* image, QString* url, QString* originalUrl);
 
-    cv::Mat getHashValue(const QString& hasherName, QString& url) {
+	cv::Mat getHashValue(const QString& hasherName, const QString& url) {
         return _collection_map.at(hasherName).at(url).getHash();
     }
 

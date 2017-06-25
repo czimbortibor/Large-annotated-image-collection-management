@@ -88,7 +88,7 @@ private:
 
     cv::Mat resizeImage(const cv::Mat& image, int newWidth, int newHeight) const;
 	void displayImages(const QList<GraphicsImage>& images);
-	void displayOriginalImages(const QList<GraphicsImage>& images);
+	void displayOriginalImages(const QList<const GraphicsImage*>& images);
 
     /**
      * @brief loads one image
@@ -134,7 +134,7 @@ private:
 
 	std::unique_ptr<QFuture<void>> _imageDisplayer;
 
-	std::shared_ptr<QList<GraphicsImage>> _images;
+	std::shared_ptr<QList<const GraphicsImage*>> _images;
 	std::unique_ptr<std::multimap<GraphicsImage, cv::Mat, CBIR::MatCompare>> _hashedImages;
 
     ImageCollection _imageCollection;

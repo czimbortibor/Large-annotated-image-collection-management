@@ -14,25 +14,14 @@ double CBIR::MatCompare::operator()(const cv::Mat& hashmatA, const cv::Mat& hash
 using ImageMap = std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
 
 ImageMap* CBIR::computeHashes(const QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) {
-//std::multimap<double, const cv::Mat>& CBIR::computeHashes(QList<cv::Mat>& images, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const {
-    //std::multimap<double, const cv::Mat>* resMap = new std::multimap<double, const cv::Mat>;
     ImageMap* resMap = new ImageMap;
     static_hasher = hasher;
 	// compute the hash from each image
     QList<cv::Mat>::const_iterator iter;
     for (iter = images.begin(); iter != images.end(); ++iter) {
-        //double hashNorm;
         cv::Mat hashMat;
-
         static_hasher->compute(*iter, hashMat);
-
-		// get the norm for every hash
-        //hashNorm = cv::norm(hashMat, cv::NORM_HAMMING);
-        //resMap->emplace(hashNorm, *iter);
-
         resMap->emplace(hashMat, *iter);
-
-        //images.erase(iter);
 	}
     return resMap;
 }

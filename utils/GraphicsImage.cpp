@@ -47,7 +47,6 @@ GraphicsImage::GraphicsImage(const QImage& image, const QString& url, const QStr
 	QGraphicsLayoutItem::setGraphicsItem(this);
     _url = url;
     _originalUrl = originalUrl;
-	mat = std::make_shared<cv::Mat>();
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemIsFocusable);
@@ -64,7 +63,7 @@ GraphicsImage::GraphicsImage(const QImage& image) : QGraphicsObject(), QGraphics
 }
 
 GraphicsImage::GraphicsImage(const GraphicsImage& other)
-	: QGraphicsObject(), QGraphicsLayoutItem(), mat(other.mat) {
+	: QGraphicsObject(), QGraphicsLayoutItem() {
 	_height = other.getHeight();
 	_width = other.getWidth();
 	_pix = other.getPixmap();
@@ -83,7 +82,6 @@ GraphicsImage& GraphicsImage::operator=(const GraphicsImage& other) {
     _height = other.getHeight();
     _url = other.getUrl();
     _originalUrl = other.getOriginalUrl();
-	mat = other.mat;
     QGraphicsLayoutItem::setGraphicsItem(this);
     QGraphicsItem::setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable);

@@ -1,7 +1,7 @@
 #include "ImageLoaderST.hpp"
 
 ImageLoaderST::ImageLoaderST(QStringList& imageNames,
-						 QList<GraphicsImage>& results,
+						 QList<const GraphicsImage*>& results,
 						 const cv::Size& size,
 						 ImageCollection& imageCollection, QObject* parent) : QObject(parent) {
     _imageNames = &imageNames;
@@ -29,8 +29,8 @@ void ImageLoaderST::run() {
             cv::resize(cvImage, *cvResizedImg, _size);
 			GraphicsImage* image = new GraphicsImage(ImageConverter::Mat2QImage(*cvResizedImg),
 											   *fileName, *fileName);
-			image->mat.reset(cvResizedImg);
-			_results->append(*image);
+			//image->mat.reset(cvResizedImg);
+			_results->append(image);
 			_imageCollection->insert(cvResizedImg, fileName, fileName);
 			emit resultReady(_index);
 			++_index;

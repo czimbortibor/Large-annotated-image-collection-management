@@ -36,7 +36,6 @@ public:
 		cv::Mat* cvResizedImg = new cv::Mat();
 		cv::resize(cvImage, *cvResizedImg, cv::Size(_width, _height));
 		GraphicsImage* image = new GraphicsImage(ImageConverter::Mat2QImage(*cvResizedImg), *fileName, *fileName);
-		image->mat.reset(cvResizedImg);
 		_imageCollection->insert(cvResizedImg, fileName, fileName);
 		return *image;
     }

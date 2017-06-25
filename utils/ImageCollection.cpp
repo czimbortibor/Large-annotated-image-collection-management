@@ -33,7 +33,6 @@ void ImageCollection::insert(cv::Mat* image, QString* url, QString* originalUrl)
         cv::Mat* hash = new cv::Mat(_cbir.getHash(*image, hasher.second));
         /** insert the results into the hasher's map */
 		GraphicsImage* item = new GraphicsImage(ImageConverter::Mat2QImage(*image), *url, *originalUrl);
-		item->mat.reset(image);
 		_collection_map.at(hasher.first).emplace(*url, Collection(item, hash, originalUrl));
     }
 }
@@ -48,7 +47,6 @@ QList<cv::Mat> ImageCollection::getHashes(const QString& hasherName) const {
 }
 
 QList<GraphicsImage>* ImageCollection::getHashedImages(const QString& hasherName) {
-	//std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>* result = new std::multimap<cv::Mat, cv::Mat, CBIR::MatCompare>;
 	std::multimap<cv::Mat, GraphicsImage, CBIR::MatCompare> res;
 	auto imageMap = _collection_map.at(hasherName);
     _cbir.setHasher(_hashers.at(hasherName));
@@ -65,7 +63,6 @@ QList<GraphicsImage>* ImageCollection::getHashedImages(const QString& hasherName
 
 QList<GraphicsImage>* ImageCollection::getSimilarImages(const QString& url, const QString& hasherName) {
 	QList<GraphicsImage>* results = new QList<GraphicsImage>();
-	GraphicsImage targetImage = getImage(hasherName, url);
     cv::Ptr<cv::img_hash::ImgHashBase> hasher;
     try {
         hasher = _hashers.at(hasherName);
@@ -74,8 +71,8 @@ QList<GraphicsImage>* ImageCollection::getSimilarImages(const QString& url, cons
 		Logger::log(ex.what());
     }
 
-    _cbir.setHasher(hasher);
-	cv::Mat targetHash = _cbir.getHash(*targetImage.mat, hasher);
+	_cbir.setHasher(hasher);
+	cv::Mat targetHash = getHashValue(hasherName, url);
 
     struct CustomCompare {
         CustomCompare(ImageCollection* parent, cv::Mat targetHash) : _parent(parent) {
