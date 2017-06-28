@@ -1,0 +1,5 @@
+<map id="AbstractGraphicsLayout" name="AbstractGraphicsLayout">
+<area shape="rect" id="node3" href="$class_flow_layout.html" title="FlowLayout" alt="" coords="5,155,95,181"/>
+<area shape="rect" id="node4" href="$class_petal_layout.html" title="PetalLayout" alt="" coords="119,155,210,181"/>
+<area shape="rect" id="node5" href="$class_spiral_layout.html" title="SpiralLayout" alt="" coords="235,155,329,181"/>
+</map>

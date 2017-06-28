@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['get_5fconnection',['get_connection',['../class_db_context_1_1_mongo_access.html#abb006e30acf9a158b9c6f6db48b8a92d',1,'DbContext::MongoAccess']]],
+  ['getdates',['getDates',['../class_date_filter.html#a43832d7c3e1d10bb75501b23b995100d',1,'DateFilter']]],
+  ['getdistance',['getDistance',['../class_c_b_i_r.html#ab23bdc08b68eeb6065bf6c850ab7e153',1,'CBIR']]],
+  ['gethash',['getHash',['../class_c_b_i_r.html#a9cfe1b651dfa77f4f34ccb0d3fb5c99c',1,'CBIR::getHash()'],['../struct_image_collection_1_1_collection.html#a173bfafd848c7bfe5201456ef308e4d2',1,'ImageCollection::Collection::getHash()']]],
+  ['gethashedimages',['getHashedImages',['../class_image_collection.html#a55c092cdb1b4e5d38c57fa7abfa18b93',1,'ImageCollection']]],
+  ['gethasher',['getHasher',['../class_image_collection.html#a77b40c4b72ebbf547d3fb846d7bdbe3d',1,'ImageCollection']]],
+  ['gethashes',['getHashes',['../class_image_collection.html#a4b3b1e798fca836260f7e32b3d11dca2',1,'ImageCollection']]],
+  ['gethashingalgorithms',['getHashingAlgorithms',['../class_image_collection.html#ae5d0b97dfb001e83127e96d82e5d2cb1',1,'ImageCollection']]],
+  ['gethashvalue',['getHashValue',['../class_c_b_i_r.html#aca4464d83f0ffb62df086fd784f82898',1,'CBIR::getHashValue()'],['../class_image_collection.html#a2ee4e33da89d743f9d9763a2bd65e0cc',1,'ImageCollection::getHashValue()']]],
+  ['getheight',['getHeight',['../class_graphics_image.html#afd1e95dbdc5fdaa4b9d9487ea475d1d3',1,'GraphicsImage']]],
+  ['getimage',['getImage',['../class_image_collection.html#a7d469e74a333ed56523b7f8d4b739b8d',1,'ImageCollection::getImage()'],['../struct_image_collection_1_1_collection.html#a36dffd861251a03f7d16e2fbfb05b1f0',1,'ImageCollection::Collection::getImage()']]],
+  ['getimages',['getImages',['../class_metadata_parser.html#a1d78a07f9259acc461cf9a6f5a0b3e79',1,'MetadataParser']]],
+  ['getimagesbyurl',['getImagesByUrl',['../class_image_collection.html#a020b1c97646361dbc49e1fb55f3b3002',1,'ImageCollection']]],
+  ['getmetadata',['getMetadata',['../class_metadata_parser.html#a3c51f56536e2a8bd8b321c59265fa017',1,'MetadataParser']]],
+  ['getoriginalurl',['getOriginalUrl',['../class_graphics_image.html#a5d79493f4b6aca42d4632b479e354369',1,'GraphicsImage::getOriginalUrl()'],['../struct_image_collection_1_1_collection.html#a33089a072afc22af7b7fcd9ec928a2cd',1,'ImageCollection::Collection::getOriginalUrl()']]],
+  ['getpixmap',['getPixmap',['../class_graphics_image.html#abb40cf6be50ebff08a587b522e98d463',1,'GraphicsImage']]],
+  ['getselectedimages',['getSelectedImages',['../class_graphics_view.html#a7a6a31d2596f209608e74f1ecc4f1802',1,'GraphicsView']]],
+  ['getsimilarimages',['getSimilarImages',['../class_image_collection.html#a90ef2879e2a9078c3720f8f3366b4a1d',1,'ImageCollection']]],
+  ['gettext',['getText',['../class_text_filter.html#abf480fb791180eb8e3a1267d416eba73',1,'TextFilter']]],
+  ['geturl',['getUrl',['../class_graphics_image.html#a3862f848ad1f552548cd6423e1ca79f2',1,'GraphicsImage']]],
+  ['getwidth',['getWidth',['../class_graphics_image.html#a98f9448757634d839f91b183bb42f8e8',1,'GraphicsImage']]],
+  ['graphicsimage',['GraphicsImage',['../class_graphics_image.html#aef38d6c4f08e42ed1350c03c1bf41270',1,'GraphicsImage::GraphicsImage()=default'],['../class_graphics_image.html#a8c86ba35cef5de97c6d9342e0f615995',1,'GraphicsImage::GraphicsImage(const QImage &amp;image, const QString &amp;url, const QString &amp;originalUrl)'],['../class_graphics_image.html#a772b96305b8be5afeb7c4929bb649b48',1,'GraphicsImage::GraphicsImage(const QImage &amp;image)'],['../class_graphics_image.html#a058843d735e2667a6f3cb57427065c1c',1,'GraphicsImage::GraphicsImage(const GraphicsImage &amp;other)']]],
+  ['graphicsview',['GraphicsView',['../class_graphics_view.html#a3704e176eba4e8036647eb85395569ff',1,'GraphicsView']]]
+];

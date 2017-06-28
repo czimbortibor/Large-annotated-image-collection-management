@@ -1,0 +1,9 @@
+<map id="layouts/PetalLayout.hpp" name="layouts/PetalLayout.hpp">
+<area shape="rect" id="node2" href="$_petal_layout_8cpp.html" title="layouts/PetalLayout.cpp" alt="" coords="5,80,168,107"/>
+<area shape="rect" id="node3" href="$_petal_layout_factory_8hpp.html" title="utils/PetalLayoutFactory.hpp" alt="" coords="193,80,381,107"/>
+<area shape="rect" id="node5" href="$_main_window_8hpp.html" title="ui/MainWindow.hpp" alt="" coords="351,229,487,256"/>
+<area shape="rect" id="node4" href="$_graphics_view_8hpp.html" title="view/GraphicsView.hpp" alt="" coords="207,155,366,181"/>
+<area shape="rect" id="node8" href="$_graphics_view_8cpp.html" title="view/GraphicsView.cpp" alt="" coords="167,229,326,256"/>
+<area shape="rect" id="node6" href="$_main_8cpp.html" title="Main.cpp" alt="" coords="316,304,391,331"/>
+<area shape="rect" id="node7" href="$_main_window_8cpp.html" title="ui/MainWindow.cpp" alt="" coords="415,304,551,331"/>
+</map>

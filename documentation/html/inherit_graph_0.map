@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$class_abstract_graphics_layout.html" title="AbstractGraphicsLayout" alt="" coords="176,56,339,83"/>
+<area shape="rect" id="node3" href="$class_flow_layout.html" title="FlowLayout" alt="" coords="389,5,479,32"/>
+<area shape="rect" id="node4" href="$class_petal_layout.html" title="PetalLayout" alt="" coords="389,56,479,83"/>
+<area shape="rect" id="node5" href="$class_spiral_layout.html" title="SpiralLayout" alt="" coords="387,107,481,133"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="AbstractLayoutFactory" name="AbstractLayoutFactory">
+<area shape="rect" id="node2" href="$class_flow_layout_factory.html" title="FlowLayoutFactory" alt="" coords="5,80,139,107"/>
+<area shape="rect" id="node3" href="$class_petal_layout_factory.html" title="PetalLayoutFactory" alt="" coords="163,80,298,107"/>
+<area shape="rect" id="node4" href="$class_spiral_layout_factory.html" title="SpiralLayoutFactory" alt="" coords="323,80,461,107"/>
+</map>

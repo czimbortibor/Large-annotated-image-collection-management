@@ -1,0 +1,19 @@
+<map id="ui/MainWindow.cpp" name="ui/MainWindow.cpp">
+<area shape="rect" id="node2" href="$_main_window_8hpp.html" title="MainWindow.hpp" alt="" coords="2008,80,2131,107"/>
+<area shape="rect" id="node22" href="$_graphics_view_8hpp.html" title="view/GraphicsView.hpp" alt="" coords="1797,251,1955,278"/>
+<area shape="rect" id="node34" href="$_graphics_image_8hpp.html" title="utils/GraphicsImage.hpp" alt="" coords="1392,408,1555,435"/>
+<area shape="rect" id="node37" href="$_flow_layout_8hpp.html" title="layouts/FlowLayout.hpp" alt="" coords="2827,408,2987,435"/>
+<area shape="rect" id="node39" href="$_petal_layout_8hpp.html" title="layouts/PetalLayout.hpp" alt="" coords="3024,408,3187,435"/>
+<area shape="rect" id="node41" href="$_logger_8hpp.html" title="utils/Logger.hpp" alt="" coords="155,408,269,435"/>
+<area shape="rect" id="node42" href="$_c_b_i_r_8hpp.html" title="utils/CBIR.hpp" alt="" coords="1006,408,1114,435"/>
+<area shape="rect" id="node43" href="$_loading_handler_8hpp.html" title="utils/image_load/Loading\lHandler.hpp" alt="" coords="461,155,627,196"/>
+<area shape="rect" id="node44" href="$_image_loader_s_t_8hpp.html" title="utils/image_load/ImageLoader\lST.hpp" alt="" coords="864,244,1059,285"/>
+<area shape="rect" id="node45" href="$_image_collection_8hpp.html" title="../ImageCollection.hpp" alt="" coords="854,333,1007,360"/>
+<area shape="rect" id="node46" href="$_metadata_parser_8hpp.html" title="utils/metadata/MetadataParser.hpp" alt="" coords="1437,251,1662,278"/>
+<area shape="rect" id="node47" href="$_db_context_8hpp.html" title="db/DbContext.hpp" alt="" coords="344,408,472,435"/>
+<area shape="rect" id="node48" href="$_date_filter_8hpp.html" title="filters/DateFilter.hpp" alt="" coords="94,251,234,278"/>
+<area shape="rect" id="node49" href="$_text_filter_8hpp.html" title="filters/TextFilter.hpp" alt="" coords="3681,162,3820,189"/>
+<area shape="rect" id="node36" href="$_flow_layout_factory_8hpp.html" title="utils/FlowLayoutFactory.hpp" alt="" coords="2800,333,2987,360"/>
+<area shape="rect" id="node38" href="$_petal_layout_factory_8hpp.html" title="utils/PetalLayoutFactory.hpp" alt="" coords="3011,333,3199,360"/>
+<area shape="rect" id="node40" href="$_spiral_layout_factory_8hpp.html" title="utils/SpiralLayoutFactory.hpp" alt="" coords="2534,333,2725,360"/>
+</map>

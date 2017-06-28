@@ -30,7 +30,7 @@ public:
      * @param imageNames the file names
      * @return the loaded images
      */
-	QList<const GraphicsImage*>* loadImages_st(QStringList* imageNames);
+	QList<GraphicsImage>* loadImages_st(QStringList* imageNames);
 
     cv::Mat loadImage(const QString& fileName) const;
 

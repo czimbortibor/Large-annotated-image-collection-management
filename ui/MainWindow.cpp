@@ -172,7 +172,7 @@ void MainWindow::onLoadImagesClick() {
 	Logger::log("file count = " + std::to_string(_nrOfImages));
 
 	_timer.start();
-	_images = std::shared_ptr<QList<const GraphicsImage*>>(new QList<const GraphicsImage*>());
+	_images = std::shared_ptr<QList<GraphicsImage>>(new QList<GraphicsImage>());
 
     _loadingHandler = std::unique_ptr<LoadingHandler>(new LoadingHandler(_imageCollection));
     _loadingHandler->setWidth(_imgWidth);
@@ -211,7 +211,7 @@ void MainWindow::onLoadImagesClick() {
 }
 
 void MainWindow::onImageReceivedMT(const GraphicsImage& image) {
-	_images->append(&image);
+	_images->append(image);
 	const GraphicsImage* item = new GraphicsImage(image);
 	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
@@ -222,7 +222,7 @@ void MainWindow::onImageReceivedMT(const GraphicsImage& image) {
 }
 
 void MainWindow::onImageReceivedST(int index) {
-	const GraphicsImage* item = _images->at(index);
+	const GraphicsImage* item = &_images->at(index);
 	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
 	connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
@@ -328,10 +328,10 @@ void MainWindow::displayImages(const QList<GraphicsImage>& images) {
 	}
 }
 
-void MainWindow::displayOriginalImages(const QList<const GraphicsImage*>& images) {
+void MainWindow::displayOriginalImages(const QList<GraphicsImage>& images) {
 	_view->clear();
 	for (const auto& image : images) {
-		const GraphicsImage* item = new GraphicsImage(*image);
+		const GraphicsImage* item = new GraphicsImage(image);
 		_view->addItem(item);
 		//emit addViewItem(item);
 	}

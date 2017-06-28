@@ -1,0 +1,9 @@
+<map id="layouts/FlowLayout.hpp" name="layouts/FlowLayout.hpp">
+<area shape="rect" id="node2" href="$_flow_layout_8cpp.html" title="layouts/FlowLayout.cpp" alt="" coords="5,80,165,107"/>
+<area shape="rect" id="node3" href="$_flow_layout_factory_8hpp.html" title="utils/FlowLayoutFactory.hpp" alt="" coords="189,80,376,107"/>
+<area shape="rect" id="node5" href="$_main_window_8hpp.html" title="ui/MainWindow.hpp" alt="" coords="345,229,481,256"/>
+<area shape="rect" id="node4" href="$_graphics_view_8hpp.html" title="view/GraphicsView.hpp" alt="" coords="203,155,362,181"/>
+<area shape="rect" id="node8" href="$_graphics_view_8cpp.html" title="view/GraphicsView.cpp" alt="" coords="162,229,321,256"/>
+<area shape="rect" id="node6" href="$_main_8cpp.html" title="Main.cpp" alt="" coords="311,304,385,331"/>
+<area shape="rect" id="node7" href="$_main_window_8cpp.html" title="ui/MainWindow.cpp" alt="" coords="409,304,545,331"/>
+</map>

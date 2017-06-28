@@ -1,0 +1,9 @@
+<map id="layouts/SpiralLayout.hpp" name="layouts/SpiralLayout.hpp">
+<area shape="rect" id="node2" href="$_spiral_layout_8cpp.html" title="layouts/SpiralLayout.cpp" alt="" coords="5,80,171,107"/>
+<area shape="rect" id="node3" href="$_spiral_layout_factory_8hpp.html" title="utils/SpiralLayoutFactory.hpp" alt="" coords="195,80,386,107"/>
+<area shape="rect" id="node4" href="$_graphics_view_8hpp.html" title="view/GraphicsView.hpp" alt="" coords="211,155,370,181"/>
+<area shape="rect" id="node5" href="$_main_window_8hpp.html" title="ui/MainWindow.hpp" alt="" coords="137,229,273,256"/>
+<area shape="rect" id="node8" href="$_graphics_view_8cpp.html" title="view/GraphicsView.cpp" alt="" coords="298,229,457,256"/>
+<area shape="rect" id="node6" href="$_main_8cpp.html" title="Main.cpp" alt="" coords="104,304,179,331"/>
+<area shape="rect" id="node7" href="$_main_window_8cpp.html" title="ui/MainWindow.cpp" alt="" coords="203,304,339,331"/>
+</map>

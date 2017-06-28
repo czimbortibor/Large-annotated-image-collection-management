@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['saveprogress',['saveProgress',['../class_main_window.html#aa020f92774932a1755f4d60efbabc538',1,'MainWindow']]],
+  ['scene',['scene',['../class_graphics_view.html#abf06be4f8c98e5706d59d98f6d372fdd',1,'GraphicsView']]],
+  ['selecteffect',['SelectEffect',['../class_select_effect.html#aff6d65f1ef39da1f8580961a2b123a5a',1,'SelectEffect']]],
+  ['setcolor',['setColor',['../class_select_effect.html#a62eaa72b2c1ef544e381161aef5ee2f4',1,'SelectEffect']]],
+  ['setdistance',['setDistance',['../class_spiral_layout.html#a7113861c55c57df0c8304b6a0aaaa43c',1,'SpiralLayout']]],
+  ['setgeometry',['setGeometry',['../class_abstract_graphics_layout.html#ac1bfe9ee055e6f4f97b928236ff5b973',1,'AbstractGraphicsLayout::setGeometry()'],['../class_flow_layout.html#a1e0bf650bf135d7bd370208fe41b2a03',1,'FlowLayout::setGeometry()'],['../class_petal_layout.html#a2672f5a2f5971a8c54dc048799ef396e',1,'PetalLayout::setGeometry()'],['../class_spiral_layout.html#aaf90fa706d6b23174e6fa3f99f8e3d13',1,'SpiralLayout::setGeometry()'],['../class_graphics_image.html#a2e2c7e6449533e6f5b4a3e254e750f27',1,'GraphicsImage::setGeometry()']]],
+  ['sethasher',['setHasher',['../class_c_b_i_r.html#a4e63604b39393a2b0eebc885fea6ce4d',1,'CBIR']]],
+  ['setheight',['setHeight',['../class_loading_handler.html#a4b84a3180725f86fa32ae2e2c0e7a440',1,'LoadingHandler::setHeight()'],['../class_mapper.html#afb54e5b5bce56eabe7f173e4ced773bb',1,'Mapper::setHeight()']]],
+  ['setlayout',['setLayout',['../class_graphics_view.html#abd5d0f974ddc4fed83f8558b2fc89f6a',1,'GraphicsView']]],
+  ['setminscenesize',['setMinSceneSize',['../class_graphics_view.html#a91e3a8424a9d143665747f4e90dd7273',1,'GraphicsView']]],
+  ['setnrofpetals',['setNrOfPetals',['../class_petal_layout.html#a2a210067669d4bfe2189c640b13af964',1,'PetalLayout::setNrOfPetals()'],['../class_graphics_view.html#aabf846c24a88d693ebdb8af26a901091',1,'GraphicsView::setNrOfPetals()']]],
+  ['setoffset',['setOffset',['../class_select_effect.html#af7a14d639ae4d885097737be949f64a6',1,'SelectEffect']]],
+  ['setradius',['setRadius',['../class_petal_layout.html#ae75e546283d5842b03ab303146ccfa57',1,'PetalLayout::setRadius()'],['../class_graphics_view.html#a5d2fc1c94b90a7effdc6e8007bac886b',1,'GraphicsView::setRadius()']]],
+  ['setspacing',['setSpacing',['../class_abstract_graphics_layout.html#a956dfe3321140fc0108d55ac06f097eb',1,'AbstractGraphicsLayout::setSpacing()'],['../class_flow_layout.html#ac6c89c8430e11e4efc9a0b0eba84b548',1,'FlowLayout::setSpacing()'],['../class_petal_layout.html#a2f024a7a3e45141dbe631969e02e5a84',1,'PetalLayout::setSpacing()'],['../class_spiral_layout.html#aa01d4a2db9741a200682103594c590dd',1,'SpiralLayout::setSpacing()']]],
+  ['setspiraldistance',['setSpiralDistance',['../class_graphics_view.html#ac6f46f136485b2b6457d247f10705068',1,'GraphicsView']]],
+  ['setspiralturn',['setSpiralTurn',['../class_graphics_view.html#a2acbb3c644c8c26115147359866a0812',1,'GraphicsView']]],
+  ['setturn',['setTurn',['../class_spiral_layout.html#a7a14414c4ab992007c41143ded4bd4a1',1,'SpiralLayout']]],
+  ['setwidth',['setWidth',['../class_loading_handler.html#a6a187096902dbbf2d58228672b3f5b79',1,'LoadingHandler::setWidth()'],['../class_mapper.html#af8a22ee45203edc031c24a343f388f92',1,'Mapper::setWidth()']]],
+  ['sizehint',['sizeHint',['../class_abstract_graphics_layout.html#a67466a2ef0571a63ef797f868b3ceb34',1,'AbstractGraphicsLayout::sizeHint()'],['../class_flow_layout.html#a9b159f2f3b0390dcca3976e852f145b4',1,'FlowLayout::sizeHint()'],['../class_petal_layout.html#a5177af408d2191d3af2e5c2e36db55a5',1,'PetalLayout::sizeHint()'],['../class_spiral_layout.html#a2113e6de0098e3090d98c1cd0cdeb5a8',1,'SpiralLayout::sizeHint()'],['../class_graphics_image.html#a9d317ce612d900e418f4d9b2436f9403',1,'GraphicsImage::sizeHint()']]],
+  ['spacing',['spacing',['../class_abstract_graphics_layout.html#aaf559d52876d577d0caea9e2b2ba4b15',1,'AbstractGraphicsLayout::spacing()'],['../class_flow_layout.html#a1de63243ac218a207d0f0926dea8a9b9',1,'FlowLayout::spacing()'],['../class_petal_layout.html#a4f52d36fa7d449103fce8e6a9544893e',1,'PetalLayout::spacing()'],['../class_spiral_layout.html#a1f26f928c94961a6e1fe83677a7a8875',1,'SpiralLayout::spacing()']]],
+  ['spirallayout',['SpiralLayout',['../class_spiral_layout.html#a429f048d3f88c4ac8003266493167304',1,'SpiralLayout']]],
+  ['spirallayoutfactory',['SpiralLayoutFactory',['../class_spiral_layout_factory.html#ae8085be52d152c6a10b0106eaf529e6d',1,'SpiralLayoutFactory']]]
+];

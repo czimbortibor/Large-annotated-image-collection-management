@@ -1,0 +1,12 @@
+<map id="utils/image_load/LoadingHandler.hpp" name="utils/image_load/LoadingHandler.hpp">
+<area shape="rect" id="node4" href="$_image_loader_s_t_8hpp.html" title="utils/image_load/ImageLoader\lST.hpp" alt="" coords="629,184,824,225"/>
+<area shape="rect" id="node34" href="$_image_converter_8hpp.html" title="ImageConverter.hpp" alt="" coords="819,348,959,375"/>
+<area shape="rect" id="node36" href="$_image_loader_m_t_8hpp.html" title="utils/image_load/ImageLoader\lMT.hpp" alt="" coords="1268,95,1463,136"/>
+<area shape="rect" id="node11" href="$_c_b_i_r_8hpp.html" title="../CBIR.hpp" alt="" coords="449,348,541,375"/>
+<area shape="rect" id="node19" href="$_image_collection_8hpp.html" title="../ImageCollection.hpp" alt="" coords="1042,273,1195,300"/>
+<area shape="rect" id="node22" href="$_logger_8hpp.html" title="Logger.hpp" alt="" coords="1046,423,1133,449"/>
+<area shape="rect" id="node26" href="$_graphics_image_8hpp.html" title="GraphicsImage.hpp" alt="" coords="1921,348,2055,375"/>
+<area shape="rect" id="node31" href="$_select_effect_8hpp.html" title="graphics/SelectEffect.hpp" alt="" coords="1902,423,2074,449"/>
+<area shape="rect" id="node40" href="$_mapper_8hpp.html" title="utils/image_load/Mapper.hpp" alt="" coords="1271,191,1459,218"/>
+<area shape="rect" id="node43" href="$_reducer_8hpp.html" title="utils/image_load/Reducer.hpp" alt="" coords="1021,191,1216,218"/>
+</map>

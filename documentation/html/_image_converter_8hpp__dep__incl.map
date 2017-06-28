@@ -1,0 +1,18 @@
+<map id="utils/ImageConverter.hpp" name="utils/ImageConverter.hpp">
+<area shape="rect" id="node2" href="$_image_collection_8hpp.html" title="utils/ImageCollection.hpp" alt="" coords="333,80,502,107"/>
+<area shape="rect" id="node4" href="$_loading_handler_8hpp.html" title="utils/image_load/Loading\lHandler.hpp" alt="" coords="5,319,171,360"/>
+<area shape="rect" id="node17" href="$_image_converter_8cpp.html" title="utils/ImageConverter.cpp" alt="" coords="527,80,695,107"/>
+<area shape="rect" id="node3" href="$_image_loader_s_t_8hpp.html" title="utils/image_load/ImageLoader\lST.hpp" alt="" coords="53,229,248,271"/>
+<area shape="rect" id="node5" href="$_main_window_8hpp.html" title="ui/MainWindow.hpp" alt="" coords="440,415,576,442"/>
+<area shape="rect" id="node10" href="$_mapper_8hpp.html" title="utils/image_load/Mapper.hpp" alt="" coords="323,155,511,181"/>
+<area shape="rect" id="node13" href="$_reducer_8hpp.html" title="utils/image_load/Reducer.hpp" alt="" coords="104,155,299,181"/>
+<area shape="rect" id="node14" href="$_metadata_parser_8hpp.html" title="utils/metadata/MetadataParser.hpp" alt="" coords="535,155,761,181"/>
+<area shape="rect" id="node16" href="$_image_collection_8cpp.html" title="utils/ImageCollection.cpp" alt="" coords="785,155,954,181"/>
+<area shape="rect" id="node9" href="$_image_loader_s_t_8cpp.html" title="utils/image_load/ImageLoader\lST.cpp" alt="" coords="245,319,440,360"/>
+<area shape="rect" id="node8" href="$_loading_handler_8cpp.html" title="utils/image_load/Loading\lHandler.cpp" alt="" coords="5,408,171,449"/>
+<area shape="rect" id="node6" href="$_main_8cpp.html" title="Main.cpp" alt="" coords="407,497,481,524"/>
+<area shape="rect" id="node7" href="$_main_window_8cpp.html" title="ui/MainWindow.cpp" alt="" coords="505,497,641,524"/>
+<area shape="rect" id="node11" href="$_image_loader_m_t_8hpp.html" title="utils/image_load/ImageLoader\lMT.hpp" alt="" coords="272,229,467,271"/>
+<area shape="rect" id="node12" href="$_image_loader_m_t_8cpp.html" title="utils/image_load/ImageLoader\lMT.cpp" alt="" coords="464,319,659,360"/>
+<area shape="rect" id="node15" href="$_metadata_parser_8cpp.html" title="utils/metadata/MetadataParser.cpp" alt="" coords="491,237,717,263"/>
+</map>
