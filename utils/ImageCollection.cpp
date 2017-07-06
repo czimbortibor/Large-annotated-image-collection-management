@@ -99,9 +99,9 @@ QList<GraphicsImage>* ImageCollection::getSimilarImages(const QString& url, cons
 			Logger::log(ex.what());
     }
 
-    for (const auto& image_struct : imageMap) {
+	for (const auto& image_struct : imageMap) {
         resMap.emplace(image_struct.second.getHash(), image_struct.second.getImage());
-    }
+	}
 
     for (const auto& images : resMap) {
 		results->append(images.second);

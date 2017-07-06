@@ -38,7 +38,7 @@ public:
 
     void setHasher(cv::Ptr<cv::img_hash::ImgHashBase> hasher) { static_hasher = hasher; }
     /** returns the image's hash value */
-    cv::Mat getHash(const cv::Mat& image, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const;
+	cv::Mat getHash(const cv::Mat& image, const cv::Ptr<cv::img_hash::ImgHashBase>& hasher) const;
     double getHashValue(const cv::Mat& image) const;
     double getDistance(const cv::Mat& hashmatA, const cv::Mat& hashmatB) const;
     static cv::Ptr<cv::img_hash::ImgHashBase> static_hasher;

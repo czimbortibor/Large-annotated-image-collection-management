@@ -26,9 +26,9 @@ ImageMap* CBIR::computeHashes(const QList<cv::Mat>& images, cv::Ptr<cv::img_hash
     return resMap;
 }
 
-cv::Mat CBIR::getHash(const cv::Mat& image, cv::Ptr<cv::img_hash::ImgHashBase> hasher) const {
+cv::Mat CBIR::getHash(const cv::Mat& image, const cv::Ptr<cv::img_hash::ImgHashBase>& hasher) const {
     cv::Mat hashMat;
-    hasher->compute(image, hashMat);
+	hasher->compute(image, hashMat);
     return hashMat;
 }
 

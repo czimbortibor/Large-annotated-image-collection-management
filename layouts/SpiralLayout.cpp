@@ -60,7 +60,7 @@ qreal SpiralLayout::doLayout(const QRectF& geometry, bool applyNewGeometry) cons
     */
 
     qreal angle = 0;
-    qreal increment = 2 * M_PI / _items.size();
+	qreal increment = 2 * M_PI / _items.size();
     qreal x, y;
     for (int i = 0; i < _items.size(); ++i) {
         QGraphicsLayoutItem* item = _items.at(i);

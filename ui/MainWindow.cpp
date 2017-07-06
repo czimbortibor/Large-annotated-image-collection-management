@@ -189,6 +189,7 @@ void MainWindow::onLoadImagesClick() {
     connect(ui->btn_cancelLoad, &QPushButton::clicked, _loadingHandler.get(), &LoadingHandler::onCancel);
     connect(ui->btn_cancelLoad, &QPushButton::clicked, this, &MainWindow::onFinishedLoading);
 
+	_view->clear();
 	if (ui->comboBox_thread->currentText() == "single thread") {
 		auto loaderPtr = _loadingHandler->loadImages_st(_imageNames.get());
 		_images.reset(loaderPtr);
@@ -341,28 +342,28 @@ void MainWindow::logTime(QString message) {
 void MainWindow::onRadiusChanged(double value) {
 	if (_images) {
 		_view->setRadius(value);
-		displayOriginalImages(*_images.get());
+		displayImages(*_images.get());
 	}
 }
 
 void MainWindow::onPetalNrChanged(int value) {
 	if (_images) {
 		_view->setNrOfPetals(value);
-		displayOriginalImages(*_images.get());
+		displayImages(*_images.get());
 	}
 }
 
 void MainWindow::onSpiralDistanceChanged(int value) {
 	if (_images) {
 		_view->setSpiralDistance(value);
-		displayOriginalImages(*_images.get());
+		displayImages(*_images.get());
 	}
 }
 
 void MainWindow::onSpiralTurnChanged(int value) {
 	if (_images) {
 		_view->setSpiralTurn(value);
-		displayOriginalImages(*_images.get());
+		displayImages(*_images.get());
 	}
 }
 
@@ -419,6 +420,13 @@ void MainWindow::onImageDoubleClicked(const QString& url) {
 		return;
 	}
 	const QString& hasherName = ui->comboBox_hashes->currentText();
+
+	// TODO: get similars to only the visible images
+	QStringList urls;
+	//for (const auto& image : _filteredImages) {
+
+	//}
+
 	QList<GraphicsImage>* results = _imageCollection.getSimilarImages(url, hasherName);
 
 	/* format the display
@@ -509,7 +517,7 @@ void MainWindow::onAddNewFilter(QListWidgetItem* item) {
 				displayImages(filtered_images);
 			}
 			else {
-				displayOriginalImages(*_images.get());
+				displayImages(*_images.get());
 			}
 		});
 	}
