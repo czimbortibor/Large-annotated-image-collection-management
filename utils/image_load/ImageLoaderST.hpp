@@ -20,7 +20,7 @@
 class ImageLoaderST : public QObject, public QRunnable {
     Q_OBJECT
 public:
-	ImageLoaderST(QStringList& imageNames,
+	ImageLoaderST(const QStringList& imageNames,
 						 QList<GraphicsImage>& results,
 						 const cv::Size& size,
 						 ImageCollection& imageCollection,
@@ -33,10 +33,10 @@ public:
     void cancel() { _running.testAndSetOrdered(1, 0); }
 
 private:
-    ImageCollection* _imageCollection;
+	ImageCollection* _imageCollection;
     QString _dirName;
     QString _originalDirPath;
-    QStringList* _imageNames;
+	QStringList _imageNames;
     cv::Size _size;
 	QList<GraphicsImage>* _results;
 	int _index = 0;

@@ -48,6 +48,11 @@ void MainWindow::initDb() {
 }
 
 void MainWindow::initWindow() {
+
+	// ------------- demo changes ------------------
+	ui->btn_hash->setVisible(false);
+	ui->btn_selectedImages->setVisible(false);
+
 	// set the supported image formats
 	for (const QByteArray& item : QImageReader::supportedImageFormats()) {
 		_supportedImgFormats.append("*." + item);
@@ -135,9 +140,6 @@ void MainWindow::showProgressBar(const int maximumValue, const QString& taskName
 }
 
 void MainWindow::onLoadImagesClick() {
-    if (_images) {
-        clearLayout();
-	}
 	QFileDialog dialog;
 	dialog.setFileMode(QFileDialog::DirectoryOnly);
 	dialog.setOption(QFileDialog::ShowDirsOnly);
@@ -152,7 +154,7 @@ void MainWindow::onLoadImagesClick() {
 	}
 
 	_dir = QDir(fileNames[0]);
-	_imageNames = std::unique_ptr<QStringList>(new QStringList());
+	_imageNames.reset(new QStringList());
 	QDirIterator dirIterator(_dir.absolutePath(), _supportedImgFormats, QDir::Files, QDirIterator::Subdirectories);
 	while (dirIterator.hasNext()) {
 		_imageNames->append(dirIterator.next());
@@ -172,24 +174,14 @@ void MainWindow::onLoadImagesClick() {
 	Logger::log("file count = " + std::to_string(_nrOfImages));
 
 	_timer.start();
-	_images = std::shared_ptr<QList<GraphicsImage>>(new QList<GraphicsImage>());
 
-    _loadingHandler = std::unique_ptr<LoadingHandler>(new LoadingHandler(_imageCollection));
+	_images.reset(new QList<GraphicsImage>());
+
+	_loadingHandler = std::unique_ptr<LoadingHandler>(new LoadingHandler(_imageCollection));
     _loadingHandler->setWidth(_imgWidth);
 	_loadingHandler->setHeight(_imgHeight);
 
 	connect(_loadingHandler.get(), &LoadingHandler::imageReady_st, this, &MainWindow::onImageReceivedST);
-
-	/*connect(_loadingHandler.get(), &LoadingHandler::mt_imageReady,
-			[this](const cv::Mat& image, const QString& url) {
-		_images->append(image);
-		LayoutItem* item = new LayoutItem(ImageConverter::Mat2QImage(image), url, "");
-		connect(item, &LayoutItem::clicked, this, &MainWindow::onImageClicked);
-		connect(item, &LayoutItem::hoverEnter, this, &MainWindow::onImageHoverEnter);
-		connect(item, &LayoutItem::doubleClick, this, &MainWindow::onImageDoubleClicked);
-		emit addViewItem(item);
-		_progressBar->setValue(_progressBar->value() + 1);
-	});*/
 
 	connect(_loadingHandler.get(), &LoadingHandler::imageReady_mt, this, &MainWindow::onImageReceivedMT);
 
@@ -216,9 +208,11 @@ void MainWindow::onImageReceivedMT(const GraphicsImage& image) {
 	connect(item, &GraphicsImage::clicked, this, &MainWindow::onImageClicked);
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
 	connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
-	emit addViewItem(item);
-	//_view->addItem(item);
-	_progressBar->setValue(_progressBar->value() + 1);
+	//emit addViewItem(item);
+	_view->addItem(item);
+	if (_progressBar) {
+		_progressBar->setValue(_progressBar->value() + 1);
+	}
 }
 
 void MainWindow::onImageReceivedST(int index) {
@@ -227,19 +221,20 @@ void MainWindow::onImageReceivedST(int index) {
 	connect(item, &GraphicsImage::hoverEnter, this, &MainWindow::onImageHoverEnter);
 	connect(item, &GraphicsImage::doubleClick, this, &MainWindow::onImageDoubleClicked);
     _view->addItem(item);
-    _progressBar->setValue(_progressBar->value() + 1);
+	if (_progressBar) {
+		_progressBar->setValue(_progressBar->value() + 1);
+	}
 }
 
 void MainWindow::onFinishedLoading() {
 	logTime("load time:");
-    _loadingHandler.release();
     ui->btn_cancelLoad->hide();
-    _progressBar.reset(nullptr);
+	_progressBar.reset();
     connect(ui->btn_hash, &QPushButton::clicked, this, &MainWindow::onHashImages);
 
     saveImages(ui->slider_imgSize->value());
 
-	QJsonArray raw_data = _dbContext.queryAll();
+	//QJsonArray raw_data = _dbContext.queryAll();
 	//_metadata.reset(&MetadataParser::getMetadata(raw_data));
 }
 

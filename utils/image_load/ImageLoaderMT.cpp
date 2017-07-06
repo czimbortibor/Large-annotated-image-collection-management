@@ -15,7 +15,7 @@ void ImageLoaderMT::run() {
 	});
 
 	_loader = QtConcurrent::mappedReduced<QList<GraphicsImage>>
-										   (*_imageNames, map_functor, reduce_lambda);
+										   (_imageNames, map_functor, reduce_lambda);
 
 	loaderWatcher.setFuture(_loader);
 }

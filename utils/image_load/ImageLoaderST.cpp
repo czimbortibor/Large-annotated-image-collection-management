@@ -1,21 +1,21 @@
 #include "ImageLoaderST.hpp"
 
-ImageLoaderST::ImageLoaderST(QStringList& imageNames,
+ImageLoaderST::ImageLoaderST(const QStringList& imageNames,
 						 QList<GraphicsImage>& results,
 						 const cv::Size& size,
 						 ImageCollection& imageCollection, QObject* parent) : QObject(parent) {
-    _imageNames = &imageNames;
+	_imageNames = imageNames;
     _results = &results;
     _size = size;
-    _imageCollection = &imageCollection;
+	_imageCollection = &imageCollection;
 }
 
 void ImageLoaderST::run() {
     _running.testAndSetOrdered(0, 1);
-    for (int i = 0; i < _imageNames->length(); ++i) {
+	for (int i = 0; i < _imageNames.length(); ++i) {
         if (static_cast<int>(_running)) {
 			//QString* fullFileName = new QString(_dirName + "/" + _imageNames->at(i));
-			QString* fileName = new QString(_imageNames->at(i));
+			QString* fileName = new QString(_imageNames[i]);
 			if (fileName->endsWith(".gif")) {
 				continue;
 			}

@@ -13,9 +13,11 @@
 class LoadingHandler : public QObject {
     Q_OBJECT
 public:
-    LoadingHandler(ImageCollection& imageCollection) {
-        _imageCollection = &imageCollection;
+	LoadingHandler(ImageCollection& imageCollection) {
+		_imageCollection = &imageCollection;
     }
+
+	~LoadingHandler();
 
     /**
      * @brief loadImages_mt loads the images located at the chosen path
@@ -38,7 +40,7 @@ public:
     void setHeight(int height) { _height = height; }
 
 private:
-    ImageCollection* _imageCollection;
+	ImageCollection* _imageCollection;
 	std::unique_ptr<QList<GraphicsImage>> _images;
     /**
      * @brief the given width of the image to be loaded
@@ -49,11 +51,23 @@ private:
      */
     int _height = 100;
 
+	struct LoaderMT_deleter {
+		void operator()(ImageLoaderMT* ptr) {
+			delete ptr;
+		}
+	};
+
 	// ----------- multi-threaded image load -----------
-	std::unique_ptr<ImageLoaderMT> _loaderMT;
+	std::unique_ptr<ImageLoaderMT, LoaderMT_deleter> _loaderMT;
+
+	struct LoaderST_deleter {
+		void operator()(ImageLoaderST* ptr) {
+			delete ptr;
+		}
+	};
 
 	// ---------- single-threaded image load -----------
-    std::unique_ptr<ImageLoaderST> _loaderST;
+	std::unique_ptr<ImageLoaderST, LoaderST_deleter> _loaderST;
 
 signals:
 	void imageReady_st(int index);

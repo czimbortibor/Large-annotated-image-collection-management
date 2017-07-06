@@ -117,6 +117,10 @@ void GraphicsView::onRemovePopup() {
 	}
 }
 
+void GraphicsView::resizeEvent(QResizeEvent* event) {
+	//fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
+}
+
 void GraphicsView::wheelEvent(QWheelEvent* event) {
 	Qt::KeyboardModifiers pressedKeys = QGuiApplication::keyboardModifiers();
 	if (pressedKeys == Qt::ControlModifier) {

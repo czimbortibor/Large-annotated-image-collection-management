@@ -19,11 +19,12 @@ class ImageLoaderMT : public QObject {
 public:
 	ImageLoaderMT(const QStringList& imageNames, int width, int height,
 				  ImageCollection& imageCollection) {
-		_imageNames = &imageNames;
+		_imageNames = imageNames;
 		_width = width;
 		_height = height;
 		_imageCollection = &imageCollection;
 	}
+
 	~ImageLoaderMT() = default;
 
 	void run();
@@ -38,7 +39,7 @@ private:
 	Reducer _reducer;
 	int _width;
 	int _height;
-	const QStringList* _imageNames;
+	QStringList _imageNames;
 	ImageCollection* _imageCollection;
 
 signals:

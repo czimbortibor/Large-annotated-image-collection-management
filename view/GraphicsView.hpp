@@ -41,10 +41,7 @@ public:
     void clear() { _layout->clearAll(); }
     void addPopupImage(QLabel* label, GraphicsImage* item);
 
-	/*void resizeEvent(QResizeEvent* event) {
-		fitInView(_scene->itemsBoundingRect(), Qt::KeepAspectRatioByExpanding);
-	}*/
-
+	void resizeEvent(QResizeEvent* event);
     void wheelEvent(QWheelEvent* event);
 
 	/** expose a reference to the scene to get it's signals; reference, so the ownership won't move */
